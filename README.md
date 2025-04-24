@@ -24,6 +24,9 @@ iteam-university-website
 │   └── contact.html       # Contact page with a contact form
 ├── assets
 │   ├── images             # Folder for images used in the website
+│   ├── css
+│   │    ├── style.css          # Main styles for the website
+│   │    └── responsive.css     # Styles for responsive design
 │   └── fonts              # Folder for custom fonts
 ├── index.html             # Main entry point of the website
 └── README.md              # Documentation for the project
