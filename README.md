@@ -43,7 +43,7 @@ iteam-university-website
 2. **Open the Project**: 
    Navigate to the project directory:
    ```
-   cd iteam-university-website
+   cd iteam-university-events-website
    ```
 
 3. **Open in Browser**: 
