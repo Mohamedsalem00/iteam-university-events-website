@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.add("dark-mode");
   }
 
-  // Wait for the navbar to load before adding event listener
   const themeInterval = setInterval(() => {
     const themeBtn = document.getElementById("theme-switch");
     if (themeBtn) {
