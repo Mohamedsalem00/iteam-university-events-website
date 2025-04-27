@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Connection Test</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .card {
+      background: #f9f9f9;
+      border-radius: 5px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4285f4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #3b78e7;
+    }
+    #result {
+      white-space: pre-wrap;
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    .success {
+      color: #28a745;
+      font-weight: bold;
+    }
+    .error {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    .warning {
+      color: #f0ad4e;
+      font-weight: bold;
+    }
+    .steps {
+      margin-top: 30px;
+    }
+    .steps h3 {
+      margin-bottom: 10px;
+    }
+    .steps ol {
+      padding-left: 20px;
+    }
+    .steps li {
+      margin-bottom: 10px;
+    }
+    code {
+      background: #f1f1f1;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .table-info {
+      margin-top: 15px;
+      border-left: 3px solid #4285f4;
+      padding-left: 15px;
+    }
+    details {
+      margin-bottom: 15px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 8px 0;
+    }
+    summary:hover {
+      color: #4285f4;
+    }
+    .table-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .table-card {
+      background: #f0f8ff;
+      padding: 12px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .table-card h4 {
+      margin-top: 0;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>iTeam University Website - Database Test Tool</h1>
+  
+  <div class="card">
+    <h2>Test Database Connection</h2>
+    <p>Click the button below to test the connection to your MySQL database and analyze all tables.</p>
+    <button id="test-db-btn">Test Database Connection</button>
+    <div id="result">Results will appear here...</div>
+  </div>
+
+  <div id="table-details" class="card" style="display: none;">
+    <h2>Database Tables Analysis</h2>
+    <div id="tables-container"></div>
+  </div>
+
+  <div class="card steps">
+    <h3>Common Database Issues:</h3>
+    <ol>
+      <li>Make sure MySQL is running on your XAMPP server</li>
+      <li>Verify your database credentials in <code>/backend/db/db_connection.php</code></li>
+      <li>Ensure the database <code>event_management</code> exists</li>
+      <li>Check that your user has permissions to access the database</li>
+      <li>Validate foreign key relationships between tables</li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    iTeam University Website Database Test Tool | Last updated: April 2025
+  </div>
+
+  <script>
+    document.getElementById('test-db-btn').addEventListener('click', function() {
+      const resultDiv = document.getElementById('result');
+      const tableDetailsDiv = document.getElementById('table-details');
+      const tablesContainer = document.getElementById('tables-container');
+      
+      resultDiv.innerHTML = 'Testing connection...';
+      resultDiv.className = '';
+      tableDetailsDiv.style.display = 'none';
+      
+      // Make a request to the enhanced database test API
+      fetch('/iteam-university-website/backend/api/test-db.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            resultDiv.className = 'success';
+            let output = `✅ SUCCESS: ${data.message}\n\n`;
+            output += `Database: ${data.database}\n`;
+            output += `Connection: ${data.connection_info || 'Established'}\n`;
+            output += `Tables found: ${data.tables.length}\n`;
+            
+            resultDiv.textContent = output;
+            
+            // Show detailed table information
+            if (data.tables && data.tables.length > 0) {
+              tableDetailsDiv.style.display = 'block';
+              tablesContainer.innerHTML = '';
+              
+              // First display core tables in a grid
+              const coreTablesSection = document.createElement('div');
+              coreTablesSection.innerHTML = '<h3>Core Tables</h3>';
+              const coreTablesGrid = document.createElement('div');
+              coreTablesGrid.className = 'table-grid';
+              
+              // Define essential tables for your application
+              const coreTables = ['users', 'organizations', 'admins', 'events', 'event_registrations'];
+              const foundCoreTables = data.tables.filter(table => coreTables.includes(table.name));
+              
+              foundCoreTables.forEach(table => {
+                const tableCard = createTableCard(table);
+                coreTablesGrid.appendChild(tableCard);
+              });
+              
+              coreTablesSection.appendChild(coreTablesGrid);
+              tablesContainer.appendChild(coreTablesSection);
+              
+              // Then display the rest of the tables
+              const otherTablesSection = document.createElement('div');
+              otherTablesSection.innerHTML = '<h3>Other Tables</h3>';
+              
+              const otherTables = data.tables.filter(table => !coreTables.includes(table.name));
+              if (otherTables.length > 0) {
+                const otherTablesGrid = document.createElement('div');
+                otherTablesGrid.className = 'table-grid';
+                
+                otherTables.forEach(table => {
+                  const tableCard = createTableCard(table);
+                  otherTablesGrid.appendChild(tableCard);
+                });
+                
+                otherTablesSection.appendChild(otherTablesGrid);
+                tablesContainer.appendChild(otherTablesSection);
+              } else {
+                otherTablesSection.innerHTML += '<p>No additional tables found.</p>';
+                tablesContainer.appendChild(otherTablesSection);
+              }
+              
+              // Add database health summary
+              const healthSection = document.createElement('div');
+              healthSection.className = 'table-info';
+              healthSection.innerHTML = `
+                <h3>Database Health Summary</h3>
+                <p><strong>Total tables:</strong> ${data.tables.length}</p>
+                <p><strong>Core tables present:</strong> ${foundCoreTables.length} / ${coreTables.length}</p>
+                <p><strong>Foreign keys:</strong> ${data.foreign_keys ? data.foreign_keys.length : 'Not checked'}</p>
+                <p><strong>Database size:</strong> ${data.db_size || 'Not available'}</p>
+              `;
+              tablesContainer.appendChild(healthSection);
+            }
+          } else {
+            resultDiv.className = 'error';
+            resultDiv.textContent = `❌ ERROR: ${data.message}`;
+            tableDetailsDiv.style.display = 'none';
+          }
+        })
+        .catch(error => {
+          resultDiv.className = 'error';
+          resultDiv.textContent = `❌ Connection Error: ${error.message}\n\nMake sure your backend server is running and accessible.`;
+          tableDetailsDiv.style.display = 'none';
+        });
+    });
+    
+    function createTableCard(table) {
+      const card = document.createElement('div');
+      card.className = 'table-card';
+      
+      let statusClass = '';
+      let statusIcon = '';
+      
+      // Determine table health status
+      if (table.row_count > 0) {
+        statusClass = 'success';
+        statusIcon = '✅';
+      } else {
+        statusClass = 'warning';
+        statusIcon = '⚠️';
+      }
+      
+      card.innerHTML = `
+        <h4>${table.name}</h4>
+        <p><span class="${statusClass}">${statusIcon} ${table.row_count} rows</span></p>
+        <details>
+          <summary>View Columns (${table.columns.length})</summary>
+          <ul>
+            ${table.columns.map(col => `<li><code>${col.name}</code> - ${col.type}${col.key === 'PRI' ? ' (Primary Key)' : ''}</li>`).join('')}
+          </ul>
+        </details>
+      `;
+      
+      return card;
+    }
+  </script>
+</body>
+</html>

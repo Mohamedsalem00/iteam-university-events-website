@@ -1,0 +1,208 @@
+/* Add this to better position the mobile menu elements */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Mobile Navigation */
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+    z-index: 101;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-left: 1rem;
+  }
+
+  .mobile-menu-btn span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    margin: 5px 0;
+    background-color: var(--text-primary);
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+  }
+
+  .mobile-menu-open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .mobile-menu-open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-menu-open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: 0; /* Changed from left:0 to right:0 for slide-in from right */
+    width: 80%; /* Reduced width */
+    max-width: 300px; /* Maximum width */
+    height: 100vh;
+    background-color: var(--card-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transform: translateX(100%); /* Changed to slide from right */
+    transition: transform 0.4s ease;
+    z-index: 100;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem 0;
+  }
+
+  .nav-links.active {
+    transform: translateX(0);
+  }
+
+  .nav-links ul {
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+    padding: 0 2rem;
+  }
+
+  .nav-links ul li {
+    margin: 1rem 0;
+    width: 100%;
+  }
+
+  .nav-link {
+    font-size: 1.2rem;
+    display: block;
+    padding: 0.5rem 0;
+  }
+
+  /* Add overlay when menu is open */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  body.menu-open::after {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Add some spacing in the navbar to handle the hamburger better */
+  .navbar .container {
+    padding-right: 1rem;
+  }
+
+  /* Add these styles for the user menu in mobile view */
+
+  .user-menu {
+    padding: 0.4rem;
+    position: relative; /* Ensure position is set */
+  }
+  
+  .user-info {
+    display: none;
+  }
+  
+  .dropdown-icon {
+    display: none;
+  }
+  
+  /* Mobile user dropdown positioning - fixed positioning */
+  .user-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    width: 180px;
+    z-index: 1000; /* Ensure high z-index */
+  }
+  
+  /* Ensure dropdown is above other elements */
+  .user-dropdown.show {
+    display: block !important; /* Force display when .show class is applied */
+  }
+  
+  .user-dropdown a {
+    padding: 12px 15px; /* Larger touch targets on mobile */
+  }
+  
+  /* Fix mobile menu with authentication */
+  .mobile-menu {
+    padding-top: 60px; /* Add space for navbar */
+  }
+  
+  .mobile-auth-links {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  /* Adjust auth container on small screens */
+  .auth-section .auth-container {
+    width: 100%;
+    padding: 0 1rem;
+  }
+}
+
+/* Responsive Grids */
+@media (max-width: 1024px) {
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .section-title h2 {
+    font-size: 2rem;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .calendar-day-name,
+  .calendar-day {
+    padding: 0.25rem;
+    font-size: 0.875rem;
+  }
+}
