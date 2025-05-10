@@ -80,7 +80,9 @@ if(!$userTableExists) {
         password VARCHAR(255) NOT NULL,
         profile_picture VARCHAR(255),
         registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        status ENUM('active', 'inactive') DEFAULT 'active'
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     
     executeSql($conn, $sql_create_users, "Creating users table");
@@ -110,7 +112,9 @@ if(!$orgTableExists) {
         description TEXT,
         profile_picture VARCHAR(255),
         registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-        status ENUM('active', 'inactive') DEFAULT 'active'
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     
     executeSql($conn, $sql_create_organizations, "Creating organizations table");
@@ -137,10 +141,39 @@ if(!$adminTableExists) {
         username VARCHAR(255) UNIQUE NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     
     executeSql($conn, $sql_create_admins, "Creating admins table");
+}
+
+// ACCOUNTS TABLE
+// Check if accounts table exists
+$accountsTableExists = false;
+try {
+    $stmt = $conn->query("DESCRIBE accounts");
+    $accountsTableExists = true;
+    echo "<div class='card'>";
+    echo "<h3>Accounts Table Check</h3>";
+    echo "<p class='warning'>Existing accounts table found.</p>";
+    echo "</div>";
+} catch (PDOException $e) {
+    $accountsTableExists = false;
+}
+
+// Create accounts table based on init_db.sql
+if(!$accountsTableExists) {
+    $sql_create_accounts = "CREATE TABLE IF NOT EXISTS accounts (
+        account_id INT AUTO_INCREMENT PRIMARY KEY,
+        account_type ENUM('user', 'organization', 'admin') NOT NULL,
+        reference_id INT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE (account_type, reference_id)
+    )";
+    
+    executeSql($conn, $sql_create_accounts, "Creating accounts table");
 }
 
 // EVENTS TABLE
@@ -169,6 +202,8 @@ if(!$eventsTableExists) {
         event_type ENUM('workshop', 'conference', 'fair', 'webinar') NOT NULL,
         max_capacity INT,
         organizer_id INT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (organizer_id) REFERENCES organizations(organization_id) ON DELETE SET NULL
     )";
     
@@ -197,6 +232,8 @@ if(!$regTableExists) {
         user_id INT,
         registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
         status ENUM('pending', 'confirmed', 'cancelled') DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )";
@@ -226,6 +263,8 @@ if(!$galleryTableExists) {
         image_url VARCHAR(255) NOT NULL,
         upload_date DATETIME DEFAULT CURRENT_TIMESTAMP,
         caption VARCHAR(255),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE
     )";
     
@@ -255,6 +294,8 @@ if(!$notifTableExists) {
         notification_type ENUM('confirmation', 'reminder', 'cancellation') NOT NULL,
         message TEXT NOT NULL,
         send_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
         FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE
     )";
@@ -284,6 +325,8 @@ if(!$jobsTableExists) {
         title VARCHAR(255) NOT NULL,
         description TEXT,
         posted_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE
     )";
     
@@ -336,10 +379,10 @@ try {
         // Using the exact hash from your init_db.sql
         $passwordHash = '$2y$10$eIgMrFf3Mo/tTdFj3.Z3d.CPCKzFGe9ieJJkOhyU9A6TP.3Uc3HCm';
         
-        $sampleUsersSql = "INSERT INTO users (first_name, last_name, email, password, status) VALUES
-            ('John', 'Doe', 'john.doe@example.com', '$passwordHash', 'active'),
-            ('Jane', 'Smith', 'jane.smith@example.com', '$passwordHash', 'active'),
-            ('Robert', 'Johnson', 'robert.johnson@example.com', '$passwordHash', 'inactive')";
+        $sampleUsersSql = "INSERT INTO users (first_name, last_name, email, password, status, created_at, updated_at) VALUES
+            ('John', 'Doe', 'john.doe@example.com', '$passwordHash', 'active', NOW(), NOW()),
+            ('Jane', 'Smith', 'jane.smith@example.com', '$passwordHash', 'active', NOW(), NOW()),
+            ('Robert', 'Johnson', 'robert.johnson@example.com', '$passwordHash', 'inactive', NOW(), NOW())";
         
         try {
             $conn->exec($sampleUsersSql);
@@ -366,10 +409,10 @@ try {
         // Using the exact hash from your init_db.sql
         $passwordHash = '$2y$10$eIgMrFf3Mo/tTdFj3.Z3d.CPCKzFGe9ieJJkOhyU9A6TP.3Uc3HCm';
         
-        $sampleOrgsSql = "INSERT INTO organizations (name, email, password, description, status) VALUES
-            ('Tech Innovators', 'contact@techinnovators.com', '$passwordHash', 'Leading technology innovation company specializing in events and workshops', 'active'),
-            ('Event Masters', 'info@eventmasters.org', '$passwordHash', 'Professional event management organization', 'active'),
-            ('Digital Solutions', 'contact@digitalsolutions.net', '$passwordHash', 'Digital solutions and training provider', 'inactive')";
+        $sampleOrgsSql = "INSERT INTO organizations (name, email, password, description, status, created_at, updated_at) VALUES
+            ('Tech Innovators', 'contact@techinnovators.com', '$passwordHash', 'Leading technology innovation company specializing in events and workshops', 'active', NOW(), NOW()),
+            ('Event Masters', 'info@eventmasters.org', '$passwordHash', 'Professional event management organization', 'active', NOW(), NOW()),
+            ('Digital Solutions', 'contact@digitalsolutions.net', '$passwordHash', 'Digital solutions and training provider', 'inactive', NOW(), NOW())";
         
         try {
             $conn->exec($sampleOrgsSql);
@@ -396,8 +439,8 @@ try {
         // Using the exact hash from your init_db.sql
         $adminPassword = '$2y$10$CcvOzYXPHBKT8tZ1i1LUmeYRngL9U2OKvMlZ4ExfO0QiXFJ2A0AFO';
         
-        $sampleAdminsSql = "INSERT INTO admins (username, email, password) VALUES
-            ('admin', 'admin@iteamuniversity.com', '$adminPassword')";
+        $sampleAdminsSql = "INSERT INTO admins (username, email, password, created_at, updated_at) VALUES
+            ('admin', 'admin@iteamuniversity.com', '$adminPassword', NOW(), NOW())";
         
         try {
             $conn->exec($sampleAdminsSql);
@@ -421,11 +464,11 @@ try {
     if($eventCount == 0 && $orgCount > 0) { // Only add events if we have organizations
         echo "<p>Adding sample data to events table...</p>";
         
-        $sampleEventsSql = "INSERT INTO events (title, description, start_date, end_date, location, event_type, max_capacity, organizer_id) VALUES
-            ('Web Development Workshop', 'Learn the basics of web development with HTML, CSS, and JavaScript', '2025-05-15 09:00:00', '2025-05-15 16:00:00', 'Room 101, Technology Building', 'workshop', 30, 1),
-            ('Digital Marketing Conference', 'Annual conference on digital marketing trends and strategies', '2025-06-20 08:30:00', '2025-06-21 17:00:00', 'Grand Conference Hall', 'conference', 200, 2),
-            ('Tech Career Fair', 'Connect with top employers in the technology sector', '2025-07-10 10:00:00', '2025-07-10 15:00:00', 'University Main Campus', 'fair', 500, 1),
-            ('Data Science Webinar', 'Introduction to data science and machine learning', '2025-05-05 14:00:00', '2025-05-05 16:00:00', 'Online', 'webinar', 100, 2)";
+        $sampleEventsSql = "INSERT INTO events (title, description, start_date, end_date, location, event_type, max_capacity, organizer_id, created_at, updated_at) VALUES
+            ('Web Development Workshop', 'Learn the basics of web development with HTML, CSS, and JavaScript', '2025-05-15 09:00:00', '2025-05-15 16:00:00', 'Room 101, Technology Building', 'workshop', 30, 1, NOW(), NOW()),
+            ('Digital Marketing Conference', 'Annual conference on digital marketing trends and strategies', '2025-06-20 08:30:00', '2025-06-21 17:00:00', 'Grand Conference Hall', 'conference', 200, 2, NOW(), NOW()),
+            ('Tech Career Fair', 'Connect with top employers in the technology sector', '2025-07-10 10:00:00', '2025-07-10 15:00:00', 'University Main Campus', 'fair', 500, 1, NOW(), NOW()),
+            ('Data Science Webinar', 'Introduction to data science and machine learning', '2025-05-05 14:00:00', '2025-05-05 16:00:00', 'Online', 'webinar', 100, 2, NOW(), NOW())";
         
         try {
             $conn->exec($sampleEventsSql);
@@ -450,12 +493,12 @@ try {
     if($regCount == 0 && $eventCount > 0 && $userCount > 0) { // Only add if we have events and users
         echo "<p>Adding sample data to event_registrations table...</p>";
         
-        $sampleRegsSql = "INSERT INTO event_registrations (event_id, user_id, status) VALUES
-            (1, 1, 'confirmed'),
-            (2, 1, 'confirmed'),
-            (3, 1, 'pending'),
-            (1, 2, 'confirmed'),
-            (2, 2, 'cancelled')";
+        $sampleRegsSql = "INSERT INTO event_registrations (event_id, user_id, status, created_at, updated_at) VALUES
+            (1, 1, 'confirmed', NOW(), NOW()),
+            (2, 1, 'confirmed', NOW(), NOW()),
+            (3, 1, 'pending', NOW(), NOW()),
+            (1, 2, 'confirmed', NOW(), NOW()),
+            (2, 2, 'cancelled', NOW(), NOW())";
         
         try {
             $conn->exec($sampleRegsSql);
@@ -480,10 +523,10 @@ try {
     if($galleryCount == 0 && $eventCount > 0) { // Only add if we have events
         echo "<p>Adding sample data to event_gallery table...</p>";
         
-        $sampleGallerySql = "INSERT INTO event_gallery (event_id, image_url, caption) VALUES
-            (1, 'assets/images/gallery/workshop1.jpg', 'Participants working on coding exercises'),
-            (1, 'assets/images/gallery/workshop2.jpg', 'Group discussion on web development best practices'),
-            (2, 'assets/images/gallery/conference1.jpg', 'Opening keynote speech')";
+        $sampleGallerySql = "INSERT INTO event_gallery (event_id, image_url, caption, created_at, updated_at) VALUES
+            (1, 'assets/images/gallery/workshop1.jpg', 'Participants working on coding exercises', NOW(), NOW()),
+            (1, 'assets/images/gallery/workshop2.jpg', 'Group discussion on web development best practices', NOW(), NOW()),
+            (2, 'assets/images/gallery/conference1.jpg', 'Opening keynote speech', NOW(), NOW())";
         
         try {
             $conn->exec($sampleGallerySql);
@@ -508,11 +551,11 @@ try {
     if($notifCount == 0 && $eventCount > 0 && $userCount > 0) { // Only add if we have events and users
         echo "<p>Adding sample data to notifications table...</p>";
         
-        $sampleNotifsSql = "INSERT INTO notifications (user_id, event_id, notification_type, message) VALUES
-            (1, 1, 'confirmation', 'Your registration for Web Development Workshop has been confirmed.'),
-            (1, 2, 'confirmation', 'Your registration for Digital Marketing Conference has been confirmed.'),
-            (2, 1, 'confirmation', 'Your registration for Web Development Workshop has been confirmed.'),
-            (2, 2, 'cancellation', 'You have cancelled your registration for Digital Marketing Conference.')";
+        $sampleNotifsSql = "INSERT INTO notifications (user_id, event_id, notification_type, message, created_at, updated_at) VALUES
+            (1, 1, 'confirmation', 'Your registration for Web Development Workshop has been confirmed.', NOW(), NOW()),
+            (1, 2, 'confirmation', 'Your registration for Digital Marketing Conference has been confirmed.', NOW(), NOW()),
+            (2, 1, 'confirmation', 'Your registration for Web Development Workshop has been confirmed.', NOW(), NOW()),
+            (2, 2, 'cancellation', 'You have cancelled your registration for Digital Marketing Conference.', NOW(), NOW())";
         
         try {
             $conn->exec($sampleNotifsSql);
@@ -537,10 +580,10 @@ try {
     if($jobCount == 0 && $orgCount > 0) { // Only add if we have organizations
         echo "<p>Adding sample data to job_offers table...</p>";
         
-        $sampleJobsSql = "INSERT INTO job_offers (organization_id, title, description) VALUES
-            (1, 'Web Developer', 'We are looking for a skilled web developer to join our team.'),
-            (1, 'UX Designer', 'Seeking creative UX designer with 2+ years of experience.'),
-            (2, 'Event Coordinator', 'Event management position for an organized individual.')";
+        $sampleJobsSql = "INSERT INTO job_offers (organization_id, title, description, created_at, updated_at) VALUES
+            (1, 'Web Developer', 'We are looking for a skilled web developer to join our team.', NOW(), NOW()),
+            (1, 'UX Designer', 'Seeking creative UX designer with 2+ years of experience.', NOW(), NOW()),
+            (2, 'Event Coordinator', 'Event management position for an organized individual.', NOW(), NOW())";
         
         try {
             $conn->exec($sampleJobsSql);
@@ -557,6 +600,36 @@ try {
     echo "<p class='error'>Error checking job_offers table: " . $e->getMessage() . "</p>";
 }
 
+// Check if accounts table has data
+try {
+    $stmt = $conn->query("SELECT COUNT(*) FROM accounts");
+    $accountsCount = $stmt->fetchColumn();
+    
+    if($accountsCount == 0) {
+        echo "<p>Adding sample data to accounts table...</p>";
+        
+        $sampleAccountsSql = "INSERT INTO accounts (account_type, reference_id, created_at, updated_at) VALUES
+            ('user', 1, NOW(), NOW()),
+            ('user', 2, NOW(), NOW()),
+            ('user', 3, NOW(), NOW()),
+            ('organization', 1, NOW(), NOW()),
+            ('organization', 2, NOW(), NOW()),
+            ('organization', 3, NOW(), NOW()),
+            ('admin', 1, NOW(), NOW())";
+        
+        try {
+            $conn->exec($sampleAccountsSql);
+            echo "<p class='success'>Added sample accounts.</p>";
+        } catch (PDOException $e) {
+            echo "<p class='error'>Error adding sample accounts: " . $e->getMessage() . "</p>";
+        }
+    } else {
+        echo "<p class='success'>Accounts table already has data ($accountsCount records).</p>";
+    }
+} catch (PDOException $e) {
+    echo "<p class='error'>Error checking accounts table: " . $e->getMessage() . "</p>";
+}
+
 echo "</div>";
 
 // Final message
@@ -569,7 +642,7 @@ echo "<li><strong>User:</strong> john.doe@example.com / password123</li>";
 echo "<li><strong>Organization:</strong> contact@techinnovators.com / password123</li>";
 echo "<li><strong>Admin:</strong> admin@iteamuniversity.com / adminpass123</li>";
 echo "</ul>";
-echo "<p><a href='/iteam-university-website/frontend/db-test.html' target='_blank'>Open the database test tool</a> to view the complete structure.</p>";
+echo "<p><a href='/iteam-university-website/test/db-test.html' target='_blank'>Open the database test tool</a> to view the complete structure.</p>";
 echo "</div>";
 
 echo "</body></html>";

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Error</title>
+     <style>
+        body { font-family: sans-serif; padding: 2rem; text-align: center; background-color: var(--bg-color); color: var(--text-primary); }
+        .error-container { max-width: 600px; margin: auto; padding: 2rem; background-color: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); }
+        h1 { color: #dc3545; margin-bottom: 1rem; } /* Use error color */
+        p { margin-bottom: 1.5rem; }
+        a { color: var(--primary-color); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        i { font-size: 3rem; color: #dc3545; margin-bottom: 1rem; }
+    </style>
+    <!-- Include Font Awesome if not globally available -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+</head>
+<body>
+    <div class="error-container">
+         <i class="fas fa-server"></i>
+        <h1>500 - Internal Server Error</h1>
+        <p>Sorry, something went wrong on our end. Please try again later or contact support if the problem persists.</p>
+        <p><a href="dashboards/admin/dashboard.html#overview">Return to Dashboard Overview</a></p>
+    </div>
+</body>
+</html>

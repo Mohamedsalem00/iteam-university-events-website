@@ -12,7 +12,10 @@ header('Expires: 0');
  * Securely log out user by clearing session and cookies
  * @return array Result of logout operation
  */
-function secure_logout() {
+
+
+// Process logout
+function logout() {
     // Clear all session variables
     $_SESSION = [];
     
@@ -25,18 +28,22 @@ function secure_logout() {
         );
     }
     
-    // Clear remember-me cookies with secure flags
+    // Clear all cookies
     setcookie('remember_token', '', time() - 3600, '/');
     setcookie('user_email', '', time() - 3600, '/');
     setcookie('user_type', '', time() - 3600, '/');
+    setcookie('admin_token', '', time() - 3600, '/');
+    setcookie('admin_email', '', time() - 3600, '/');
+    setcookie('account_id', '', time() - 3600, '/');
+    setcookie('admin_auth', '', time() - 3600, '/');
     
     // Destroy the session
     session_destroy();
     
     return [
-        'success' => true,
+        'success' => true, 
         'message' => 'Successfully logged out.',
-        'redirect' => '/iteam-university-website/frontend/index.html'
+        'redirect' => '/iteam-university-website/frontend/auth/admin-login.html'
     ];
 }
 

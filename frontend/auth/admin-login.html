@@ -42,7 +42,6 @@
     </style>
   </head>
   <body>
-    <div id="navbar"></div>
 
     <main>
       <section class="auth-section">
@@ -103,23 +102,21 @@
       </section>
     </main>
 
-    <div id="footer"></div>
-
-    <script src="js/nav-loader.js"></script>
     <script src="js/main.js"></script>
     <script src="js/theme-switcher.js"></script>
     <script src="js/auth-check.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        // Check if user is already logged in as admin
-        fetch('../backend/api/auth.php?check=1')
+        // Check if user is already logged in as admin using the correct endpoint
+        fetch('../backend/api/admin/adminlogin.php?check=1') 
           .then(response => response.json())
           .then(data => {
-            if (data.success && data.user && data.user.type === 'admin') {
-              window.location.href = 'dashboards/admin-dashboard.html';
+            if (data.success && data.user && data.user.is_admin) { // Check for is_admin flag
+              // Redirect to admin dashboard if already logged in
+              window.location.href = data.user.dashboard_url || 'dashboards/admin/dashboard.html';
             }
           })
-          .catch(error => console.error('Auth check error:', error));
+          .catch(error => console.error('Initial admin auth check error:', error));
         
         // Toggle password visibility
         const toggleButton = document.querySelector('.password-toggle');
@@ -158,65 +155,49 @@
           
           // Get form data
           const formData = new FormData(form);
-          formData.append('action', 'login');
-          formData.append('user_type', 'admin'); // Add user type for admin-specific login
           
-          // Submit login request
-          fetch('../backend/api/auth.php', {
+          // Submit login request to the correct admin endpoint
+          fetch('../backend/api/admin/adminlogin.php', { 
             method: 'POST',
             body: formData
           })
           .then(response => {
-            // Check if the response is valid JSON
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-              return response.json();
-            } else {
-              throw new Error('Invalid response format');
+            // Improved error handling: Check response status first
+            if (!response.ok) {
+              return response.json().then(errData => {
+                 throw new Error(errData.message || `HTTP error! Status: ${response.status}`);
+              }).catch(() => {
+                 throw new Error(`HTTP error! Status: ${response.status}`);
+              });
             }
+            return response.json();
           })
           .then(data => {
-            if (data.success) {
+            if (data.success && data.user && data.user.is_admin) { // Verify success and admin status
               // Redirect to admin dashboard
-              window.location.href = 'dashboards/admin-dashboard.html';
+              window.location.href = data.user.dashboard_url || 'dashboards/admin/dashboard.html';
             } else {
-              // Reset button
+              // Handle login failure
               loginBtn.innerHTML = 'Secure Login';
               loginBtn.disabled = false;
               
-              // Show error message
+              // Show error message from API response
               loginAlert.className = 'alert alert-danger';
-              loginAlert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || 'Authentication failed. Please check your credentials.'}`;
+              loginAlert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || 'Authentication failed. Please check credentials.'}`;
               loginAlert.style.display = 'block';
             }
           })
           .catch(error => {
-            console.error('Login error:', error);
+            // Handle network errors or other exceptions during fetch/processing
+            console.error('Admin login submission error:', error);
             
-            // Reset button
             loginBtn.innerHTML = 'Secure Login';
             loginBtn.disabled = false;
             
-            // Check if user is logged in despite the error
-            fetch('../backend/api/auth.php?check=1')
-              .then(response => response.json())
-              .then(data => {
-                if (data.success && data.user && data.user.type === 'admin') {
-                  // User was actually logged in successfully, just redirect
-                  window.location.href = 'dashboards/admin-dashboard.html';
-                } else {
-                  // Show error message
-                  loginAlert.className = 'alert alert-danger';
-                  loginAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> A network error occurred. Please try again later.';
-                  loginAlert.style.display = 'block';
-                }
-              })
-              .catch(() => {
-                // Show error message as fallback
-                loginAlert.className = 'alert alert-danger';
-                loginAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> A network error occurred. Please try again later.';
-                loginAlert.style.display = 'block';
-              });
+            // Show a generic but informative error message
+            loginAlert.className = 'alert alert-danger';
+            loginAlert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'An error occurred. Please try again.'}`;
+            loginAlert.style.display = 'block';
           });
         });
       });

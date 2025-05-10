@@ -1,22 +1,34 @@
-document.addEventListener("DOMContentLoaded", function () {
-  // Load navbar
-  fetch("components/navbar.html")
-    .then((response) => response.text())
-    .then((data) => {
-      document.getElementById("navbar").innerHTML = data;
-      initNavbar();
-      checkAuthPage(); // Check if we're on an auth page
-    })
-    .catch((error) => console.error("Error loading navbar:", error));
+document.addEventListener("DOMContentLoaded", function() {
+  // Load navbar and footer
+  const navbarContainer = document.getElementById("navbar");
+  const footerContainer = document.getElementById("footer");
 
-  // Load footer
-  fetch("components/footer.html")
-    .then((response) => response.text())
-    .then((data) => {
-      document.getElementById("footer").innerHTML = data;
-      checkAuthPage(); // Check if we're on an auth page
-    })
-    .catch((error) => console.error("Error loading footer:", error));
+  if (navbarContainer) {
+    fetch("components/navbar.html")
+      .then(response => response.text())
+      .then(data => {
+        navbarContainer.innerHTML = data;
+        initNavbar();
+        highlightActiveLink(); // Add this new function call
+      })
+      .catch(error => {
+        console.error("Error loading navbar:", error);
+      });
+  }
+
+  if (footerContainer) {
+    fetch("components/footer.html")
+      .then(response => response.text())
+      .then(data => {
+        footerContainer.innerHTML = data;
+      })
+      .catch(error => {
+        console.error("Error loading footer:", error);
+      });
+  }
+
+  // Check if we're on an authentication page
+  checkAuthPage();
 });
 
 function initNavbar() {
@@ -52,13 +64,51 @@ function initNavbar() {
       }
     });
   }
+}
 
-  // Highlight current page in navigation
-  const currentPage = window.location.pathname;
-  const navLinks2 = document.querySelectorAll(".nav-link");
-
-  navLinks2.forEach((link) => {
-    if (link.getAttribute("href") === currentPage) {
+// New function to highlight the active link properly
+function highlightActiveLink() {
+  // Get the current path excluding domain and base URL
+  let currentPath = window.location.pathname;
+  const baseUrl = '/iteam-university-website/frontend/';
+  
+  // Remove the base URL to get the relative path
+  if (currentPath.startsWith(baseUrl)) {
+    currentPath = currentPath.substring(baseUrl.length);
+  }
+  
+  // Default to index.html for the root path
+  if (currentPath === '' || currentPath === '/' || currentPath === 'index.html') {
+    currentPath = 'index.html';
+  }
+  
+  // For dashboard pages, highlight the dashboard link if it exists
+  if (currentPath.includes('dashboards/')) {
+    currentPath = 'dashboard';
+  }
+  
+  const navLinks = document.querySelectorAll(".nav-link");
+  
+  navLinks.forEach((link) => {
+    // Get href attribute value
+    let href = link.getAttribute("href");
+    
+    // Remove base URL from href if present
+    if (href && href.startsWith(baseUrl)) {
+      href = href.substring(baseUrl.length);
+    }
+    
+    // Special case for dashboard
+    if (currentPath === 'dashboard' && href && href.includes('dashboard')) {
+      link.classList.add("active");
+      return;
+    }
+    
+    // Match the end of the URL to handle both full paths and relative paths
+    if (href && 
+        (currentPath.endsWith(href) || 
+         href.endsWith(currentPath) || 
+         (currentPath.includes('/') && href.endsWith(currentPath.split('/').pop())))) {
       link.classList.add("active");
     }
   });
@@ -97,18 +147,6 @@ function checkAuthPage() {
     const footer = document.querySelector('.footer');
     if (footer) {
       footer.classList.add('auth-footer');
-    }
-    
-    // Check if we're on the login page and change the auth link text accordingly
-    const authNavItem = document.querySelector('.auth-nav-item a');
-    if (authNavItem) {
-      if (window.location.pathname.includes('/login.html')) {
-        authNavItem.href = '/auth/register.html';
-        authNavItem.querySelector('.auth-text').textContent = 'Sign Up';
-      } else {
-        authNavItem.href = '/auth/login.html';
-        authNavItem.querySelector('.auth-text').textContent = 'Sign In';
-      }
     }
   }
 }
