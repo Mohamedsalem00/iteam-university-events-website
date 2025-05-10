@@ -1,0 +1,109 @@
+<div id="page-content">
+    <div class="page-header">
+      <h1>Manage Organizations</h1>
+      <p>
+        View, edit, and manage all registered organizations.
+      </p>
+    </div>
+  
+    <!-- Search and Filter -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3><i class="fas fa-search"></i> Search & Filter Organizations</h3>
+      </div>
+      <div class="card-body">
+        <div class="search-bar">
+          <div class="input-icon-wrap search-wrap">
+            <span class="input-icon"><i class="fas fa-search"></i></span>
+            <input type="search" id="org-search" class="form-control with-icon" placeholder="Search by name or email..." />
+            <button class="search-clear" id="clear-org-search"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="form-group compact">
+            <label for="org-status-filter" class="form-label">Status</label>
+            <select id="org-status-filter" class="form-control">
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <!-- Add other statuses if applicable -->
+            </select>
+          </div>
+          <div class="form-group compact">
+            <label for="org-date-filter" class="form-label">Registration Date</label>
+            <select id="org-date-filter" class="form-control">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="year">This Year</option>
+            </select>
+          </div>
+          <div class="form-group compact">
+            <label for="org-sort-by" class="form-label">Sort By</label>
+            <select id="org-sort-by" class="form-control">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Organizations Table -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3><i class="fas fa-building"></i> Organizations List</h3>
+        <div class="card-actions">
+          <a href="javascript:void(0);" onclick="loadContent('dashboards/admin/pages/create-organization.html', 'create-organization')" class="btn">
+            <i class="fas fa-plus-circle"></i> Add New Organization
+          </a>
+          <button class="btn btn-outline" id="export-orgs-btn">
+            <i class="fas fa-download"></i> Export
+          </button>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="admin-table" id="organizations-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="select-all-orgs" /></th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Registered</th>
+              <th>Events Hosted</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Organization rows will be loaded here by organizations.js -->
+            <tr>
+              <td colspan="8" class="text-center">
+                <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading organizations...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <div class="bulk-actions">
+          <select id="bulk-action-orgs" class="form-control">
+            <option value="">Bulk Actions</option>
+            <option value="activate">Activate</option>
+            <option value="deactivate">Deactivate</option>
+            <option value="delete">Delete</option>
+          </select>
+          <button class="btn btn-outline" id="apply-bulk-action-orgs" disabled>Apply</button>
+        </div>
+        <div class="pagination" id="orgs-pagination">
+          <!-- Pagination buttons will be loaded here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- organizations.js is loaded globally in dashboard.html -->

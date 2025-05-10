@@ -1,0 +1,390 @@
+<div class="dashboard-header">
+    <h1>Events</h1>
+    <p>Browse and register for upcoming university events</p>
+</div>
+
+<div class="events-filter">
+    <div class="filter-row">
+        <div class="search-box">
+            <input type="text" placeholder="Search events..." id="event-search">
+            <button class="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <div class="filter-group">
+            <select id="category-filter" class="form-select">
+                <option value="">All Categories</option>
+                <option value="workshop">Workshops</option>
+                <option value="conference">Conferences</option>
+                <option value="career">Career Fairs</option>
+                <option value="social">Social Events</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <select id="date-filter" class="form-select">
+                <option value="">All Dates</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="this-week">This Week</option>
+                <option value="this-month">This Month</option>
+                <option value="next-month">Next Month</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="events-grid" id="events-list">
+    <!-- Event Cards will be populated here -->
+</div>
+
+<div class="loading-container" id="events-loading">
+    <div class="spinner"></div>
+    <p>Loading events...</p>
+</div>
+
+<style>
+    .events-filter {
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .search-box input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        padding-right: 3rem;
+        border-radius: 2rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--input-bg);
+        color: var(--input-text);
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+    
+    .filter-group {
+        min-width: 150px;
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px;
+    }
+    
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .event-card {
+        background-color: var(--card-bg);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+    }
+    
+    .event-image {
+        height: 180px;
+        overflow: hidden;
+    }
+    
+    .event-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .event-content {
+        padding: 1.25rem;
+    }
+    
+    .event-date-badge {
+        background-color: var(--primary-color);
+        color: white;
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 0.25rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .event-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .event-meta {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.35rem;
+    }
+    
+    .event-meta i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+    
+    .event-description {
+        margin: 0.75rem 0;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+    
+    .event-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    
+    .loading-container {
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(var(--primary-color-rgb), 0.3);
+        border-radius: 50%;
+        border-top-color: var(--primary-color);
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<script>
+    // Sample event data - in a real app, this would come from an API
+    const events = [
+        {
+            id: 1,
+            title: "Annual Tech Conference",
+            date: "May 15, 2025",
+            location: "Main Campus Auditorium",
+            time: "9:00 AM - 5:00 PM",
+            description: "Join industry experts for a day of innovation, networking, and insights into the latest technology trends.",
+            image: "assets/images/events/event-1.jpeg",
+            category: "conference",
+            registered: false
+        },
+        {
+            id: 2,
+            title: "Summer Career Fair",
+            date: "June 3, 2025",
+            location: "Student Center",
+            time: "9:00 AM - 3:00 PM",
+            description: "Meet representatives from top companies and explore internship and job opportunities in various industries.",
+            image: "assets/images/events/event-2.jpeg",
+            category: "career",
+            registered: true
+        },
+        {
+            id: 3,
+            title: "Project Management Workshop",
+            date: "June 17, 2025",
+            location: "Business Building, Room 205",
+            time: "2:00 PM - 5:00 PM",
+            description: "Learn essential project management skills and methodologies from certified professionals in this hands-on workshop.",
+            image: "assets/images/events/event-3.jpeg",
+            category: "workshop",
+            registered: false
+        },
+        {
+            id: 4,
+            title: "Alumni Networking Night",
+            date: "July 8, 2025",
+            location: "University Club",
+            time: "6:00 PM - 9:00 PM",
+            description: "Connect with successful alumni and build your professional network in a relaxed evening gathering.",
+            image: "assets/images/events/event-4.jpeg",
+            category: "social",
+            registered: false
+        }
+    ];
+    
+    // Display events function
+    function displayEvents(eventsToShow) {
+        const eventsContainer = document.getElementById('events-list');
+        eventsContainer.innerHTML = '';
+        
+        if (eventsToShow.length === 0) {
+            eventsContainer.innerHTML = '<div class="no-events"><p>No events found matching your criteria.</p></div>';
+            return;
+        }
+        
+        eventsToShow.forEach(event => {
+            const eventCard = document.createElement('div');
+            eventCard.className = 'event-card';
+            
+            const registerBtnText = event.registered ? 'Already Registered' : 'Register Now';
+            const registerBtnClass = event.registered ? 'btn btn-outline disabled' : 'btn';
+            
+            eventCard.innerHTML = `
+                <div class="event-image">
+                    <img src="${event.image}" alt="${event.title}">
+                </div>
+                <div class="event-content">
+                    <span class="event-date-badge">${event.date}</span>
+                    <h3 class="event-title">${event.title}</h3>
+                    <div class="event-meta">
+                        <i class="fas fa-map-marker-alt"></i> ${event.location}
+                    </div>
+                    <div class="event-meta">
+                        <i class="fas fa-clock"></i> ${event.time}
+                    </div>
+                    <p class="event-description">${event.description}</p>
+                    <div class="event-actions">
+                        <button class="btn btn-outline btn-small" data-event-id="${event.id}">View Details</button>
+                        <button class="${registerBtnClass}" data-event-id="${event.id}" ${event.registered ? 'disabled' : ''}>${registerBtnText}</button>
+                    </div>
+                </div>
+            `;
+            
+            eventsContainer.appendChild(eventCard);
+        });
+        
+        // Add event listeners to the newly created buttons
+        document.querySelectorAll('.event-actions .btn:not(.disabled)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                if (this.textContent.trim() === 'View Details') {
+                    alert(`View details for event ${eventId}`);
+                } else if (this.textContent.trim() === 'Register Now') {
+                    registerForEvent(eventId);
+                }
+            });
+        });
+    }
+    
+    // Register for event function
+    function registerForEvent(eventId) {
+        const eventIndex = events.findIndex(e => e.id == eventId);
+        if (eventIndex !== -1) {
+            // Simulate loading state
+            const btn = document.querySelector(`.event-actions .btn[data-event-id="${eventId}"]:not(.btn-outline)`);
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = 'Processing...';
+                btn.disabled = true;
+                
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Update event data
+                    events[eventIndex].registered = true;
+                    
+                    // Update UI
+                    btn.textContent = 'Already Registered';
+                    btn.classList.add('btn-outline', 'disabled');
+                    btn.disabled = true;
+                    
+                    // Show success message
+                    alert(`Successfully registered for ${events[eventIndex].title}!`);
+                }, 800);
+            }
+        }
+    }
+    
+    // Filter events
+    function filterEvents() {
+        const searchTerm = document.getElementById('event-search').value.toLowerCase();
+        const categoryFilter = document.getElementById('category-filter').value;
+        const dateFilter = document.getElementById('date-filter').value;
+        
+        return events.filter(event => {
+            // Search filter
+            const matchesSearch = searchTerm === '' || 
+                event.title.toLowerCase().includes(searchTerm) || 
+                event.description.toLowerCase().includes(searchTerm) ||
+                event.location.toLowerCase().includes(searchTerm);
+            
+            // Category filter
+            const matchesCategory = categoryFilter === '' || event.category === categoryFilter;
+            
+            // Date filter - this is simplified
+            const matchesDate = dateFilter === '';
+            
+            return matchesSearch && matchesCategory && matchesDate;
+        });
+    }
+    
+    // Event listeners
+    document.getElementById('event-search').addEventListener('input', function() {
+        const filteredEvents = filterEvents();
+        displayEvents(filteredEvents);
+    });
+    
+    document.getElementById('category-filter').addEventListener('change', function() {
+        const filteredEvents = filterEvents();
+        displayEvents(filteredEvents);
+    });
+    
+    document.getElementById('date-filter').addEventListener('change', function() {
+        const filteredEvents = filterEvents();
+        displayEvents(filteredEvents);
+    });
+    
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show loading indicator
+        document.getElementById('events-loading').style.display = 'block';
+        
+        // Simulate API delay
+        setTimeout(() => {
+            // Hide loading indicator
+            document.getElementById('events-loading').style.display = 'none';
+            
+            // Display events
+            displayEvents(events);
+        }, 800);
+    });
+    
+    // Trigger initial load since we're loaded dynamically
+    document.getElementById('events-loading').style.display = 'block';
+    setTimeout(() => {
+        document.getElementById('events-loading').style.display = 'none';
+        displayEvents(events);
+    }, 800);
+</script>

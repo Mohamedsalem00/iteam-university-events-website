@@ -74,7 +74,6 @@
     </style>
   </head>
   <body>
-    <div id="navbar"></div>
 
     <main>
       <section class="auth-section">
@@ -143,7 +142,7 @@
 
               <div class="auth-footer">
                 <p>Don't have an account? <a href="auth/register.html">Sign up</a></p>
-                <p class="admin-link">Are you an administrator? <a href="admin/admin-login.html">Admin login</a></p>
+                <p class="admin-link">Are you an administrator? <a href="auth/admin-login.html">Admin login</a></p>
               </div>
             </div>
           </div>
@@ -151,9 +150,6 @@
       </section>
     </main>
 
-    <div id="footer"></div>
-
-    <script src="js/nav-loader.js"></script>
     <script src="js/main.js"></script>
     <script src="js/theme-switcher.js"></script>
     <script src="js/auth-check.js"></script>
@@ -169,11 +165,11 @@
               if (!dashboardUrl) {
                 // Default dashboards based on user type
                 if (data.user.type === 'user') {
-                  dashboardUrl = 'dashboards/student-dashboard.html';
+                  dashboardUrl = 'dashboards/student/dashboard.html';
                 } else if (data.user.type === 'organization') {
-                  dashboardUrl = 'dashboards/company-dashboard.html'; 
+                  dashboardUrl = 'dashboards/organization/dashboard.html'; 
                 } else if (data.user.type === 'admin') {
-                  dashboardUrl = 'dashboards/admin-dashboard.html';
+                  dashboardUrl = 'dashboards/admin/dashboard.html';
                 } else {
                   dashboardUrl = 'index.html';
                 }
@@ -249,17 +245,17 @@
               } else if (data.user && data.user.type) {
                 // Determine dashboard based on user type
                 if (data.user.type === 'user') {
-                  window.location.href = 'dashboards/student-dashboard.html';
+                  window.location.href = 'dashboards/student/dashboard.html';
                 } else if (data.user.type === 'organization') {
-                  window.location.href = 'dashboards/company-dashboard.html';
+                  window.location.href = 'dashboards/organization/dashboard.html';
                 } else if (data.user.type === 'admin') {
-                  window.location.href = 'dashboards/admin-dashboard.html';
+                  window.location.href = 'dashboards/admin/dashboard.html';
                 } else {
                   window.location.href = 'index.html';
                 }
               } else {
                 // Default redirect
-                window.location.href = 'dashboards/student-dashboard.html';
+                window.location.href = 'dashboards/student/dashboard.html';
               }
             } else {
               // Reset button
@@ -288,7 +284,7 @@
                   if (data.user.dashboard_url) {
                     window.location.href = data.user.dashboard_url;
                   } else {
-                    window.location.href = 'dashboards/student-dashboard.html';
+                    window.location.href = 'dashboards/student/dashboard.html';
                   }
                 } else {
                   // Show error message

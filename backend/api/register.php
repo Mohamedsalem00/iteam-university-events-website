@@ -139,12 +139,17 @@ try {
 
 // Process registration
 try {
+    // Start transaction
+    $conn->beginTransaction();
+    
     // Hash the password
     $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
+    $referenceId = null;
     
     if ($data['user_type'] === 'user') {
         // Insert user
-        $insertUserQuery = "INSERT INTO users (first_name, last_name, email, password, status) VALUES (:first_name, :last_name, :email, :password, 'active')";
+        $insertUserQuery = "INSERT INTO users (first_name, last_name, email, password, status, created_at, updated_at) 
+                            VALUES (:first_name, :last_name, :email, :password, 'active', NOW(), NOW())";
         
         $stmt = $conn->prepare($insertUserQuery);
         $stmt->bindParam(':first_name', $data['first_name']);
@@ -153,11 +158,12 @@ try {
         $stmt->bindParam(':password', $hashedPassword);
         $stmt->execute();
         
-        $userId = $conn->lastInsertId();
+        $referenceId = $conn->lastInsertId();
         
     } else if ($data['user_type'] === 'organization') {
         // Insert organization
-        $insertOrgQuery = "INSERT INTO organizations (name, email, password, description, status) VALUES (:name, :email, :password, :description, 'active')";
+        $insertOrgQuery = "INSERT INTO organizations (name, email, password, description, status, created_at, updated_at) 
+                          VALUES (:name, :email, :password, :description, 'active', NOW(), NOW())";
         
         $stmt = $conn->prepare($insertOrgQuery);
         $stmt->bindParam(':name', $data['org_name']);
@@ -166,12 +172,28 @@ try {
         $stmt->bindParam(':description', $data['description']);
         $stmt->execute();
         
-        $orgId = $conn->lastInsertId();
+        $referenceId = $conn->lastInsertId();
     }
+    
+    // Now insert into accounts table
+    if ($referenceId) {
+        $insertAccountQuery = "INSERT INTO accounts (account_type, reference_id, created_at, updated_at) 
+                              VALUES (:account_type, :reference_id, NOW(), NOW())";
+                              
+        $stmt = $conn->prepare($insertAccountQuery);
+        $stmt->bindParam(':account_type', $data['user_type']);
+        $stmt->bindParam(':reference_id', $referenceId);
+        $stmt->execute();
+    }
+    
+    // Commit transaction
+    $conn->commit();
     
     echo json_encode(['success' => true, 'message' => 'Registration successful']);
     
 } catch (PDOException $e) {
+    // Rollback transaction on error
+    $conn->rollBack();
     error_log("Registration error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'An error occurred during registration. Please try again later.']);
 }

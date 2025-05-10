@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Data Test</title>
+    <link rel="stylesheet" href="frontend/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        .user-select {
+            margin-bottom: 20px;
+        }
+        .profile-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #4285f4;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        .profile-details {
+            flex-grow: 1;
+        }
+        .profile-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+        .profile-email {
+            color: #666;
+            margin: 0 0 5px 0;
+        }
+        .profile-role {
+            display: inline-block;
+            padding: 3px 10px;
+            background-color: #cce5ff;
+            color: #004085;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .info-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-weight: bold;
+        }
+        .event-registration {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .event-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+        .event-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .event-meta i {
+            color: #4285f4;
+            margin-right: 5px;
+        }
+        .badge {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .login-prompt {
+            text-align: center;
+            padding: 30px;
+            border: 1px dashed #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Profile Data Frontend Test</h1>
+    
+    <div class="section">
+        <h2>API Connection Test</h2>
+        <div id="api-status">Testing connection...</div>
+        <div id="raw-api-response" style="display: none;">
+            <h3>Raw API Response:</h3>
+            <pre id="raw-response"></pre>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Profile Data Display Test</h2>
+        
+        <div id="auth-status">Checking authentication status...</div>
+        
+        <div id="login-container" style="display: none;">
+            <div class="login-prompt">
+                <h3>Please log in to view profile data</h3>
+                <p>You must be logged in to view profile information.</p>
+            </div>
+            
+            <div class="login-form">
+                <h3>Test Login</h3>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" placeholder="email@example.com" value="john.doe@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Password" value="password123">
+                </div>
+                <button id="login-btn">Log In</button>
+            </div>
+        </div>
+        
+        <div id="profile-container" style="display: none;">
+            <button id="fetch-profile">Refresh Profile Data</button>
+            <button id="logout-btn">Logout</button>
+            
+            <div id="profile-loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading profile data...
+            </div>
+            
+            <div id="profile-content" style="display: none;">
+                <!-- Profile data will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiStatusEl = document.getElementById('api-status');
+            const rawResponseEl = document.getElementById('raw-response');
+            const rawApiResponseDiv = document.getElementById('raw-api-response');
+            const authStatusEl = document.getElementById('auth-status');
+            const loginContainer = document.getElementById('login-container');
+            const profileContainer = document.getElementById('profile-container');
+            const profileLoading = document.getElementById('profile-loading');
+            const profileContent = document.getElementById('profile-content');
+            const fetchProfileBtn = document.getElementById('fetch-profile');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            // Test API connection
+            testApiConnection();
+            
+            // Check authentication status
+            checkAuthStatus();
+            
+            // Add event listeners
+            fetchProfileBtn.addEventListener('click', () => fetchProfileData());
+            loginBtn.addEventListener('click', () => handleLogin());
+            logoutBtn.addEventListener('click', () => handleLogout());
+            
+            function testApiConnection() {
+                apiStatusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing API connection...';
+                
+                fetch('/iteam-university-website/backend/api/admin_profile.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        apiStatusEl.innerHTML = '<span class="success">✓ API connection available!</span>';
+                        rawResponseEl.textContent = JSON.stringify(data, null, 2);
+                        rawApiResponseDiv.style.display = 'block';
+                    })
+                    .catch(error => {
+                        apiStatusEl.innerHTML = `<span class="error">✗ API connection failed: ${error.message}</span>`;
+                    });
+            }
+            
+            function checkAuthStatus() {
+                authStatusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking authentication status...';
+                
+                fetch('/iteam-university-website/backend/api/auth.php?check=1')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.user) {
+                            // User is logged in
+                            authStatusEl.innerHTML = `<span class="success">✓ Authenticated as ${data.user.name} (${data.user.type})</span>`;
+                            loginContainer.style.display = 'none';
+                            profileContainer.style.display = 'block';
+                            fetchProfileData();
+                        } else {
+                            // User is not logged in
+                            authStatusEl.innerHTML = '<span class="error">✗ Not authenticated. Please log in.</span>';
+                            loginContainer.style.display = 'block';
+                            profileContainer.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        authStatusEl.innerHTML = `<span class="error">✗ Error checking authentication: ${error.message}</span>`;
+                    });
+            }
+            
+            function handleLogin() {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                if (!email || !password) {
+                    alert('Please enter email and password');
+                    return;
+                }
+                
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                
+                const formData = new FormData();
+                formData.append('action', 'login');
+                formData.append('email', email);
+                formData.append('password', password);
+                
+                fetch('/iteam-university-website/backend/api/auth.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Login successful
+                        authStatusEl.innerHTML = `<span class="success">✓ Login successful! User: ${data.user.name}</span>`;
+                        loginContainer.style.display = 'none';
+                        profileContainer.style.display = 'block';
+                        fetchProfileData();
+                    } else {
+                        // Login failed
+                        authStatusEl.innerHTML = `<span class="error">✗ Login failed: ${data.message}</span>`;
+                        alert(`Login failed: ${data.message}`);
+                    }
+                    
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Log In';
+                })
+                .catch(error => {
+                    authStatusEl.innerHTML = `<span class="error">✗ Error during login: ${error.message}</span>`;
+                    alert(`Error during login: ${error.message}`);
+                    
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Log In';
+                });
+            }
+            
+            function handleLogout() {
+                logoutBtn.disabled = true;
+                logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging out...';
+                
+                fetch('/iteam-university-website/backend/api/auth.php?action=logout')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Logout successful
+                            authStatusEl.innerHTML = '<span class="success">✓ Logout successful!</span>';
+                            loginContainer.style.display = 'block';
+                            profileContainer.style.display = 'none';
+                        } else {
+                            // Logout failed
+                            authStatusEl.innerHTML = `<span class="error">✗ Logout failed: ${data.message}</span>`;
+                            alert(`Logout failed: ${data.message}`);
+                        }
+                        
+                        logoutBtn.disabled = false;
+                        logoutBtn.textContent = 'Logout';
+                    })
+                    .catch(error => {
+                        authStatusEl.innerHTML = `<span class="error">✗ Error during logout: ${error.message}</span>`;
+                        alert(`Error during logout: ${error.message}`);
+                        
+                        logoutBtn.disabled = false;
+                        logoutBtn.textContent = 'Logout';
+                    });
+            }
+            
+            function fetchProfileData() {
+                profileLoading.style.display = 'block';
+                profileContent.style.display = 'none';
+                
+                fetch('/iteam-university-website/backend/api/admin_profile.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        profileLoading.style.display = 'none';
+                        
+                        if (data.success) {
+                            renderProfile(data.profile || data.data);
+                            profileContent.style.display = 'block';
+                        } else {
+                            profileContent.innerHTML = `<div class="error">Failed to load profile data: ${data.message}</div>`;
+                            profileContent.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        profileLoading.style.display = 'none';
+                        profileContent.innerHTML = `<div class="error">Error loading profile data: ${error.message}</div>`;
+                        profileContent.style.display = 'block';
+                    });
+            }
+            
+            function renderProfile(profile) {
+                // Check if we have admin profile or user profile data
+                if (profile.username) {
+                    renderAdminProfile(profile);
+                } else if (profile.user) {
+                    renderUserProfile(profile);
+                } else {
+                    profileContent.innerHTML = '<div class="error">Unknown profile data format</div>';
+                }
+            }
+            
+            function renderAdminProfile(profile) {
+                const initials = getInitials(profile.username);
+                
+                profileContent.innerHTML = `
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-image">${initials}</div>
+                            <div class="profile-details">
+                                <h3 class="profile-name">${profile.username}</h3>
+                                <p class="profile-email">${profile.email}</p>
+                                <span class="profile-role">Administrator</span>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Account Created</div>
+                                <div class="info-value">${formatDate(profile.created_at)}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Last Login</div>
+                                <div class="info-value">${profile.last_login ? formatDate(profile.last_login) : 'Not available'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function renderUserProfile(profile) {
+                const user = profile.user;
+                const registrations = profile.registrations || [];
+                
+                const initials = getInitials(`${user.first_name} ${user.last_name}`);
+                
+                let profileHTML = `
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-image">${initials}</div>
+                            <div class="profile-details">
+                                <h3 class="profile-name">${user.first_name} ${user.last_name}</h3>
+                                <p class="profile-email">${user.email}</p>
+                                <span class="profile-role">Student</span>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-info">
+                            <div class="info-item">
+                                <div class="info-label">Registered Since</div>
+                                <div class="info-value">${formatDate(user.registration_date)}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Status</div>
+                                <div class="info-value">${capitalizeFirst(user.status || 'active')}</div>
+                            </div>
+                            ${user.phone ? `
+                            <div class="info-item">
+                                <div class="info-label">Phone</div>
+                                <div class="info-value">${user.phone}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                // Event registrations section
+                profileHTML += `
+                    <h3>Event Registrations (${registrations.length})</h3>
+                    <div id="event-registrations">
+                `;
+                
+                if (registrations.length > 0) {
+                    registrations.forEach(reg => {
+                        profileHTML += `
+                            <div class="event-registration">
+                                <h4 class="event-title">${reg.event_title}</h4>
+                                <div class="event-meta">
+                                    <span><i class="fas fa-calendar"></i> ${formatDate(reg.start_date)}</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${reg.location}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                    <span>Registered on: ${formatDate(reg.registration_date)}</span>
+                                    <span class="badge status-${reg.status.toLowerCase()}">${capitalizeFirst(reg.status)}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    profileHTML += '<p>No event registrations found.</p>';
+                }
+                
+                profileHTML += `</div>`;
+                
+                profileContent.innerHTML = profileHTML;
+            }
+            
+            // Helper functions
+            function getInitials(name) {
+                if (!name) return '?';
+                
+                return name
+                    .split(' ')
+                    .map(part => part.charAt(0))
+                    .join('')
+                    .toUpperCase()
+                    .substring(0, 2);
+            }
+            
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            function capitalizeFirst(string) {
+                if (!string) return '';
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+        });
+    </script>
+</body>
+</html>

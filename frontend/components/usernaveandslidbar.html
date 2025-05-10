@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Dashboard Sidebar Styles */
+        .dashboard-sidebar {
+            position: fixed;
+            top: 76px;
+            left: 0;
+            height: calc(100vh - 76px);
+            width: 250px;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow);
+            z-index: 99;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            display: none;
+        }
+        
+        .dashboard-sidebar.active {
+            transform: translateX(0);
+            display: block;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin: 0;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s ease;
+        }
+        
+        .sidebar-menu a:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        
+        .close-sidebar {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .close-sidebar:hover {
+            color: var(--primary-color);
+        }
+        
+        /* User Menu Styles */
+        #user-menu-template {
+            display: none;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .user-menu:hover {
+            background-color: var(--bg-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-initials {
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .dropdown-icon {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 200px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius, 8px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1000;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-dropdown.show {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+        
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: var(--text-primary);
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .user-dropdown a:hover {
+            background-color: var(--bg-color);
+            text-decoration: none;
+        }
+        
+        .user-dropdown i {
+            margin-right: 10px;
+            color: var(--text-secondary);
+            width: 16px;
+            text-align: center;
+        }
+        
+        /* Media Queries */
+        @media (min-width: 992px) {
+            .dashboards {
+                margin-left: 250px;
+            }
+            
+            .dashboard-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .close-sidebar {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .user-menu {
+                padding: 0.3rem;
+            }
+            
+            .user-info, .dropdown-icon {
+                display: none;
+            }
+            
+            .user-dropdown {
+                width: 180px;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- User Menu Template -->
+    <div id="user-menu-template">
+        <!-- User Avatar - Will be populated with actual data -->
+        <div class="user-avatar">
+            <!-- Profile pic or initials will be inserted here -->
+        </div>
+        
+        <!-- User Info -->
+        <div class="user-info">
+            <span class="user-name"><!-- User name will be inserted here --></span>
+            <span class="user-role"><!-- Role will be inserted here --></span>
+        </div>
+        
+        <!-- Dropdown Icon -->
+        <i class="fas fa-chevron-down dropdown-icon"></i>
+        
+        <!-- Dropdown Menu -->
+        <div class="user-dropdown">
+            <a href="#" class="dropdown-item dashboard-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="#" class="dropdown-item profile-link">
+                <i class="fas fa-user-circle"></i> Profile
+            </a>
+            <a href="#" id="logout-link" class="dropdown-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+    
+    <!-- Role-Based Sidebars -->
+    <!-- Admin Sidebar -->
+    <div id="admin-sidebar" class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h3>Admin Dashboard</h3>
+            <button class="close-sidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#home" class="active" data-content="home"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#manage-events" data-content="manage-events"><i class="fas fa-calendar-alt"></i> Manage Events</a></li>
+            <li><a href="#manage-users" data-content="manage-users"><i class="fas fa-users"></i> Manage Users</a></li>
+            <li><a href="#manage-orgs" data-content="manage-orgs"><i class="fas fa-building"></i> Manage Organizations</a></li>
+            <li><a href="#settings" data-content="settings"><i class="fas fa-cog"></i> Site Settings</a></li>
+            <li><a href="#reports" data-content="reports"><i class="fas fa-chart-bar"></i> Reports</a></li>
+        </ul>
+    </div>
+    
+    <!-- Organization Sidebar -->
+    <div id="organization-sidebar" class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h3>Organization Dashboard</h3>
+            <button class="close-sidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#home" class="active" data-content="home"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#events" data-content="events"><i class="fas fa-calendar-alt"></i> Browse Events</a></li>
+            <li><a href="#create-event" data-content="create-event"><i class="fas fa-plus-circle"></i> Create Event</a></li>
+            <li><a href="#manage-events" data-content="manage-events"><i class="fas fa-tasks"></i> Manage Events</a></li>
+            <li><a href="#profile" data-content="profile"><i class="fas fa-building"></i> Organization Profile</a></li>
+            <li><a href="#analytics" data-content="analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+        </ul>
+    </div>
+    
+    <!-- Student/User Sidebar -->
+    <div id="user-sidebar" class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h3>Student Dashboard</h3>
+            <button class="close-sidebar"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#home" class="active" data-content="home"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#events" data-content="events"><i class="fas fa-calendar-alt"></i> Browse Events</a></li>
+            <li><a href="#registrations" data-content="registrations"><i class="fas fa-ticket-alt"></i> My Registrations</a></li>
+            <li><a href="#profile" data-content="profile"><i class="fas fa-user-circle"></i> My Profile</a></li>
+            <li><a href="#calendar" data-content="calendar"><i class="fas fa-calendar"></i> Calendar</a></li>
+        </ul>
+    </div>
+</body>
+</html>

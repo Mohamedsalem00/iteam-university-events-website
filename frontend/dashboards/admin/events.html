@@ -1,0 +1,181 @@
+<div id="page-content">
+    <div class="page-header">
+      <h1>Event Management</h1>
+      <p>
+        Create, edit, and manage all events and registrations in the system.
+      </p>
+    </div>
+  
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div class="stat-details">
+          <h3>Total Events</h3>
+          <p class="stat-value">0</p>
+          <!-- Initial loading state -->
+          <p class="stat-change neutral"> 
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+        <div class="stat-details">
+          <h3>Total Registrations</h3>
+          <p class="stat-value">0</p>
+          <!-- Initial loading state -->
+          <p class="stat-change neutral"> 
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+        <div class="stat-details">
+          <h3>Upcoming Events</h3>
+          <p class="stat-value">0</p>
+          <!-- Initial loading state -->
+          <p class="stat-change neutral"> 
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-calendar-times"></i></div>
+        <div class="stat-details">
+          <h3>Cancelled Events</h3>
+          <p class="stat-value">0</p>
+          <!-- Initial loading state -->
+          <p class="stat-change neutral"> 
+            <i class="fas fa-spinner fa-spin"></i> Loading...
+          </p>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Search and Filter -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3><i class="fas fa-search"></i> Search & Filter Events</h3>
+      </div>
+      <div class="card-body">
+        <div class="search-bar">
+          <div class="input-icon-wrap search-wrap">
+            <span class="input-icon"><i class="fas fa-search"></i></span>
+            <input type="search" id="event-search" class="form-control with-icon" placeholder="Search events by title, location or organizer..." />
+          </div>
+          <div class="filter-buttons">
+            <button class="btn btn-outline active" data-filter="all">All Events</button>
+            <button class="btn btn-outline" data-filter="workshop">Workshops</button>
+            <button class="btn btn-outline" data-filter="conference">Conferences</button>
+            <button class="btn btn-outline" data-filter="fair">Fairs</button>
+            <button class="btn btn-outline" data-filter="webinar">Webinars</button>
+          </div>
+        </div>
+        <div class="filter-row">
+          <div class="form-group compact">
+            <label for="status-filter" class="form-label">Status</label>
+            <select id="status-filter" class="form-control">
+              <option value="all">All Statuses</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="past">Past</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group compact">
+            <label for="date-filter" class="form-label">Date Range</label>
+            <select id="date-filter" class="form-control">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="custom">Custom Range</option> <!-- Add logic for custom range if needed -->
+            </select>
+          </div>
+          <div class="form-group compact">
+            <label for="organizer-filter" class="form-label">Organizer</label>
+            <select id="organizer-filter" class="form-control">
+              <option value="all">All Organizers</option>
+              <!-- Organizers will be populated dynamically by events.js -->
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Events Table -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3><i class="fas fa-calendar-alt"></i> Events List</h3>
+        <div class="card-actions">
+          <!-- Use onclick with loadContent for dynamic loading -->
+          <a href="javascript:void(0);" onclick="loadContent('dashboards/admin/pages/create-event.html', 'create-event')" class="btn">
+            <i class="fas fa-calendar-plus"></i> Create Event
+          </a>
+          <button class="btn btn-outline" id="export-events-btn">
+            <i class="fas fa-download"></i> Export
+          </button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="select-all-events" /></th>
+              <th>ID</th>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>Organizer</th>
+              <th>Type</th>
+              <th>Registered</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Event rows will be dynamically populated -->
+            <tr>
+              <td colspan="10" class="text-center">
+                <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading events...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <div class="bulk-actions">
+          <select id="bulk-action-events" class="form-control">
+            <option value="">Bulk Actions</option>
+            <option value="publish">Publish</option> <!-- Add relevant actions -->
+            <option value="cancel">Cancel Events</option>
+            <option value="delete">Delete</option>
+          </select>
+          <button class="btn btn-outline" id="apply-bulk-action">Apply</button>
+        </div>
+        <div class="pagination">
+          <!-- Pagination will be dynamically populated -->
+        </div>
+      </div>
+    </div>
+  
+    <!-- Recent Registrations -->
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h3><i class="fas fa-clipboard-list"></i> Recent Event Registrations</h3>
+        <!-- Use onclick with loadContent for dynamic loading -->
+        <a href="javascript:void(0);" onclick="loadContent('dashboards/admin/pages/event-registrations.html', 'event-registrations')" class="btn btn-text">
+          View All <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+      <div class="activity-list">
+        <!-- Recent registrations will be dynamically populated -->
+        <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading recent registrations...</div>
+      </div>
+    </div>
+    
+    <!-- Notification container for alerts -->
+    <div class="notification-container" id="notifications"></div>
+</div>
