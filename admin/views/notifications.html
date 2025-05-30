@@ -1,0 +1,377 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300">Notifications</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Notifications</h1>
+  <div class="mt-4 md:mt-0 flex space-x-3">
+    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center" id="markAllReadBtn">
+      <div class="w-4 h-4 flex items-center justify-center mr-2"><i class="ri-check-double-line"></i></div>
+      <span class="whitespace-nowrap">Mark All as Read</span>
+    </button>
+    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center" id="refreshNotificationsBtn">
+      <div class="w-4 h-4 flex items-center justify-center mr-2"><i class="ri-refresh-line"></i></div>
+      <span class="whitespace-nowrap">Refresh</span>
+    </button>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card p-4 mb-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div>
+      <label for="notificationTypeFilter" class="block text-sm font-medium mb-1">Filter by Type</label>
+      <select id="notificationTypeFilter" class="w-full rounded-md text-sm">
+        <option value="">All Types</option>
+        <option value="confirmation">Confirmation</option>
+        <option value="reminder">Reminder</option>
+        <option value="cancellation">Cancellation</option>
+        <option value="event_update">Event Update</option>
+        <option value="new_event_nearby">New Event Nearby</option>
+        <option value="registration_open">Registration Open</option>
+        <option value="feedback_request">Feedback Request</option>
+      </select>
+    </div>
+    <div>
+      <label for="notificationStatusFilter" class="block text-sm font-medium mb-1">Filter by Status</label>
+      <select id="notificationStatusFilter" class="w-full rounded-md text-sm">
+        <option value="">All Status</option>
+        <option value="unread">Unread</option>
+        <option value="read">Read</option>
+      </select>
+    </div>
+    <div>
+      <label for="notificationDateFilter" class="block text-sm font-medium mb-1">Filter by Date</label>
+      <select id="notificationDateFilter" class="w-full rounded-md text-sm">
+        <option value="">All Time</option>
+        <option value="today">Today</option>
+        <option value="yesterday">Yesterday</option>
+        <option value="this_week">This Week</option>
+        <option value="this_month">This Month</option>
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button id="applyNotificationFilters" class="w-full px-4 py-2 bg-secondary text-white rounded-button text-sm">Apply Filters</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notifications List -->
+<div class="card p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold">All Notifications</h2>
+    <span class="text-sm text-gray-500 dark:text-gray-400"><span id="notificationCount">0</span> Notifications Found</span>
+  </div>
+  <div id="notificationsList" class="space-y-4">
+    <!-- Notifications will be dynamically populated here -->
+    <div class="text-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+      <p class="mt-2 text-gray-500 dark:text-gray-400">Loading notifications...</p>
+    </div>
+  </div>
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-6">
+    <div class="text-sm text-gray-500 dark:text-gray-400">
+      Showing <span id="paginationStartNotification">0</span> to <span id="paginationEndNotification">0</span> of <span id="totalNotificationsCount">0</span> notifications
+    </div>
+    <div class="flex space-x-1">
+      <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-button text-sm hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled>Previous</button>
+      <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-button text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Next</button>
+    </div>
+  </div>
+</div>
+</section>
+<script>
+(function() {
+  console.log("Notifications view specific JavaScript executed.");
+
+  // Element selectors
+  const notificationsList = document.getElementById('notificationsList');
+  const notificationCount = document.getElementById('notificationCount');
+  const totalNotificationsCount = document.getElementById('totalNotificationsCount');
+  const paginationStartNotification = document.getElementById('paginationStartNotification');
+  const paginationEndNotification = document.getElementById('paginationEndNotification');
+  const markAllReadBtn = document.getElementById('markAllReadBtn');
+  const refreshNotificationsBtn = document.getElementById('refreshNotificationsBtn');
+  const applyFiltersBtn = document.getElementById('applyNotificationFilters');
+
+  // Filter elements
+  const typeFilter = document.getElementById('notificationTypeFilter');
+  const statusFilter = document.getElementById('notificationStatusFilter');
+  const dateFilter = document.getElementById('notificationDateFilter');
+
+  function formatDate(dateString) {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) {
+        const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+        if (diffHours === 0) {
+          const diffMinutes = Math.floor(diffTime / (1000 * 60));
+          return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+        }
+        return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      } else if (diffDays === 1) {
+        return 'Yesterday';
+      } else if (diffDays < 7) {
+        return `${diffDays} days ago`;
+      } else {
+        return date.toLocaleDateString(undefined, { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+    } catch (e) {
+      return 'Invalid Date';
+    }
+  }
+
+  function getNotificationIcon(type) {
+    const icons = {
+      confirmation: 'ri-checkbox-circle-line',
+      reminder: 'ri-time-line',
+      cancellation: 'ri-close-circle-line',
+      event_update: 'ri-calendar-event-line',
+      new_event_nearby: 'ri-map-pin-line',
+      registration_open: 'ri-user-add-line',
+      feedback_request: 'ri-feedback-line'
+    };
+    return icons[type] || 'ri-notification-line';
+  }
+
+  function getNotificationColor(type) {
+    const colors = {
+      confirmation: 'text-green-500',
+      reminder: 'text-blue-500',
+      cancellation: 'text-red-500',
+      event_update: 'text-purple-500',
+      new_event_nearby: 'text-yellow-500',
+      registration_open: 'text-indigo-500',
+      feedback_request: 'text-pink-500'
+    };
+    return colors[type] || 'text-gray-500';
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 px-4 py-2 rounded-lg text-white ${
+      type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } shadow-lg z-50 transition-opacity duration-300`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  function renderNotifications(notifications) {
+    if (!notificationsList) return;
+    
+    if (notifications.length === 0) {
+      notificationsList.innerHTML = `
+        <div class="text-center py-8">
+          <i class="ri-notification-off-line text-4xl text-gray-400"></i>
+          <p class="mt-2 text-gray-500 dark:text-gray-400">No notifications found</p>
+        </div>
+      `;
+      return;
+    }
+
+    notificationsList.innerHTML = notifications.map(notification => `
+      <div class="notification-item p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-150 ${notification.is_read ? 'opacity-70' : ''}">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700">
+              <img src="${notification.actor_profile_picture || '/iteam-university-website/admin/assets/images/default-avatar.png'}" 
+                   alt="${notification.actor_name}" 
+                   class="w-full h-full object-cover">
+            </div>
+          </div>
+          <div class="ml-4 flex-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <i class="${getNotificationIcon(notification.type)} ${getNotificationColor(notification.type)} mr-2"></i>
+                <span class="font-medium text-gray-900 dark:text-gray-100">${notification.actor_name}</span>
+                ${!notification.is_read ? '<span class="ml-2 w-2 h-2 bg-primary rounded-full"></span>' : ''}
+              </div>
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-500 dark:text-gray-400">${formatDate(notification.date)}</span>
+                ${!notification.is_read ? `
+                  <button onclick="markAsRead('${notification.id}')" 
+                          class="text-gray-400 hover:text-primary dark:hover:text-sky-400 p-1 rounded-md transition-colors duration-150">
+                    <i class="ri-check-line"></i>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+            <p class="mt-1 text-gray-600 dark:text-gray-300">${notification.message}</p>
+            ${notification.event_title ? `
+              <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <i class="ri-calendar-event-line mr-1"></i>
+                ${notification.event_title}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function fetchNotifications() {
+    if (!notificationsList) return;
+    
+    notificationsList.innerHTML = `
+      <div class="text-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        <p class="mt-2 text-gray-500 dark:text-gray-400">Loading notifications...</p>
+      </div>
+    `;
+
+    try {
+      const response = await fetch('/iteam-university-website/admin/api/notifications.php');
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      const result = await response.json();
+
+      if (result.success) {
+        let notifications = result.notifications || [];
+
+        // Apply filters
+        const typeValue = typeFilter?.value;
+        const statusValue = statusFilter?.value;
+        const dateValue = dateFilter?.value;
+
+        if (typeValue) {
+          notifications = notifications.filter(n => n.type === typeValue);
+        }
+        if (statusValue) {
+          notifications = notifications.filter(n => 
+            statusValue === 'read' ? n.is_read : !n.is_read
+          );
+        }
+        if (dateValue) {
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const thisWeek = new Date(today);
+          thisWeek.setDate(thisWeek.getDate() - 7);
+          const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+          notifications = notifications.filter(n => {
+            const notificationDate = new Date(n.date);
+            switch (dateValue) {
+              case 'today':
+                return notificationDate >= today;
+              case 'yesterday':
+                return notificationDate >= yesterday && notificationDate < today;
+              case 'this_week':
+                return notificationDate >= thisWeek;
+              case 'this_month':
+                return notificationDate >= thisMonth;
+              default:
+                return true;
+            }
+          });
+        }
+
+        renderNotifications(notifications);
+        
+        const displayedCount = notifications.length;
+        if (notificationCount) notificationCount.textContent = displayedCount;
+        if (totalNotificationsCount) totalNotificationsCount.textContent = displayedCount;
+        if (paginationStartNotification) paginationStartNotification.textContent = displayedCount > 0 ? 1 : 0;
+        if (paginationEndNotification) paginationEndNotification.textContent = displayedCount;
+
+      } else {
+        throw new Error(result.message || 'Failed to load notifications');
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      notificationsList.innerHTML = `
+        <div class="text-center py-8">
+          <i class="ri-error-warning-line text-4xl text-red-500"></i>
+          <p class="mt-2 text-gray-500 dark:text-gray-400">Error: ${error.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // Mark notification as read
+  window.markAsRead = async function(notificationId) {
+    try {
+      const response = await fetch('/iteam-university-website/admin/api/mark_notification_read.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notification_id: notificationId })
+      });
+
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      const result = await response.json();
+
+      if (result.success) {
+        showToast('Notification marked as read');
+        fetchNotifications(); // Refresh the list
+      } else {
+        throw new Error(result.message || 'Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      showToast(error.message || 'Failed to mark notification as read', 'error');
+    }
+  };
+
+  // Mark all notifications as read
+  async function markAllAsRead() {
+    try {
+      const response = await fetch('/iteam-university-website/admin/api/mark_all_notifications_read.php', {
+        method: 'POST'
+      });
+
+      if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+      const result = await response.json();
+
+      if (result.success) {
+        showToast(`Marked ${result.updated_count || 'all'} notifications as read`);
+        fetchNotifications(); // Refresh the list
+      } else {
+        throw new Error(result.message || 'Failed to mark all notifications as read');
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      showToast(error.message || 'Failed to mark all notifications as read', 'error');
+    }
+  }
+
+  // Event listeners
+  if (markAllReadBtn) {
+    markAllReadBtn.addEventListener('click', markAllAsRead);
+  }
+  if (refreshNotificationsBtn) {
+    refreshNotificationsBtn.addEventListener('click', fetchNotifications);
+  }
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', fetchNotifications);
+  }
+  [typeFilter, statusFilter, dateFilter].forEach(filter => {
+    if (filter) {
+      filter.addEventListener('change', fetchNotifications);
+    }
+  });
+
+  // Initial load
+  fetchNotifications();
+})();
+</script> 

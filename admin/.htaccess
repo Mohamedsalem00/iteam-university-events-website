@@ -1,0 +1,31 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /iteam-university-website/admin/
+    
+    # Don't rewrite requests for actual files or directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Don't rewrite API requests
+    RewriteCond %{REQUEST_URI} !^/iteam-university-website/admin/api/
+    
+    # Don't rewrite assets requests
+    RewriteCond %{REQUEST_URI} !^/iteam-university-website/admin/assets/
+    
+    # Don't rewrite direct requests to views directory
+    RewriteCond %{REQUEST_URI} !^/iteam-university-website/admin/views/
+    
+    # Route everything else to index.html
+    RewriteRule ^(.*)$ index.html [L]
+</IfModule>
+
+# Ensure proper caching for views
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Set a short cache time for views as they may change
+    <FilesMatch "\.(html)$">
+        ExpiresDefault "access plus 0 seconds"
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    </FilesMatch>
+</IfModule>

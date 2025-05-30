@@ -1,0 +1,64 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300">Account</span>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300">Settings</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Application Settings</h1>
+</div>
+
+<!-- Placeholder Content -->
+<div class="card p-6">
+  <h2 class="text-xl font-semibold mb-4">General Settings</h2>
+  <form>
+    <div class="mb-4">
+      <label for="appName" class="block text-sm font-medium mb-1">Application Name</label>
+      <input type="text" id="appName" value="University Event Management" class="w-full md:w-1/2 rounded-md">
+    </div>
+    <div class="mb-4">
+      <label for="timeZone" class="block text-sm font-medium mb-1">Time Zone</label>
+      <select id="timeZone" class="w-full md:w-1/2 rounded-md">
+        <option value="UTC-5" selected>(UTC-05:00) Eastern Time (US & Canada)</option>
+        <option value="UTC+0">(UTC+00:00) Greenwich Mean Time</option>
+        <!-- Add more time zones -->
+      </select>
+    </div>
+    <div class="mb-6">
+        <h3 class="text-lg font-medium mb-2">Notification Preferences</h3>
+        <div class="space-y-2">
+            <label class="flex items-center">
+                <input type="checkbox" checked class="mr-2"> Email notifications for new events
+            </label>
+            <label class="flex items-center">
+                <input type="checkbox" class="mr-2"> Email notifications for event updates
+            </label>
+             <label class="flex items-center">
+                <input type="checkbox" checked class="mr-2"> In-app notifications for new messages
+            </label>
+        </div>
+    </div>
+     <div class="mb-6">
+        <h3 class="text-lg font-medium mb-2">Security</h3>
+        <div class="space-y-2">
+            <button type="button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button text-sm">Change Password</button>
+            <label class="flex items-center mt-2">
+                <input type="checkbox" class="mr-2"> Enable Two-Factor Authentication
+            </label>
+        </div>
+    </div>
+    <div class="text-left">
+      <button type="submit" class="px-6 py-2 bg-primary text-white rounded-button">Save Settings</button>
+    </div>
+  </form>
+</div>
+</section>
+<script>
+  console.log("Settings view specific JavaScript executed.");
+  // Add any settings page specific JavaScript here
+</script>
