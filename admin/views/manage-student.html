@@ -1,0 +1,648 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <a href="students.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Students</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300" id="manageStudentBreadcrumbTitle">Manage Student</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-4 sm:mb-6">
+  <h1 class="text-xl sm:text-2xl font-bold mb-3 md:mb-0" id="manageStudentPageTitle">Manage Student</h1>
+  <div class="flex flex-wrap gap-2 sm:space-x-3">
+    <button id="viewStudentBtn" class="px-3 sm:px-4 py-2 bg-secondary text-white rounded-button flex items-center text-xs sm:text-sm">
+      <i class="ri-eye-line mr-1 sm:mr-2"></i> View Profile
+    </button>
+    <button id="backToStudentsBtn" class="px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center text-xs sm:text-sm nav-link" href="students.html" data-view="students.html">
+      <i class="ri-arrow-left-line mr-1 sm:mr-2"></i> Back to Students
+    </button>
+  </div>
+</div>
+
+<div id="manageStudentContainer" class="space-y-4 sm:space-y-6">
+  <!-- Loading State -->
+  <div id="manageStudentLoading" class="card p-8 text-center">
+    <div class="flex justify-center items-center mb-3">
+      <i class="ri-loader-4-line ri-spin text-4xl text-primary"></i>
+    </div>
+    <p class="text-lg text-gray-600 dark:text-gray-400">Loading student data...</p>
+  </div>
+
+  <!-- Error State -->
+  <div id="manageStudentError" class="card p-8 text-center text-red-500 hidden">
+    <div class="flex justify-center items-center mb-3">
+      <i class="ri-error-warning-line text-4xl"></i>
+    </div>
+    <p class="text-lg" id="manageStudentErrorMessage">Could not load student data.</p>
+    <button onclick="loadView('students.html')" class="mt-6 px-6 py-2 bg-primary text-white rounded-button">Go Back to Students</button>
+  </div>
+
+  <!-- Content Area (hidden by default, shown after data load) -->
+  <div id="manageStudentContent" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <!-- Left Column: Student Information -->
+      <div class="lg:col-span-2">
+        <div class="card p-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+          <div class="flex justify-between items-start mb-6">
+            <div class="flex items-center">
+              <div id="studentAvatarContainer" class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary mr-4">
+                <span id="studentInitials">JD</span>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white" id="studentName">Student Name</h2>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <i class="ri-mail-line mr-1 text-primary"></i>
+                  <span id="studentEmail">student@example.com</span>
+                </div>
+              </div>
+            </div>
+            <span id="studentStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap">Status</span>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Account Information</h3>
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Student ID:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentId">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Account Type:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentRole">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Registered:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentRegisteredDate">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Last Login:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentLastLogin">-</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Admin Actions -->
+      <div>
+        <div class="card p-3 sm:p-4 md:p-6">
+          <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Administrative Actions</h3>
+          <div class="space-y-4">
+            <!-- Account Status Action -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <h4 class="font-semibold mb-2 flex items-center">
+                <i class="ri-user-settings-line mr-2 text-primary"></i> Account Status
+              </h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Change the student's account status to control system access.</p>
+              <div class="flex items-center justify-between">
+                <span id="currentStatusText" class="text-sm">Current: <span class="font-medium" id="statusDisplayText">Active</span></span>
+                <button id="toggleStatusBtn" class="px-3 py-1.5 text-sm rounded-button bg-red-500 hover:bg-red-600 text-white">
+                  <i class="ri-user-forbid-line mr-1"></i> Deactivate Student
+                </button>
+              </div>
+            </div>
+            
+            
+            <!-- Password Reset Action -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <h4 class="font-semibold mb-2 flex items-center">
+                <i class="ri-key-line mr-2 text-primary"></i> Password Management
+              </h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Reset student's password or force a password change on next login.</p>
+              <div class="space-y-2">
+                <button id="resetPasswordBtn" class="w-full px-3 py-1.5 text-sm rounded-button bg-secondary hover:bg-secondary/90 text-white">
+                  <i class="ri-refresh-line mr-1"></i> Reset Password
+                </button>
+                <button id="forcePasswordChangeBtn" class="w-full px-3 py-1.5 text-sm rounded-button border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <i class="ri-lock-password-line mr-1"></i> Force Password Change
+                </button>
+              </div>
+            </div>
+            
+            <!-- Account Verification Action -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg" id="verificationActionCard">
+              <h4 class="font-semibold mb-2 flex items-center">
+                <i class="ri-checkbox-circle-line mr-2 text-primary"></i> Account Verification
+              </h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-3" id="verificationDescription">This student's email address has not been verified.</p>
+              <button id="resendVerificationBtn" class="w-full px-3 py-1.5 text-sm rounded-button bg-green-500 hover:bg-green-600 text-white">
+                <i class="ri-mail-send-line mr-1"></i> Resend Verification Email
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div id="statusConfirmModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[60] hidden p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6 text-center">
+      <i class="ri-question-line text-5xl text-yellow-500 mx-auto mb-4"></i>
+      <h3 class="mb-5 text-lg font-normal text-gray-600 dark:text-gray-300" id="statusConfirmTitle">
+        Are you sure you want to change this student's status?
+      </h3>
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400" id="statusConfirmMessage">
+        This will affect the student's ability to access the system.
+      </p>
+      <button id="confirmStatusBtn" type="button" class="text-white bg-primary hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+        Yes, Change Status
+      </button>
+      <button id="cancelStatusBtn" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Reset Modal -->
+<div id="passwordResetModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[60] hidden p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6">
+      <div class="text-center mb-6">
+        <i class="ri-key-line text-5xl text-primary mx-auto mb-4"></i>
+        <h3 class="text-lg font-semibold mb-1">Reset Student Password</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400">You can set a new password or generate a random one.</p>
+      </div>
+      
+      <div class="mb-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-1" for="newPassword">New Password</label>
+          <input type="password" id="newPassword" class="w-full rounded-md text-sm" placeholder="Enter new password or leave blank for random">
+        </div>
+        <div class="flex items-center mb-4">
+          <input type="checkbox" id="showPassword" class="mr-2">
+          <label for="showPassword" class="text-sm">Show password</label>
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="notifyStudent" class="mr-2" checked>
+          <label for="notifyStudent" class="text-sm">Send email notification to student</label>
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-3">
+        <button id="cancelPasswordResetBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button text-sm">
+          Cancel
+        </button>
+        <button id="confirmPasswordResetBtn" class="px-4 py-2 bg-primary text-white rounded-button text-sm">
+          Reset Password
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[60] hidden p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6 text-center">
+      <div class="flex justify-center mb-4">
+        <i class="ri-check-line text-5xl text-green-500"></i>
+      </div>
+      <h3 class="text-xl font-semibold mb-2" id="successModalTitle">Action Successful</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6" id="successModalMessage">The requested action has been completed successfully.</p>
+      <button id="successModalCloseBtn" class="px-5 py-2.5 bg-primary text-white rounded-lg text-sm">
+        OK
+      </button>
+    </div>
+  </div>
+</div>
+</section>
+<script>
+(function() {
+    console.log("Manage Student view specific JavaScript executed.");
+    
+    let studentId = null;
+    let studentData = null;
+
+    // Get student ID from either query parameters or URL path
+    const urlParams = new URLSearchParams(window.location.search);
+    studentId = urlParams.get('id');
+    
+    if (!studentId) {
+        // Check if it's in the path format: /students/123/manage
+        const pathStudentId = window.location.pathname.match(/\/students\/(\d+)\/manage/);
+        if (pathStudentId && pathStudentId[1]) {
+            studentId = pathStudentId[1];
+        }
+    }
+
+    console.log("Student ID for management:", studentId);
+
+    // Get DOM elements
+    const manageStudentLoading = document.getElementById('manageStudentLoading');
+    const manageStudentError = document.getElementById('manageStudentError');
+    const manageStudentErrorMessage = document.getElementById('manageStudentErrorMessage');
+    const manageStudentContent = document.getElementById('manageStudentContent');
+    const manageStudentBreadcrumbTitle = document.getElementById('manageStudentBreadcrumbTitle');
+    const manageStudentPageTitle = document.getElementById('manageStudentPageTitle');
+    
+    // Student info elements
+    const studentNameEl = document.getElementById('studentName');
+    const studentEmailEl = document.getElementById('studentEmail');
+    const studentInitialsEl = document.getElementById('studentInitials');
+    const studentStatusBadgeEl = document.getElementById('studentStatusBadge');
+    const studentIdEl = document.getElementById('studentId');
+    const studentRoleEl = document.getElementById('studentRole');
+    const studentRegisteredDateEl = document.getElementById('studentRegisteredDate');
+    const studentLastLoginEl = document.getElementById('studentLastLogin');
+    
+    // Status action elements
+    const currentStatusText = document.getElementById('statusDisplayText');
+    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
+    
+    // Password action elements
+    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+    const forcePasswordChangeBtn = document.getElementById('forcePasswordChangeBtn');
+    
+    // Verification action elements
+    const verificationActionCard = document.getElementById('verificationActionCard');
+    const verificationDescription = document.getElementById('verificationDescription');
+    const resendVerificationBtn = document.getElementById('resendVerificationBtn');
+    
+    // Status modal elements
+    const statusConfirmModal = document.getElementById('statusConfirmModal');
+    const statusConfirmTitle = document.getElementById('statusConfirmTitle');
+    const statusConfirmMessage = document.getElementById('statusConfirmMessage');
+    const confirmStatusBtn = document.getElementById('confirmStatusBtn');
+    const cancelStatusBtn = document.getElementById('cancelStatusBtn');
+    
+    // Password reset modal elements
+    const passwordResetModal = document.getElementById('passwordResetModal');
+    const newPasswordInput = document.getElementById('newPassword');
+    const showPasswordCheckbox = document.getElementById('showPassword');
+    const notifyStudentCheckbox = document.getElementById('notifyStudent');
+    const confirmPasswordResetBtn = document.getElementById('confirmPasswordResetBtn');
+    const cancelPasswordResetBtn = document.getElementById('cancelPasswordResetBtn');
+    
+    // Success modal elements
+    const successModal = document.getElementById('successModal');
+    const successModalTitle = document.getElementById('successModalTitle');
+    const successModalMessage = document.getElementById('successModalMessage');
+    const successModalCloseBtn = document.getElementById('successModalCloseBtn');
+    
+    // Navigation buttons
+    const viewStudentBtn = document.getElementById('viewStudentBtn');
+    const backToStudentsBtn = document.getElementById('backToStudentsBtn');
+
+    function getInitials(firstName, lastName) {
+        if (!firstName && !lastName) return 'U';
+        let initials = '';
+        if (firstName && firstName.length > 0) initials += firstName[0];
+        if (lastName && lastName.length > 0) initials += lastName[0];
+        return initials.toUpperCase() || 'U';
+    }
+
+     // Hide status confirmation modal
+    function hideStatusConfirmModal() {
+        statusConfirmModal.classList.add('hidden');
+        pendingStatusUpdate = null;
+    }
+
+
+ cancelStatusBtn.addEventListener('click', hideStatusConfirmModal);
+
+    function getStatusClass(status) {
+        status = status ? status.toLowerCase() : 'unknown';
+        let baseClass = 'px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap ';
+        switch (status) {
+            case 'active': return baseClass + 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+            case 'inactive': return baseClass + 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+            case 'pending': return baseClass + 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+            default: return baseClass + 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        }
+    }
+
+    function formatDate(dateString, includeTime = false) {
+        if (!dateString || dateString === '0000-00-00 00:00:00') return 'N/A';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date)) return 'Invalid Date';
+            
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            if (includeTime) {
+                dateOptions.hour = '2-digit';
+                dateOptions.minute = '2-digit';
+            }
+            return date.toLocaleDateString(undefined, dateOptions);
+        } catch (e) { return 'Invalid Date'; }
+    }
+
+    async function fetchStudentData() {
+        if (!studentId) {
+            manageStudentLoading.style.display = 'none';
+            manageStudentErrorMessage.textContent = 'No Student ID provided. Please go back and select a student to manage.';
+            manageStudentError.style.display = 'block';
+            return;
+        }
+
+        manageStudentLoading.style.display = 'block';
+        manageStudentError.style.display = 'none';
+        manageStudentContent.style.display = 'none';
+
+        try {
+            const response = await fetch(`/iteam-university-website/admin/api/students.php?student_id=${studentId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success && result.student) {
+                studentData = result.student;
+                
+                // Update title with student name
+                const fullName = `${studentData.first_name || ''} ${studentData.last_name || ''}`.trim() || `Student ${studentId}`;
+                manageStudentBreadcrumbTitle.textContent = `Manage: ${fullName}`;
+                manageStudentPageTitle.textContent = `Manage Student: ${fullName}`;
+                document.title = `Manage ${fullName} | University Event Management`;
+                
+                // Basic student info
+                studentNameEl.textContent = fullName;
+                studentEmailEl.textContent = studentData.email || 'No email provided';
+                studentInitialsEl.textContent = getInitials(studentData.first_name, studentData.last_name);
+                
+                // Status badge
+                const studentStatus = studentData.status || 'unknown';
+                studentStatusBadgeEl.textContent = studentStatus.charAt(0).toUpperCase() + studentStatus.slice(1);
+                studentStatusBadgeEl.className = getStatusClass(studentStatus);
+                
+                // Account info
+                studentIdEl.textContent = studentData.student_id || studentId;
+                studentRoleEl.textContent = (studentData.role || 'Student').charAt(0).toUpperCase() + (studentData.role || 'Student').slice(1);
+                studentRegisteredDateEl.textContent = formatDate(studentData.registration_date);
+                studentLastLoginEl.textContent = formatDate(studentData.last_login, true) || 'Never';
+                
+                // Set up status toggle button
+                setupStatusToggle(studentStatus);
+                
+                // Set up verification card
+                setupVerificationCard(studentData.verified || false, studentData.email);
+                
+                // Show content
+                manageStudentLoading.style.display = 'none';
+                manageStudentContent.style.display = 'block';
+                
+            } else {
+                throw new Error(result.message || 'Student not found or data is invalid.');
+            }
+        } catch (error) {
+            console.error('Error fetching student data:', error);
+            manageStudentLoading.style.display = 'none';
+            manageStudentErrorMessage.textContent = `Error: ${error.message}`;
+            manageStudentError.style.display = 'block';
+        }
+    }
+
+    function setupStatusToggle(currentStatus) {
+        const isActive = currentStatus.toLowerCase() === 'active';
+        
+        currentStatusText.innerHTML = `Current: <span class="font-medium ${isActive ? 'text-green-600' : 'text-red-600'}">${currentStatus}</span>`;
+        
+        toggleStatusBtn.textContent = isActive ? 'Deactivate Student' : 'Activate Student';
+        toggleStatusBtn.className = `px-3 py-1.5 text-sm rounded-button ${isActive ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white`;
+        toggleStatusBtn.innerHTML = isActive ? 
+            '<i class="ri-user-forbid-line mr-1"></i> Deactivate Student' : 
+            '<i class="ri-user-follow-line mr-1"></i> Activate Student';
+            
+        toggleStatusBtn.onclick = () => showStatusConfirmModal(isActive);
+    }
+
+    function setupVerificationCard(isVerified, email) {
+        if (!email) {
+            verificationActionCard.style.display = 'none';
+            return;
+        }
+        
+        if (isVerified) {
+            verificationDescription.textContent = 'This student\'s email has been verified.';
+            resendVerificationBtn.textContent = 'Account Verified';
+            resendVerificationBtn.disabled = true;
+            resendVerificationBtn.className = 'w-full px-3 py-1.5 text-sm rounded-button bg-gray-300 text-gray-600 cursor-not-allowed';
+            resendVerificationBtn.innerHTML = '<i class="ri-checkbox-circle-line mr-1"></i> Account Verified';
+        } else {
+            verificationDescription.textContent = 'This student\'s email has not been verified.';
+            resendVerificationBtn.onclick = async () => {
+                try {
+                    resendVerificationBtn.disabled = true;
+                    resendVerificationBtn.textContent = 'Sending...';
+                    
+                    const formData = new FormData();
+                    formData.append('student_id', studentId);
+                    formData.append('action', 'resend_verification');
+                    
+                    const response = await fetch('/iteam-university-website/admin/api/user_verification.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showSuccessMessage('Verification Email Sent', 'A new verification email has been sent to the student.');
+                    } else {
+                        throw new Error(result.message || 'Failed to send verification email');
+                    }
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                } finally {
+                    resendVerificationBtn.disabled = false;
+                    resendVerificationBtn.innerHTML = '<i class="ri-mail-send-line mr-1"></i> Resend Verification Email';
+                }
+            };
+        }
+    }
+
+    function showStatusConfirmModal(isCurrentlyActive) {
+        const newStatus = isCurrentlyActive ? 'inactive' : 'active';
+        const action = isCurrentlyActive ? 'deactivate' : 'activate';
+        
+        statusConfirmTitle.textContent = `Are you sure you want to ${action} this user?`;
+        statusConfirmMessage.textContent = isCurrentlyActive 
+            ? 'This student will no longer be able to log in or access the system.' 
+            : 'This student will regain access to the system.';
+        
+        confirmStatusBtn.className = `text-white ${isCurrentlyActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2`;
+        confirmStatusBtn.textContent = isCurrentlyActive ? 'Yes, Deactivate' : 'Yes, Activate';
+        
+        confirmStatusBtn.onclick = () => handleStatusChange(isCurrentlyActive, newStatus);
+        
+        statusConfirmModal.classList.remove('hidden');
+    }
+
+    async function handleStatusChange(isCurrentlyActive, newStatus) {
+        try {
+            confirmStatusBtn.disabled = true;
+            confirmStatusBtn.textContent = 'Processing...';
+            
+            const formData = new FormData();
+            formData.append('student_id', studentId);
+            formData.append('status', newStatus);
+            
+            const response = await fetch('/iteam-university-website/admin/api/update_student_status.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            statusConfirmModal.classList.add('hidden');
+            
+            if (result.success) {
+                // Update UI
+                studentData.status = newStatus;
+                studentStatusBadgeEl.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                studentStatusBadgeEl.className = getStatusClass(newStatus);
+                
+                // Update status toggle button
+                setupStatusToggle(newStatus);
+                
+                showSuccessMessage('Status Updated', `Student has been ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully.`);
+            } else {
+                throw new Error(result.message || 'Failed to update student status');
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        } finally {
+            confirmStatusBtn.disabled = false;
+        }
+    }
+
+    function showPasswordResetModal() {
+        newPasswordInput.value = '';
+        notifyStudentCheckbox.checked = true;
+        passwordResetModal.classList.remove('hidden');
+    }
+
+    resetPasswordBtn.addEventListener('click', showPasswordResetModal);
+    
+    cancelPasswordResetBtn.addEventListener('click', () => {
+        passwordResetModal.classList.add('hidden');
+    });
+    
+    showPasswordCheckbox.addEventListener('change', function() {
+        newPasswordInput.type = this.checked ? 'text' : 'password';
+    });
+    
+    confirmPasswordResetBtn.addEventListener('click', async () => {
+        try {
+            confirmPasswordResetBtn.disabled = true;
+            confirmPasswordResetBtn.textContent = 'Processing...';
+            
+            const formData = new FormData();
+            formData.append('student_id', studentId);
+            formData.append('new_password', newPasswordInput.value);
+            formData.append('notify_user', notifyStudentCheckbox.checked ? '1' : '0');
+            formData.append('auto_generate', newPasswordInput.value ? '0' : '1');
+            
+            const response = await fetch('/iteam-university-website/admin/api/reset_password.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            passwordResetModal.classList.add('hidden');
+            
+            if (result.success) {
+                let message = `Password has been reset successfully.`;
+                if (result.generated_password) {
+                    message += ` The new password is: <strong class="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">${result.generated_password}</strong>`;
+                    if (notifyStudentCheckbox.checked) {
+                        message += ' An email with the password has been sent to the student.';
+                    } else {
+                        message += ' Please communicate this password to the student.';
+                    }
+                } else if (notifyStudentCheckbox.checked) {
+                    message += ' An email notification has been sent to the user.';
+                }
+                
+                showSuccessMessage('Password Reset', message);
+            } else {
+                throw new Error(result.message || 'Failed to reset password');
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        } finally {
+            confirmPasswordResetBtn.disabled = false;
+            confirmPasswordResetBtn.textContent = 'Reset Password';
+        }
+    });
+    
+    forcePasswordChangeBtn.addEventListener('click', async () => {
+        try {
+            forcePasswordChangeBtn.disabled = true;
+            forcePasswordChangeBtn.textContent = 'Processing...';
+            
+            const formData = new FormData();
+            formData.append('student_id', studentId);
+            formData.append('action', 'force_password_change');
+            
+            const response = await fetch('/iteam-university-website/admin/api/user_password_settings.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showSuccessMessage('Password Change Required', 'The student will be prompted to change their password upon next login.');
+            } else {
+                throw new Error(result.message || 'Failed to set password change requirement');
+            }
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        } finally {
+            forcePasswordChangeBtn.disabled = false;
+            forcePasswordChangeBtn.textContent = 'Force Password Change';
+            forcePasswordChangeBtn.innerHTML = '<i class="ri-lock-password-line mr-1"></i> Force Password Change';
+        }
+    });
+    
+    if (viewStudentBtn) {
+        viewStudentBtn.addEventListener('click', function() {
+            window.location.href = `/iteam-university-website/admin/students/${studentId}`;
+        });
+    }
+    
+    function showSuccessMessage(title, message) {
+        successModalTitle.textContent = title;
+        successModalMessage.innerHTML = message;
+        successModal.classList.remove('hidden');
+    }
+    
+    successModalCloseBtn.addEventListener('click', function() {
+        successModal.classList.add('hidden');
+    });
+    
+    // Close modals when clicking outside
+    [statusConfirmModal, passwordResetModal, successModal].forEach(modal => {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+    });
+    
+    // Close modals with escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            [statusConfirmModal, passwordResetModal, successModal].forEach(modal => {
+                if (!modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                }
+            });
+        }
+    });
+    
+    // Load student data on page load
+    fetchStudentData();
+})();
+</script>

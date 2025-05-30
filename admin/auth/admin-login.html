@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <title>Admin Login - iTeam University</title>
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class", // or 'media'
+        theme: {
+          extend: {
+            colors: {
+              primary: 'var(--theme-primary)', // Use CSS variable
+              secondary: 'var(--theme-secondary)', // Use CSS variable
+            },
+            borderRadius: {
+              none: "0px",
+              sm: "4px",
+              DEFAULT: "8px",
+              md: "12px",
+              lg: "16px",
+              xl: "20px",
+              "2xl": "24px",
+              "3xl": "32px",
+              full: "9999px",
+              button: "8px",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen p-4">
+
+    <main class="w-full max-w-md">
+      <div class="bg-white dark:bg-gray-800 shadow-xl rounded-xl p-6 md:p-8">
+        
+        <div class="text-center mb-6">
+          <span class="inline-block bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3"><i class="ri-shield-star-line align-middle mr-1"></i> Admin Portal</span>
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Administrator Login</h2>
+          <p class="text-gray-600 dark:text-gray-400 text-sm mt-1">Access the administrative dashboard.</p>
+        </div>
+        
+        <div id="login-alert" class="p-4 mb-4 text-sm rounded-lg hidden" role="alert">
+        </div>
+        
+        <form id="admin-login-form" class="space-y-6">
+          <div>
+            <label for="admin-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="ri-mail-line text-gray-400"></i>
+              </div>
+              <input type="email" id="admin-email" name="email" class="w-full pl-10 pr-3 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary" placeholder="admin@example.com" required />
+            </div>
+            <div id="email-error" class="text-red-500 text-xs mt-1"></div>
+          </div>
+
+          <div>
+            <label for="admin-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="ri-lock-password-line text-gray-400"></i>
+              </div>
+              <input type="password" id="admin-password" name="password" class="w-full pl-10 pr-10 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary" placeholder="••••••••" required />
+              <button type="button" class="password-toggle absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary-400" aria-label="Toggle password visibility">
+                <i class="ri-eye-line"></i>
+              </button>
+            </div>
+            <div id="password-error" class="text-red-500 text-xs mt-1"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:bg-gray-700 dark:border-gray-600" />
+              <label for="remember" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Remember me</label>
+            </div>
+          </div>
+
+          <div>
+            <!-- <button type="submit" id="login-btn" class="w-full flex justify-center items-center px-4 py-2.5 border border-transparent rounded-button shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-primary-600 dark:hover:bg-primary-700">
+              Secure Login
+            </button>
+            <button class="w-full rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2" type="button">
+              Secure Login
+            </button> -->
+            <button type="submit" id="login-btn" class="w-full py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+              Secure Login</button>
+          </div>
+        </form>
+        
+        <div class="mt-6 bg-blue-50 dark:bg-gray-700/50 border-l-4 border-blue-500 dark:border-blue-400 p-4 rounded-r-md">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="ri-information-line text-blue-500 dark:text-blue-400 text-xl"></i>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-blue-700 dark:text-blue-300">Security Notice</h3>
+              <div class="mt-1 text-xs text-blue-600 dark:text-blue-300/80">
+                <p>This is a secured administrative area. Unauthorized access attempts are logged and may be reported.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+        &copy; 2025 iTeam University. All rights reserved.
+      </p>
+    </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        fetch('/iteam-university-website/admin/api/adminlogin.php?check=1')
+          .then(response => {
+            if (!response.ok) {
+              return response.json().then(errData => {
+                throw new Error(errData.message || `Network response was not ok: ${response.status} ${response.statusText}.`);
+              }).catch(() => {
+                throw new Error(`Network response was not ok: ${response.status} ${response.statusText}.`);
+              });
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success && data.admin && data.admin.is_admin) {
+              window.location.href = data.admin.dashboard_url || '/iteam-university-website/admin/index.html';
+            }
+          })
+          .catch(error => {
+            console.warn('Initial admin auth check failed or no active session:', error.message);
+          });
+        
+        const passwordInput = document.getElementById('admin-password');
+        const toggleButton = document.querySelector('.password-toggle');
+        const toggleIcon = toggleButton.querySelector('i');
+        
+        toggleButton.addEventListener('click', function() {
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('ri-eye-line');
+            toggleIcon.classList.add('ri-eye-off-line');
+          } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('ri-eye-off-line');
+            toggleIcon.classList.add('ri-eye-line');
+          }
+        });
+        
+        const form = document.getElementById('admin-login-form');
+        const loginAlert = document.getElementById('login-alert');
+        const loginBtn = document.getElementById('login-btn');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          loginAlert.classList.add('hidden');
+          loginAlert.textContent = '';
+          document.querySelectorAll('.validation-error').forEach(el => el.textContent = '');
+          
+          loginBtn.innerHTML = '<i class="ri-loader-4-line ri-spin mr-2"></i> Authenticating...';
+          loginBtn.disabled = true;
+          
+          const formData = new FormData(form);
+          
+          fetch('/iteam-university-website/admin/api/adminlogin.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => {
+            if (!response.ok) {
+              return response.json().then(errData => {
+                 throw new Error(errData.message || `HTTP error! Status: ${response.status}`);
+              }).catch(() => {
+                 throw new Error(`HTTP error! Status: ${response.status}`);
+              });
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success && data.admin && data.admin.is_admin) {
+              window.location.href = data.admin.dashboard_url || '/iteam-university-website/admin/index.html';
+            } else {
+              loginBtn.innerHTML = 'Secure Login';
+              loginBtn.disabled = false;
+              loginAlert.innerHTML = `<i class="ri-error-warning-line align-middle mr-1"></i> ${data.message || 'Authentication failed. Please check credentials.'}`;
+              loginAlert.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'dark:bg-green-700', 'dark:text-green-100');
+              loginAlert.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-700', 'dark:text-red-100');
+            }
+          })
+          .catch(error => {
+            console.error('Admin login submission error:', error);
+            loginBtn.innerHTML = 'Secure Login';
+            loginBtn.disabled = false;
+            loginAlert.innerHTML = `<i class="ri-error-warning-line align-middle mr-1"></i> ${error.message || 'An error occurred. Please try again.'}`;
+            loginAlert.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'dark:bg-green-700', 'dark:text-green-100');
+            loginAlert.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-700', 'dark:text-red-100');
+          });
+        });
+      });
+    </script>
+    <script src="main.js"></script>
+  </body>
+</html>

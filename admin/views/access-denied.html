@@ -1,0 +1,25 @@
+<section class="flex items-center justify-center min-h-[70vh] bg-white dark:bg-gray-900">
+  <div class="text-center p-8 bg-white dark:bg-gray-800 rounded-xl shadow-md max-w-lg">
+    <div class="flex justify-center mb-6">
+      <div class="rounded-full bg-red-100 dark:bg-red-900/20 p-6">
+        <i class="ri-lock-2-line text-6xl text-red-500 dark:text-red-400"></i>
+      </div>
+    </div>
+    
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Access Denied</h1>
+    
+    <p class="text-gray-600 dark:text-gray-300 mb-6">
+      You don't have permission to access this page. If you believe this is an error, please contact your administrator.
+    </p>
+    
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <button onclick="window.router.navigateTo('dashboard')" class="px-6 py-2 bg-primary text-white rounded-button hover:bg-primary-dark transition">
+        Go to Dashboard
+      </button>
+      
+      <button onclick="window.logoutAdmin()" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-button hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+        Logout
+      </button>
+    </div>
+  </div>
+</section>

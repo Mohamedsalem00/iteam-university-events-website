@@ -1,0 +1,500 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+    <div class="flex items-center text-sm mb-6">
+      <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 nav-link">Home</a>
+      <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+      <span class="text-gray-700 dark:text-gray-300">Photo Gallery</span>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+      <h1 id="galleryPageTitle" class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200">Photo Albums</h1>
+      </div>
+
+    <div id="albumFiltersCard" class="card bg-white dark:bg-gray-800 p-4 mb-6 rounded-lg shadow-md">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <div>
+          <label for="galleryEventTypeFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Event Type</label>
+          <select id="galleryEventTypeFilter" class="w-full rounded-md text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+            <option value="">All Types</option>
+            <option value="conference">Conferences</option>
+            <option value="workshop">Workshops</option>
+            <option value="competition">Competitions</option>
+            <option value="social">Social Events</option>
+            <option value="sports">Sports</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="gallerySortByDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort by Event Date</label>
+          <select id="gallerySortByDate" class="w-full rounded-md text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+            <option value="newest_event">Newest Event First</option>
+            <option value="oldest_event">Oldest Event First</option>
+          </select>
+        </div>
+        <div>
+          <label for="gallerySortByEventName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort by Event Name</label>
+          <select id="gallerySortByEventName" class="w-full rounded-md text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500 shadow-sm">
+            <option value="asc">A-Z</option>
+            <option value="desc">Z-A</option>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button id="applyGalleryFilters" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-button text-sm font-medium shadow-sm transition-colors duration-150">Apply Filters</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="galleryMainArea">
+        <div id="albumGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-6">
+          </div>
+
+        <div id="photoSlideshowContainer" class="hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4">
+                <button id="backToAlbumsBtn" class="w-full sm:w-auto px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-button mr-0 sm:mr-4 mb-2 sm:mb-0 flex items-center justify-center text-gray-700 dark:text-gray-200 font-medium transition-colors duration-150">
+                    <i class="ri-arrow-left-line mr-2"></i> Back to Albums
+                </button>
+                <h2 id="currentAlbumName" class="text-xl md:text-2xl font-semibold truncate text-gray-800 dark:text-gray-200 text-center sm:text-left">
+                    </h2>
+            </div>
+
+            <div class="carousel-container relative mx-auto max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div id="carouselSlidesArea" class="relative bg-black dark:bg-gray-900">
+                    </div>
+
+                <a class="carousel-prev absolute top-1/2 left-2 sm:left-3 transform -translate-y-1/2 z-20 p-2 sm:p-3 bg-black bg-opacity-30 hover:bg-opacity-60 text-white rounded-full text-xl sm:text-2xl transition-all duration-200 ease-in-out cursor-pointer select-none" onclick="plusSlides(-1)">
+                    <i class="ri-arrow-left-s-line"></i>
+                </a>
+                <a class="carousel-next absolute top-1/2 right-2 sm:right-3 transform -translate-y-1/2 z-20 p-2 sm:p-3 bg-black bg-opacity-30 hover:bg-opacity-60 text-white rounded-full text-xl sm:text-2xl transition-all duration-200 ease-in-out cursor-pointer select-none" onclick="plusSlides(1)">
+                    <i class="ri-arrow-right-s-line"></i>
+                </a>
+
+                <div id="carouselThumbnailRow" class="flex flex-wrap justify-center p-3 bg-gray-100 dark:bg-gray-700 gap-2 overflow-x-auto">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="galleryLoadingIndicator" class="text-center py-10 hidden">
+        <div class="flex flex-col items-center text-gray-600 dark:text-gray-400">
+            <i class="ri-loader-4-line text-4xl animate-spin mb-2"></i>
+            <span>Loading Albums...</span>
+        </div>
+    </div>
+    <div id="galleryNoResultsIndicator" class="text-center py-10 text-gray-500 dark:text-gray-400 hidden">
+        <div class="flex flex-col items-center">
+            <i class="ri-image-x-line text-5xl mb-3"></i>
+            <span id="noResultsMessage" class="text-lg">No albums found.</span>
+        </div>
+    </div>
+
+    <div id="galleryPagination" class="flex flex-col sm:flex-row items-center justify-between mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="text-sm text-gray-600 dark:text-gray-400 mb-2 sm:mb-0">
+        Showing <span id="paginationStartItem" class="font-medium">1</span> to <span id="paginationEndItem" class="font-medium">0</span> of <span id="totalItemsCount" class="font-medium">0</span> <span id="paginationItemType">albums</span>
+      </div>
+      <div class="flex space-x-2">
+        <button id="galleryPrevPage" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150" disabled>Previous</button>
+        <button id="galleryNextPage" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150">Next</button>
+      </div>
+    </div>
+</section>
+<script>
+// Make slideshow functions globally accessible for inline onclick handlers
+// Only declare if they don't already exist to prevent redeclaration errors.
+// This ensures that on subsequent loads, we don't try to re-declare with 'let'.
+if (typeof window.plusSlides === 'undefined') {
+    window.plusSlides = function() { console.warn("plusSlides called before proper initialization"); };
+}
+if (typeof window.currentSlide === 'undefined') {
+    window.currentSlide = function() { console.warn("currentSlide called before proper initialization"); };
+}
+
+(function() { // Start of IIFE (Immediately Invoked Function Expression)
+    "use strict"; // Enforce stricter parsing and error handling
+
+    // --- DOM Element References ---
+    const galleryPageTitle = document.getElementById('galleryPageTitle');
+    const albumFiltersCard = document.getElementById('albumFiltersCard');
+    const albumGrid = document.getElementById('albumGrid');
+    const photoSlideshowContainer = document.getElementById('photoSlideshowContainer');
+    const carouselSlidesArea = document.getElementById('carouselSlidesArea');
+    const carouselThumbnailRow = document.getElementById('carouselThumbnailRow');
+    const backToAlbumsBtn = document.getElementById('backToAlbumsBtn');
+    const currentAlbumNameH2 = document.getElementById('currentAlbumName');
+    const galleryLoadingIndicator = document.getElementById('galleryLoadingIndicator');
+    const galleryNoResultsIndicator = document.getElementById('galleryNoResultsIndicator');
+    const noResultsMessageSpan = document.getElementById('noResultsMessage');
+    const applyGalleryFiltersBtn = document.getElementById('applyGalleryFilters');
+    const paginationContainer = document.getElementById('galleryPagination');
+    const paginationStartItemSpan = document.getElementById('paginationStartItem');
+    const paginationEndItemSpan = document.getElementById('paginationEndItem');
+    const totalItemsCountSpan = document.getElementById('totalItemsCount');
+    const paginationItemTypeSpan = document.getElementById('paginationItemType');
+    const galleryPrevPageBtn = document.getElementById('galleryPrevPage');
+    const galleryNextPageBtn = document.getElementById('galleryNextPage');
+    // const darkModeToggle = document.getElementById('darkModeToggle'); // Optional dark mode toggle
+
+    // --- State Variables ---
+    let allAlbumsFromAPI = []; // Stores all albums fetched initially (or after a full refresh)
+    let currentFilteredAndSortedAlbums = []; // Albums after filtering and sorting, used for pagination
+    let currentView = 'albums'; // Can be 'albums' or 'slideshow'
+    let selectedAlbumData = null; // Holds the data of the currently selected album for the slideshow
+
+    let currentPage = 1; // Current page for album pagination
+    const itemsPerPage = 8; // Number of albums to display per page
+
+    let slideIndex = 1; // Current slide index in the carousel (1-based)
+    let currentCarouselPhotos = []; // Photos for the currently active carousel
+
+
+    // --- Core Functions ---
+
+    /**
+     * Fetches album data (simulated here) and manages view rendering.
+     */
+    async function fetchAndDisplayContent() {
+        galleryLoadingIndicator.classList.remove('hidden');
+        galleryNoResultsIndicator.classList.add('hidden');
+        albumGrid.classList.add('hidden'); // Hide grid while loading
+        paginationContainer.classList.add('hidden');
+
+        if (currentView === 'albums') {
+            albumGrid.innerHTML = ''; // Clear previous album cards
+            photoSlideshowContainer.classList.add('hidden');
+            albumGrid.classList.remove('hidden');
+            albumFiltersCard.classList.remove('hidden');
+            galleryPageTitle.textContent = 'Photo Albums';
+            paginationItemTypeSpan.textContent = 'albums';
+
+            const eventType = document.getElementById('galleryEventTypeFilter').value;
+            const sortByDate = document.getElementById('gallerySortByDate').value;
+            const sortByEventName = document.getElementById('gallerySortByEventName').value;
+
+            try {
+                // --- SIMULATED API CALL ---
+                // In a real application, replace this with:
+                const response = await fetch(`/iteam-university-website/admin/api/gallery_photos.php?eventType=${encodeURIComponent(eventType)}&sortByDate=${encodeURIComponent(sortByDate)}&sortByEventName=${encodeURIComponent(sortByEventName)}`);
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                const result = await response.json();
+                if (!result.success) throw new Error(result.message || 'Failed to fetch albums from API.');
+                allAlbumsFromAPI = result.albums || [];
+
+                // Using MOCK DATA:
+                await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+                let filteredMockAlbums = result.albums.filter(album => {
+                    return eventType ? album.event_type === eventType : true;
+                });
+
+                // Sort mock data (API should ideally handle sorting)
+                filteredMockAlbums.sort((a, b) => {
+                    let comparison = 0;
+                    // Date sorting
+                    if (sortByDate === 'newest_event') {
+                        comparison = new Date(b.event_date) - new Date(a.event_date);
+                    } else {
+                        comparison = new Date(a.event_date) - new Date(b.event_date);
+                    }
+                    // If dates are same, sort by name
+                    if (comparison === 0) {
+                        if (sortByEventName === 'asc') {
+                            comparison = a.event_name.localeCompare(b.event_name);
+                        } else {
+                            comparison = b.event_name.localeCompare(a.event_name);
+                        }
+                    }
+                    return comparison;
+                });
+                allAlbumsFromAPI = filteredMockAlbums;
+                // --- END SIMULATED API CALL ---
+
+                currentFilteredAndSortedAlbums = [...allAlbumsFromAPI];
+                currentPage = 1; // Reset to first page
+                renderCurrentPageAlbums();
+
+            } catch (error) {
+                console.error('Failed to fetch or process albums:', error);
+                albumGrid.innerHTML = `<p class="col-span-full text-center text-red-500 dark:text-red-400 py-10">Failed to load albums. ${error.message}</p>`;
+                updatePaginationUI(0, 0, 0, 'albums'); // Show 0 results
+            }
+
+        } else if (currentView === 'slideshow' && selectedAlbumData) {
+            albumGrid.classList.add('hidden');
+            albumFiltersCard.classList.add('hidden');
+            photoSlideshowContainer.classList.remove('hidden');
+            galleryPageTitle.textContent = selectedAlbumData.event_name; // Set page title to album name
+            currentAlbumNameH2.textContent = selectedAlbumData.event_name; // Set carousel header
+            renderPhotosForCarousel();
+            paginationContainer.classList.add('hidden'); // Hide pagination in slideshow view
+        }
+        galleryLoadingIndicator.classList.add('hidden');
+    }
+
+    /**
+     * Renders album cards for the current page.
+     */
+    function renderCurrentPageAlbums() {
+        albumGrid.innerHTML = ''; // Clear previous album cards
+        const totalAlbums = currentFilteredAndSortedAlbums.length;
+
+        if (totalAlbums === 0) {
+            noResultsMessageSpan.textContent = 'No albums found matching your criteria.';
+            galleryNoResultsIndicator.classList.remove('hidden');
+            updatePaginationUI(0, 0, 0, 'albums');
+            return;
+        }
+        galleryNoResultsIndicator.classList.add('hidden');
+        paginationContainer.classList.remove('hidden');
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalAlbums);
+        const albumsToDisplay = currentFilteredAndSortedAlbums.slice(startIndex, endIndex);
+
+        albumsToDisplay.forEach(album => {
+            const albumCard = document.createElement('div');
+            albumCard.className = 'album-card cursor-pointer group'; // Added 'group' for potential hover effects within card
+            const eventDateStr = album.event_date ? new Date(album.event_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Date N/A';
+
+            // Default placeholder if thumbnail is missing or fails to load
+            const placeholderImage = 'https://placehold.co/400x300/CBD5E0/4A5568?text=No+Image';
+
+            albumCard.innerHTML = `
+                <div class="album-thumbnail-wrapper">
+                    <img src="${album.album_thumbnail_url || placeholderImage}" alt="Cover for ${album.event_name}" class="album-thumbnail group-hover:opacity-80 transition-opacity duration-300" onerror="this.onerror=null; this.src='${placeholderImage}';">
+                </div>
+                <div class="album-info">
+                    <div>
+                        <h3 class="album-title" title="${album.event_name}">${album.event_name}</h3>
+                        <p class="album-meta text-xs text-gray-500 dark:text-gray-400 capitalize">${album.event_type || 'N/A'}</p>
+                    </div>
+                    <p class="album-meta text-xs mt-2 text-gray-500 dark:text-gray-400">${album.photo_count} photo${album.photo_count !== 1 ? 's' : ''} &bull; ${eventDateStr}</p>
+                </div>
+            `;
+            albumCard.addEventListener('click', () => {
+                selectedAlbumData = album;
+                currentView = 'slideshow';
+                fetchAndDisplayContent(); // This will re-render based on the new view
+            });
+            albumGrid.appendChild(albumCard);
+        });
+        updatePaginationUI(startIndex + 1, endIndex, totalAlbums, 'albums');
+    }
+
+    /**
+     * Renders photos in the carousel for the selected album.
+     */
+    function renderPhotosForCarousel() {
+        carouselSlidesArea.innerHTML = '';
+        carouselThumbnailRow.innerHTML = '';
+        currentCarouselPhotos = selectedAlbumData.photos || [];
+
+        if (currentCarouselPhotos.length === 0) {
+            carouselSlidesArea.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400 py-10 px-4 min-h-[300px]">
+                    <i class="ri-camera-off-line text-5xl mb-3"></i>
+                    <p class="text-lg">No photos available in this album.</p>
+                </div>`;
+            // Hide nav buttons if no photos
+            document.querySelector('.carousel-prev').classList.add('hidden');
+            document.querySelector('.carousel-next').classList.add('hidden');
+            return;
+        }
+        // Show nav buttons if photos exist
+        document.querySelector('.carousel-prev').classList.remove('hidden');
+        document.querySelector('.carousel-next').classList.remove('hidden');
+
+        const placeholderSlideImage = 'https://placehold.co/1200x800/CBD5E0/4A5568?text=Image+Unavailable';
+
+        currentCarouselPhotos.forEach((photo, index) => {
+            // Create slide div
+            const slideDiv = document.createElement('div');
+            slideDiv.className = 'carousel-slide';
+            // Note: The image src here should ideally point to a URL from your API that provides the appropriately sized image.
+            // If your API can provide different sizes, use the 1200x800 URL here.
+            // If not, the CSS max-width/max-height will constrain the display size.
+            slideDiv.innerHTML = `
+                <div class="absolute top-2 left-2 z-30 text-white text-xs py-1 px-2.5 bg-black bg-opacity-60 rounded-md">${index + 1} / ${currentCarouselPhotos.length}</div>
+                <img src="${photo.url || placeholderSlideImage}"
+                     alt="${photo.title || 'Album image'}"
+                     onerror="this.onerror=null; this.src='${placeholderSlideImage}'; this.alt='Image not available';">
+                <div class="carousel-text-container">
+                    <h3 class="font-semibold truncate" title="${photo.title || 'Untitled'}">${photo.title || 'Untitled'}</h3>
+                    <p class="text-gray-200">${photo.description || 'No description available.'}</p>
+                </div>
+            `;
+            carouselSlidesArea.appendChild(slideDiv);
+
+            // Create thumbnail image
+            const thumbImg = document.createElement('img');
+            thumbImg.className = `carousel-demo opacity-60 hover:opacity-100 cursor-pointer w-20 h-auto object-cover rounded border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-200`;
+             // Note: For thumbnails, it's best to use a dedicated thumbnail URL from your API if available,
+             // or generate a smaller version if possible, rather than resizing the large image.
+             // The current code attempts to replace '1200x800' in the URL, which might not work depending on your API.
+            thumbImg.src = photo.thumbnailUrl || photo.url.replace('1200x800', '100x75') || placeholderSlideImage.replace('1200x800', '100x75'); // Use smaller placeholder for thumb
+            thumbImg.alt = `Thumbnail for ${photo.title || `Image ${index + 1}`}`;
+            thumbImg.onclick = () => currentSlide(index + 1);
+            thumbImg.onerror = function() {
+                this.onerror=null;
+                this.src=placeholderSlideImage.replace('1200x800', '100x75');
+                this.alt='Thumb not available';
+                this.classList.add('opacity-40', 'cursor-not-allowed');
+            };
+            carouselThumbnailRow.appendChild(thumbImg);
+        });
+
+        slideIndex = 1; // Reset to the first slide
+        showSlides(slideIndex);
+    }
+
+    /**
+     * Switches the view back to albums.
+     */
+    function switchToAlbumsView() {
+        currentView = 'albums';
+        selectedAlbumData = null; // Clear selected album
+        currentCarouselPhotos = []; // Clear carousel photos
+        photoSlideshowContainer.classList.add('hidden');
+        // No need to call fetchAndDisplayContent immediately if filters haven't changed.
+        // The existing album list is still valid.
+        // However, if you want to ensure filters are re-applied or data is fresh:
+        fetchAndDisplayContent();
+    }
+
+    /**
+     * Updates the pagination UI elements.
+     */
+    function updatePaginationUI(startItem, endItem, totalItems, itemType = 'items') {
+        paginationStartItemSpan.textContent = totalItems === 0 ? 0 : startItem;
+        paginationEndItemSpan.textContent = endItem;
+        totalItemsCountSpan.textContent = totalItems;
+        paginationItemTypeSpan.textContent = totalItems === 1 && itemType.endsWith('s') ? itemType.slice(0, -1) : itemType;
+
+
+        galleryPrevPageBtn.disabled = (currentPage === 1 || totalItems === 0);
+        galleryNextPageBtn.disabled = (currentPage * itemsPerPage >= totalItems || totalItems === 0);
+
+        if (totalItems === 0 && currentView === 'albums') {
+            paginationContainer.classList.add('hidden');
+        } else if (currentView === 'albums') {
+            paginationContainer.classList.remove('hidden');
+        }
+    }
+
+    // --- Carousel Navigation Functions (assign to window properties) ---
+    // These functions are defined inside the IIFE and assigned to the global properties
+    // that were conditionally declared above.
+    window.plusSlides = function(n) { // Assign to window.plusSlides
+      showSlides(slideIndex += n);
+    };
+
+    window.currentSlide = function(n) { // Assign to window.currentSlide
+      showSlides(slideIndex = n);
+    };
+
+    /**
+     * Displays the specified slide and updates thumbnails.
+     * @param {number} n - The 1-based index of the slide to show.
+     */
+    function showSlides(n) {
+      if (!carouselSlidesArea || !carouselThumbnailRow || currentCarouselPhotos.length === 0) return;
+
+      const slides = carouselSlidesArea.getElementsByClassName("carousel-slide");
+      const dots = carouselThumbnailRow.getElementsByClassName("carousel-demo");
+
+      if (n > slides.length) { slideIndex = 1; }
+      if (n < 1) { slideIndex = slides.length; }
+
+      // Hide all slides
+      for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+      }
+      // Deactivate all thumbnails
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].classList.remove("opacity-100", "border-blue-500", "dark:border-blue-400", "shadow-md");
+        dots[i].classList.add("opacity-60", "border-transparent");
+      }
+
+      // Display the current slide and activate its thumbnail
+      if (slides[slideIndex - 1]) {
+          slides[slideIndex - 1].style.display = "flex"; /* Use flex to keep image centered */
+      }
+      if (dots[slideIndex - 1]) {
+        dots[slideIndex - 1].classList.remove("opacity-60", "border-transparent");
+        dots[slideIndex - 1].classList.add("opacity-100", "border-blue-500", "dark:border-blue-400", "shadow-md");
+        // Scroll thumbnail into view if carouselThumbnailRow is scrollable
+        dots[slideIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+
+    // --- Event Listeners ---
+    if (applyGalleryFiltersBtn) {
+        applyGalleryFiltersBtn.addEventListener('click', () => {
+            currentView = 'albums'; // Ensure we are in album view when applying filters
+            fetchAndDisplayContent();
+        });
+    }
+
+    if (backToAlbumsBtn) {
+        backToAlbumsBtn.addEventListener('click', switchToAlbumsView);
+    }
+
+    if (galleryPrevPageBtn) {
+        galleryPrevPageBtn.addEventListener('click', () => {
+            if (currentPage > 1 && currentView === 'albums') {
+                currentPage--;
+                renderCurrentPageAlbums(); // Re-render albums for the new page
+                window.scrollTo({ top: albumFiltersCard.offsetTop - 20, behavior: 'smooth' }); // Scroll towards top of filters
+            }
+        });
+    }
+
+    if (galleryNextPageBtn) {
+        galleryNextPageBtn.addEventListener('click', () => {
+            if ((currentPage * itemsPerPage) < currentFilteredAndSortedAlbums.length && currentView === 'albums') {
+                currentPage++;
+                renderCurrentPageAlbums(); // Re-render albums for the new page
+                window.scrollTo({ top: albumFiltersCard.offsetTop - 20, behavior: 'smooth' }); // Scroll towards top of filters
+            }
+        });
+    }
+
+    // Keyboard navigation for carousel and escape to close
+    document.addEventListener('keydown', (e) => {
+      if (currentView !== 'slideshow' || !photoSlideshowContainer || photoSlideshowContainer.classList.contains('hidden')) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        switchToAlbumsView();
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        plusSlides(1);
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        plusSlides(-1);
+      }
+    });
+
+    // Optional: Dark Mode Toggle Example
+    // if (darkModeToggle) {
+    //     darkModeToggle.addEventListener('click', () => {
+    //         document.documentElement.classList.toggle('dark');
+    //         // Optionally, save preference to localStorage
+    //         if (document.documentElement.classList.contains('dark')) {
+    //             localStorage.setItem('theme', 'dark');
+    //         } else {
+    //             localStorage.setItem('theme', 'light');
+    //         }
+    //     });
+    //     // Check localStorage for theme preference on load
+    //     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    //         document.documentElement.classList.add('dark');
+    //     } else {
+    //         document.documentElement.classList.remove('dark');
+    //     }
+    // }
+
+
+    // --- Initial Load ---
+    fetchAndDisplayContent();
+
+})(); // End of IIFE
+</script>

@@ -1,0 +1,583 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300">Organizations</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Organizations Management</h1>
+  <div class="mt-4 md:mt-0 flex space-x-3">
+    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center" id="exportOrganizationsBtn">
+      <div class="w-4 h-4 flex items-center justify-center mr-2"><i class="ri-download-line"></i></div>
+      <span class="whitespace-nowrap">Export Organizations</span>
+    </button>
+    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center" id="refreshOrganizationsData">
+      <div class="w-4 h-4 flex items-center justify-center mr-2"><i class="ri-refresh-line"></i></div>
+      <span class="whitespace-nowrap">Refresh</span>
+    </button>
+  </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Total Organizations Card -->
+    <div class="card p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-primary">
+                <i class="ri-building-line text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">Total Organizations</h3>
+                <p class="text-3xl font-bold" id="statTotalOrganizations">0</p>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm">
+            <span class="text-xs text-gray-400 dark:text-gray-500">Loading trend...</span>
+        </div>
+    </div>
+    <!-- Active Organizations Card -->
+    <div class="card p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600">
+                <i class="ri-building-2-line text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">Active Organizations</h3>
+                <p class="text-3xl font-bold" id="statActiveOrganizations">0</p>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm">
+            <span class="text-xs text-gray-400 dark:text-gray-500">Loading trend...</span>
+        </div>
+    </div>
+    <!-- New Organizations (Last 30 Days) Card -->
+    <div class="card p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600">
+                <i class="ri-building-4-line text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-semibold">New Organizations (30d)</h3>
+                <p class="text-3xl font-bold" id="statNewOrganizations30Days">0</p>
+            </div>
+        </div>
+        <div class="mt-4 flex items-center text-sm">
+            <span class="text-xs text-gray-400 dark:text-gray-500">Loading trend...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <div class="card p-6">
+    <h2 class="text-xl font-semibold mb-4">Monthly Organization Registrations</h2>
+    <div id="monthlyOrganizationRegistrationsChart" style="height: 300px;"></div>
+  </div>
+  <div class="card p-6">
+    <h2 class="text-xl font-semibold mb-4">Organization Status Distribution</h2>
+    <div id="organizationStatusDistributionChart" style="height: 300px;"></div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card p-4 mb-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div>
+      <label for="orgNameSearch" class="block text-sm font-medium mb-1">Search Name</label>
+      <input type="text" id="orgNameSearch" placeholder="Enter organization name..." class="w-full rounded-md text-sm">
+    </div>
+    <div>
+      <label for="orgTypeFilter" class="block text-sm font-medium mb-1">Filter by Type</label>
+      <select id="orgTypeFilter" class="w-full rounded-md text-sm">
+        <option value="">All Types</option>
+        <option value="student_club">Student Club</option>
+        <option value="academic_department">Academic Department</option>
+        <option value="research_group">Research Group</option>
+        <option value="administrative_office">Administrative Office</option>
+        <option value="alumni_association">Alumni Association</option>
+      </select>
+    </div>
+    <div>
+      <label for="orgStatusFilter" class="block text-sm font-medium mb-1">Filter by Status</label>
+      <select id="orgStatusFilter" class="w-full rounded-md text-sm">
+        <option value="">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="pending_approval">Pending Approval</option>
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button id="applyOrgFilters" class="w-full px-4 py-2 bg-secondary text-white rounded-button text-sm">Apply Filters</button>
+    </div>
+  </div>
+</div>
+
+<!-- Organization List Table -->
+<div class="card p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold">All Organizations</h2>
+    <span class="text-sm text-gray-500 dark:text-gray-400"><span id="orgCount">0</span> Organizations Found</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr>
+          <th class="text-left py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <input type="checkbox" id="selectAllOrgs" class="mr-2"> Organization Name
+          </th>
+          <th class="text-left py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">Type</th>
+          <th class="text-left py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">Contact Person</th>
+          <th class="text-left py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">Members</th>
+          <th class="text-left py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">Date Created</th>
+          <th class="text-left py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">Status</th>
+          <th class="text-center py-2 px-3 uppercase text-xs font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="organizationsTableBody">
+      </tbody>
+    </table>
+  </div>
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-6">
+    <div class="text-sm text-gray-500 dark:text-gray-400">
+      Showing <span id="paginationStartOrg">1</span> to <span id="paginationEndOrg">3</span> of <span id="totalOrgsCount">3</span> organizations
+    </div>
+    <div class="flex space-x-1 pagination">
+      <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-button text-sm hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50" disabled>Previous</button>
+      <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-button text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status Confirmation Modal -->
+<div id="statusConfirmModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[100] hidden p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6 text-center">
+      <i class="ri-question-line text-5xl text-yellow-500 mx-auto mb-4"></i>
+      <h3 class="mb-5 text-lg font-normal text-gray-600 dark:text-gray-300" id="statusConfirmTitle">Are you sure you want to change this organization's status?</h3>
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400" id="statusConfirmMessage">This action will affect the organization's access to the system.</p>
+      <button id="confirmStatusBtn" type="button" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+        Yes, Change Status
+      </button>
+      <button id="cancelStatusBtn" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+</section>
+<script>
+  (function() { // Start IIFE
+    console.log("Organizations view specific JavaScript executed (IIFE).");
+
+    // Element selectors - ensure these IDs exist in your organizations.html
+    const organizationsTableBody = document.getElementById('organizationsTableBody');
+    const orgCountSpan = document.getElementById('orgCount');
+    const totalOrgsCountSpan = document.getElementById('totalOrgsCount');
+    const paginationStartOrgSpan = document.getElementById('paginationStartOrg');
+    const paginationEndOrgSpan = document.getElementById('paginationEndOrg');
+    
+    // Stat card elements
+    const statTotalOrganizationsEl = document.getElementById('statTotalOrganizations');
+    const statActiveOrganizationsEl = document.getElementById('statActiveOrganizations');
+    const statNewOrganizations30DaysEl = document.getElementById('statNewOrganizations30Days');
+
+    // Chart instances
+    let monthlyOrganizationRegistrationsChartInstance = null;
+    let organizationStatusDistributionChartInstance = null;
+
+    const applyFiltersButton = document.getElementById('applyOrgFilters');
+    const orgNameSearchInput = document.getElementById('orgNameSearch');
+    const orgTypeFilterElement = document.getElementById('orgTypeFilter');
+    const orgStatusFilterElement = document.getElementById('orgStatusFilter');
+
+    // Pagination buttons
+    const prevButton = document.querySelector('.pagination button:first-child'); // Adjust if selector is more specific
+    const nextButton = document.querySelector('.pagination button:last-child');  // Adjust if selector is more specific
+
+    // Add status confirmation modal elements
+    const statusConfirmModal = document.getElementById('statusConfirmModal');
+    const statusConfirmTitle = document.getElementById('statusConfirmTitle');
+    const statusConfirmMessage = document.getElementById('statusConfirmMessage');
+    const confirmStatusBtn = document.getElementById('confirmStatusBtn');
+    const cancelStatusBtn = document.getElementById('cancelStatusBtn');
+
+    let pendingStatusUpdate = null;
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // --- Helper: Render Trend ---
+    function renderTrend(trendData, statCardElement) {
+        const trendElementContainer = statCardElement.querySelector('.mt-4.flex.items-center.text-sm');
+        if (!trendElementContainer) {
+            console.warn("Trend element container not found in card:", statCardElement);
+            return;
+        }
+        if (!trendData || trendData.percentage === undefined) {
+            trendElementContainer.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500">Trend N/A</span>`;
+            return;
+        }
+
+        let iconClass = 'ri-subtract-line'; 
+        let textColor = 'text-gray-500 dark:text-gray-400';
+        let trendText = `${trendData.percentage}%`;
+
+        if (trendData.direction === 'up') {
+            iconClass = 'ri-arrow-up-line';
+            textColor = 'text-green-500';
+            trendText = `+${trendData.percentage}%`;
+        } else if (trendData.direction === 'down') {
+            iconClass = 'ri-arrow-down-line';
+            textColor = 'text-red-500';
+        }
+        
+        trendElementContainer.innerHTML = `
+            <div class="w-4 h-4 flex items-center justify-center ${textColor}"><i class="${iconClass}"></i></div>
+            <span class="ml-1 ${textColor} font-medium">${trendText}</span>
+            <span class="ml-2 text-gray-500 dark:text-gray-400 text-xs">from last month</span>
+        `;
+    }
+
+    // --- Initialize Charts ---
+    function initOrganizationCharts() {
+        const monthlyRegChartEl = document.getElementById('monthlyOrganizationRegistrationsChart');
+        if (monthlyRegChartEl && !echarts.getInstanceByDom(monthlyRegChartEl)) {
+            monthlyOrganizationRegistrationsChartInstance = echarts.init(monthlyRegChartEl);
+            const optionReg = {
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { 
+                    type: 'category', data: [],
+                    axisLabel: { color: document.documentElement.classList.contains('dark') ? '#a0a0a0' : '#6c757d' }
+                },
+                yAxis: { 
+                    type: 'value',
+                    axisLabel: { color: document.documentElement.classList.contains('dark') ? '#a0a0a0' : '#6c757d' }
+                },
+                series: [{ name: 'New Organizations', type: 'bar', barWidth: '60%', data: [], itemStyle: { color: '#57b5e3' }}]
+            };
+            monthlyOrganizationRegistrationsChartInstance.setOption(optionReg);
+        }
+
+        const statusDistChartEl = document.getElementById('organizationStatusDistributionChart');
+        if (statusDistChartEl && !echarts.getInstanceByDom(statusDistChartEl)) {
+            organizationStatusDistributionChartInstance = echarts.init(statusDistChartEl);
+            const optionStatus = {
+                tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+                legend: { 
+                    orient: 'vertical', left: 'right', top: 'center', data: [],
+                    textStyle: { color: document.documentElement.classList.contains('dark') ? '#e0e0e0' : '#343a40' }
+                },
+                series: [{
+                    name: 'Organization Status', type: 'pie', radius: ['50%', '75%'], center: ['40%', '50%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: { borderRadius: 5, borderColor: '#fff', borderWidth: 1 },
+                    label: { show: false, position: 'center' },
+                    emphasis: { label: { show: true, fontSize: '18', fontWeight: 'bold' }},
+                    labelLine: { show: false },
+                    data: [],
+                    colors: ['#6EE7B7', '#F87171', '#A5B4FC']
+                }]
+            };
+            organizationStatusDistributionChartInstance.setOption(optionStatus);
+        }
+
+        window.addEventListener('resize', () => {
+            if (monthlyOrganizationRegistrationsChartInstance) monthlyOrganizationRegistrationsChartInstance.resize();
+            if (organizationStatusDistributionChartInstance) organizationStatusDistributionChartInstance.resize();
+        });
+    }
+
+    async function fetchOrganizations() {
+        if (!organizationsTableBody) { /* ... error handling ... */ return; }
+        organizationsTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4"><i class="ri-loader-4-line ri-spin text-xl"></i> Loading data...</td></tr>`;
+        [statTotalOrganizationsEl, statActiveOrganizationsEl, statNewOrganizations30DaysEl].forEach(el => { if(el) el.textContent = '...';});
+        
+        const orgNameSearch = document.getElementById('orgNameSearch')?.value.trim().toLowerCase() || '';
+        const orgTypeFilter = document.getElementById('orgTypeFilter')?.value || '';
+        const orgStatusFilter = document.getElementById('orgStatusFilter')?.value || '';
+        const apiUrl = '/iteam-university-website/admin/api/organizations.php';
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                const allOrganizations = result.data.organization_list || [];
+                const stats = result.data.stats || {};
+                const chartData = result.data.chart_data || {};
+                let organizationsToRender = allOrganizations;
+
+                // Client-side filtering
+                if (orgNameSearch) organizationsToRender = organizationsToRender.filter(o => o.name?.toLowerCase().includes(orgNameSearch));
+                if (orgTypeFilter) organizationsToRender = organizationsToRender.filter(o => o.role?.toLowerCase() === orgTypeFilter.toLowerCase());
+                if (orgStatusFilter) organizationsToRender = organizationsToRender.filter(o => o.status?.toLowerCase() === orgStatusFilter.toLowerCase());
+                
+                renderOrganizations(organizationsToRender);
+                
+                const displayedCount = organizationsToRender.length;
+                if(orgCountSpan) orgCountSpan.textContent = displayedCount;
+                if(totalOrgsCountSpan) totalOrgsCountSpan.textContent = allOrganizations.length;
+                if(paginationStartOrgSpan) paginationStartOrgSpan.textContent = displayedCount > 0 ? 1 : 0;
+                if(paginationEndOrgSpan) paginationEndOrgSpan.textContent = displayedCount;
+
+                // Populate Stat Cards
+                if (statTotalOrganizationsEl) {
+                    statTotalOrganizationsEl.textContent = stats.total_organizations ?? 'N/A';
+                    renderTrend(stats.total_organizations_trend, statTotalOrganizationsEl.closest('.card'));
+                }
+                if (statActiveOrganizationsEl) {
+                    statActiveOrganizationsEl.textContent = stats.active_organizations ?? 'N/A';
+                    renderTrend(stats.active_organizations_trend, statActiveOrganizationsEl.closest('.card'));
+                }
+                if (statNewOrganizations30DaysEl) {
+                    statNewOrganizations30DaysEl.textContent = stats.new_organizations_last_30_days ?? 'N/A';
+                    renderTrend(stats.new_organizations_last_30_days_trend, statNewOrganizations30DaysEl.closest('.card'));
+                }
+
+                // Update Charts
+                if (monthlyOrganizationRegistrationsChartInstance && chartData.monthly_registrations) {
+                    monthlyOrganizationRegistrationsChartInstance.setOption({
+                        xAxis: [{ data: chartData.monthly_registrations.labels }],
+                        series: [{ data: chartData.monthly_registrations.series_data }]
+                    });
+                }
+                if (organizationStatusDistributionChartInstance && chartData.status_distribution) {
+                    organizationStatusDistributionChartInstance.setOption({
+                        legend: { data: chartData.status_distribution.legend },
+                        series: [{ data: chartData.status_distribution.data }]
+                    });
+                }
+
+            } else {
+                throw new Error(result.message || 'Failed to load data or incorrect format.');
+            }
+        } catch (error) {
+            console.error('Error fetching organization data:', error);
+            const errorText = `Error: ${error.message}`;
+            if(organizationsTableBody) organizationsTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">${errorText}</td></tr>`;
+            [orgCountSpan, totalOrgsCountSpan, paginationStartOrgSpan, paginationEndOrgSpan, statTotalOrganizationsEl, statActiveOrganizationsEl, statNewOrganizations30DaysEl].forEach(el => { if(el) el.textContent = 'Error';});
+            if (statTotalOrganizationsEl) renderTrend(null, statTotalOrganizationsEl.closest('.card'));
+        }
+    }
+
+    function getInitials(name) {
+        if (!name || typeof name !== 'string') return 'N/A';
+        const parts = name.trim().split(' ').filter(p => p.length > 0);
+        if (parts.length === 0) return 'N/A';
+        if (parts.length === 1) {
+            return parts[0].substring(0, 2).toUpperCase();
+        }
+        return (parts[0][0] + (parts[parts.length - 1][0] || '')).toUpperCase();
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    }
+
+    function getStatusBadge(status) {
+        const s = status ? String(status).toLowerCase() : 'unknown';
+        let badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        let capitalizedStatus = s.charAt(0).toUpperCase() + s.slice(1);
+
+        switch (s) {
+            case 'active':
+                badgeClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                break;
+            case 'inactive':
+                badgeClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                break;
+            case 'pending_approval': // Matches your filter option
+            case 'pending': // General pending status
+                badgeClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+                capitalizedStatus = 'Pending Approval';
+                break;
+        }
+        return `<span class="px-2 py-1 text-xs font-medium rounded-full ${badgeClass}">${capitalizedStatus}</span>`;
+    }
+
+    function renderOrganizations(organizations) {
+        if (!organizationsTableBody) return;
+        organizationsTableBody.innerHTML = ''; 
+
+        if (organizations.length === 0) {
+            organizationsTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500">No organizations found matching your criteria.</td></tr>`;
+            updateSelectAllOrgsCheckboxEventListener(0);
+            return;
+        }
+
+        organizations.forEach(org => {
+            const row = document.createElement('tr');
+            const initials = getInitials(org.name);
+            const formattedDate = formatDate(org.created_at);
+            const statusBadge = getStatusBadge(org.status);
+            const displayType = org.role ? (org.role.charAt(0).toUpperCase() + org.role.slice(1)) : 'N/A';
+            const isActive = org.status === 'active';
+
+            row.innerHTML = `
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center">
+                        <input type="checkbox" class="mr-2 org-checkbox" data-id="${org.organization_id}">
+                        <div class="w-8 h-8 rounded-full ${org.profile_picture ? '' : 'bg-blue-500 text-white'} flex items-center justify-center mr-3 text-sm font-bold shrink-0">
+                            ${org.profile_picture ? `<img src="${org.profile_picture}" alt="${initials}" class="w-full h-full rounded-full object-cover">` : initials}
+                        </div>
+                        <span class="font-medium">${org.name || 'N/A'}</span>
+                    </div>
+                </td>
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${displayType}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${org.contact_person || 'N/A'}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${org.members_count || 'N/A'}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${formattedDate}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center space-x-2">
+                        ${statusBadge}
+                        <button onclick="toggleOrganizationStatus('${org.organization_id}', ${isActive})" 
+                                class="px-2 py-1 text-xs rounded-button ${isActive ? 'bg-red-100 text-red-800 hover:bg-red-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}">
+                            ${isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                    </div>
+                </td>
+                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700 text-center">
+                    <div class="flex items-center justify-center space-x-1">
+                        <button onclick="viewOrganization('${org.organization_id}')" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary" title="View Details"><i class="ri-eye-line"></i></button>
+                        <button onclick="editOrganization('${org.organization_id}')" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary" title="Edit Organization"><i class="ri-edit-line"></i></button>
+                    </div>
+                </td>
+            `;
+            organizationsTableBody.appendChild(row);
+        });
+        updateSelectAllOrgsCheckboxEventListener(organizations.length);
+    }
+
+    function updateSelectAllOrgsCheckboxEventListener(rowCount) {
+        const selectAllOrgsCheckbox = document.getElementById('selectAllOrgs');
+        if (selectAllOrgsCheckbox) {
+            const newSelectAll = selectAllOrgsCheckbox.cloneNode(true);
+            selectAllOrgsCheckbox.parentNode.replaceChild(newSelectAll, selectAllOrgsCheckbox);
+            
+            newSelectAll.disabled = rowCount === 0;
+            newSelectAll.checked = false;
+
+            newSelectAll.addEventListener('change', function() {
+                const orgCheckboxes = organizationsTableBody.querySelectorAll('.org-checkbox');
+                orgCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+        }
+    }
+  
+    // Expose action functions to global scope for inline onclick handlers
+    window.viewOrganization = function(id) {
+        console.log(`Viewing organization with ID: ${id}`);
+        alert(`View organization ID ${id}. Implement actual view logic.`);
+    };
+
+    window.editOrganization = function(id) {
+        console.log(`Editing organization with ID: ${id}`);
+        alert(`Edit organization ID ${id}. Implement actual edit logic.`);
+    };
+
+    // Show status confirmation modal
+    function showStatusConfirmModal(orgId, currentStatus) {
+        const newStatus = currentStatus ? 'inactive' : 'active';
+        const action = newStatus === 'active' ? 'activate' : 'deactivate';
+        
+        statusConfirmTitle.textContent = `Are you sure you want to ${action} this organization?`;
+        statusConfirmMessage.textContent = `This will ${action} the organization's account and ${newStatus === 'active' ? 'grant' : 'revoke'} their access to the system.`;
+        
+        pendingStatusUpdate = { orgId, newStatus };
+        statusConfirmModal.classList.remove('hidden');
+    }
+
+    // Hide status confirmation modal
+    function hideStatusConfirmModal() {
+        statusConfirmModal.classList.add('hidden');
+        pendingStatusUpdate = null;
+    }
+
+    // Handle status confirmation
+    confirmStatusBtn.addEventListener('click', async () => {
+        if (!pendingStatusUpdate) return;
+
+        try {
+            const formData = new FormData();
+            formData.append('organization_id', pendingStatusUpdate.orgId);
+            formData.append('status', pendingStatusUpdate.newStatus);
+
+            const response = await fetch('/iteam-university-website/admin/api/update_organization_status.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                fetchOrganizations();
+            } else {
+                alert(result.message || 'Failed to update organization status');
+            }
+        } catch (error) {
+            console.error('Error updating organization status:', error);
+            alert('An error occurred while updating organization status');
+        }
+
+        hideStatusConfirmModal();
+    });
+
+    // Handle status cancellation
+    cancelStatusBtn.addEventListener('click', hideStatusConfirmModal);
+
+    // Add toggle organization status function
+    window.toggleOrganizationStatus = function(orgId, currentStatus) {
+        showStatusConfirmModal(orgId, currentStatus);
+    };
+
+    // Setup filter listeners
+    if (applyFiltersButton) {
+        applyFiltersButton.addEventListener('click', () => fetchOrganizations()); 
+    }
+    if (orgNameSearchInput) {
+        orgNameSearchInput.addEventListener('input', debounce(() => fetchOrganizations(), 500));
+    }
+    if (orgTypeFilterElement) {
+        orgTypeFilterElement.addEventListener('change', () => fetchOrganizations());
+    }
+    if (orgStatusFilterElement) {
+        orgStatusFilterElement.addEventListener('change', () => fetchOrganizations());
+    }
+
+    // Basic pagination button listeners (backend pagination not yet implemented)
+    if(prevButton) prevButton.addEventListener('click', () => { 
+        console.log("Previous page clicked - backend pagination needed");
+    });
+    if(nextButton) nextButton.addEventListener('click', () => { 
+        console.log("Next page clicked - backend pagination needed");
+    });
+    
+    // Initialize charts and fetch data
+    initOrganizationCharts();
+    fetchOrganizations();
+
+  })(); // End IIFE
+</script>

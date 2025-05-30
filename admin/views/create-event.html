@@ -1,0 +1,299 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <a href="events.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Events</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300" id="eventFormBreadcrumbTitle">Create New Event</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold" id="eventFormPageTitle">Create New Event</h1>
+</div>
+
+<!-- Form Messages -->
+<div id="formMessages" class="mb-4"></div>
+
+<div class="card p-6 md:p-8">
+  <form id="eventForm" enctype="multipart/form-data">
+    <input type="hidden" id="eventId" name="eventId">
+    <input type="hidden" name="action" id="formAction" value="create"> <!-- create or update -->
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+      <div>
+        <label for="eventName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Event Name</label>
+        <input type="text" id="eventName" name="eventName" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+      </div>
+      <div>
+        <label for="eventCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+        <select id="eventCategory" name="eventCategory" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+          <option value="">Select Category</option>
+          <option value="academic">Academic</option>
+          <option value="cultural">Cultural</option>
+          <option value="sports">Sports</option>
+          <option value="career_fair">Career Fair</option>
+          <option value="social_mixer">Social Mixer</option>
+          <option value="workshop">Workshop</option>
+          <option value="seminar">Seminar</option>
+          <option value="conference">Conference</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <label for="eventDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+      <textarea id="eventDescription" name="eventDescription" rows="4" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5 mt-5">
+      <div>
+        <label for="eventDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+        <input type="date" id="eventDate" name="eventDate" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+      </div>
+      <div>
+        <label for="eventTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
+        <input type="time" id="eventTime" name="eventTime" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+      </div>
+       <div>
+        <label for="eventDuration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (e.g., 2 hours, 30 mins)</label>
+        <input type="text" id="eventDuration" name="eventDuration" placeholder="e.g., 2 hours" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <label for="eventLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location / Venue</label>
+      <input type="text" id="eventLocation" name="eventLocation" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-5">
+        <div>
+            <label for="eventOrganizer" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Organizer (Department/Club)</label>
+            <input type="text" id="eventOrganizer" name="eventOrganizer" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+        </div>
+        <div>
+            <label for="maxAttendees" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Attendees (0 or empty for unlimited)</label>
+            <input type="number" id="maxAttendees" name="maxAttendees" min="0" placeholder="0" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-5">
+      <div>
+        <label for="eventImageUpload" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Event Image</label>
+        <input type="file" id="eventImageUpload" name="eventImage" accept="image/png, image/jpeg, image/gif" class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 dark:file:bg-gray-700 file:text-primary dark:file:text-primary-300 hover:file:bg-primary-100 dark:hover:file:bg-gray-600">
+        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 2MB. Current image (if any) will be replaced.</p>
+        <img id="currentEventImage" src="#" alt="Current Event Image" class="mt-2 max-h-40 rounded-lg hidden object-cover">
+      </div>
+      <div>
+        <label for="eventStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+        <select id="eventStatus" name="eventStatus" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+          <option value="upcoming">Upcoming</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="postponed">Postponed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+      <button type="button" id="cancelFormBtn" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-button hover:bg-gray-50 dark:hover:bg-gray-600">Cancel</button>
+      <button type="submit" id="submitEventBtn" class="px-5 py-2.5 text-sm font-medium text-white bg-primary hover:bg-opacity-90 rounded-button focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800">
+        Create Event
+      </button>
+    </div>
+  </form>
+</div>
+</section>
+<script>
+(function() {
+    console.log("Create/Edit Event view specific JavaScript executed.");
+
+    const eventForm = document.getElementById('eventForm');
+    const eventFormPageTitle = document.getElementById('eventFormPageTitle');
+    const eventFormBreadcrumbTitle = document.getElementById('eventFormBreadcrumbTitle');
+    const submitEventBtn = document.getElementById('submitEventBtn');
+    const eventIdInput = document.getElementById('eventId');
+    const formActionInput = document.getElementById('formAction');
+    const formMessages = document.getElementById('formMessages');
+    const currentEventImage = document.getElementById('currentEventImage');
+    const eventImageUploadInput = document.getElementById('eventImageUpload');
+    const cancelFormBtn = document.getElementById('cancelFormBtn');
+
+    let isEditMode = false;
+    let currentEditId = null;
+
+    function displayMessage(type, message) {
+        formMessages.innerHTML = ''; // Clear previous messages
+        const alertClasses = type === 'success' 
+            ? 'bg-green-100 border-green-400 text-green-700 dark:bg-green-700 dark:text-green-100 dark:border-green-600' 
+            : 'bg-red-100 border-red-400 text-red-700 dark:bg-red-700 dark:text-red-100 dark:border-red-600';
+        const icon = type === 'success' ? '<i class="ri-check-line mr-2"></i>' : '<i class="ri-error-warning-line mr-2"></i>';
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `border-l-4 p-4 rounded-md ${alertClasses}`;
+        messageDiv.setAttribute('role', 'alert');
+        messageDiv.innerHTML = `<p class="font-bold">${type === 'success' ? 'Success' : 'Error'}</p><p>${icon}${message}</p>`;
+        formMessages.appendChild(messageDiv);
+        formMessages.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function loadEventData(id) {
+        try {
+            const response = await fetch(`/iteam-university-website/admin/api/events.php?id=${id}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `HTTP error! Status: ${response.status}` }));
+                throw new Error(errorData.message || `Failed to fetch event data for ID ${id}.`);
+            }
+            const result = await response.json();
+            if (result.success && result.event) {
+                populateForm(result.event);
+            } else {
+                throw new Error(result.message || "Event data not found.");
+            }
+        } catch (error) {
+            console.error("Error loading event data:", error);
+            displayMessage('error', `Could not load event data: ${error.message}`);
+            // Optionally redirect or disable form
+        }
+    }
+
+    function populateForm(event) {
+        document.getElementById('eventName').value = event.title || '';
+        document.getElementById('eventCategory').value = event.category || '';
+        document.getElementById('eventDescription').value = event.description || '';
+        
+        if (event.event_date) {
+            const [datePart, timePart] = event.event_date.split(' ');
+            document.getElementById('eventDate').value = datePart || '';
+            if (timePart) {
+                 // Ensure time is in HH:MM format for the input
+                document.getElementById('eventTime').value = timePart.substring(0, 5);
+            }
+        }
+        document.getElementById('eventDuration').value = event.duration || '';
+        document.getElementById('eventLocation').value = event.location || '';
+        document.getElementById('eventOrganizer').value = event.organizer || '';
+        document.getElementById('maxAttendees').value = event.max_attendees === null || event.max_attendees === undefined ? '' : event.max_attendees;
+        document.getElementById('eventStatus').value = event.status || 'upcoming';
+
+        if (event.image_url) {
+            currentEventImage.src = `/iteam-university-website/admin/${event.image_url}`; // Assuming image_url is relative to /iteam-university-website/admin/
+            currentEventImage.classList.remove('hidden');
+        } else {
+            currentEventImage.classList.add('hidden');
+        }
+    }
+    
+    function setupFormForEditMode(editId) {
+        isEditMode = true;
+        currentEditId = editId;
+        eventFormPageTitle.textContent = 'Edit Event';
+        eventFormBreadcrumbTitle.textContent = 'Edit Event';
+        submitEventBtn.innerHTML = '<i class="ri-save-line mr-2"></i> Save Changes';
+        eventIdInput.value = editId;
+        formActionInput.value = 'update';
+        loadEventData(editId);
+    }
+
+    // Check for edit_id in hash
+    const hashString = window.location.hash.substring(1); // e.g., "create-event.html?edit_id=3"
+    if (hashString) {
+        const parts = hashString.split('?');
+        if (parts.length > 1) {
+            const paramsString = parts[1]; // "edit_id=3"
+            try {
+                const urlParams = new URLSearchParams(paramsString);
+                const editIdParam = urlParams.get('edit_id');
+                if (editIdParam) {
+                    setupFormForEditMode(editIdParam);
+                }
+            } catch (e) {
+                console.error("Error parsing query parameters from hash for edit mode:", e);
+            }
+        }
+    }
+
+    if (eventImageUploadInput) {
+        eventImageUploadInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    currentEventImage.src = event.target.result;
+                    currentEventImage.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    if (cancelFormBtn) {
+        cancelFormBtn.addEventListener('click', () => {
+            if (isEditMode && currentEditId) {
+                if (typeof loadView === 'function') loadView(`event-details.html?id=${currentEditId}`);
+                else window.location.hash = `event-details.html?id=${currentEditId}`;
+            } else {
+                 if (typeof loadView === 'function') loadView('events.html');
+                 else window.location.hash = 'events.html';
+            }
+        });
+    }
+
+
+    if (eventForm) {
+        eventForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            formMessages.innerHTML = ''; // Clear previous messages
+            const originalButtonText = submitEventBtn.innerHTML;
+            submitEventBtn.disabled = true;
+            submitEventBtn.innerHTML = `<i class="ri-loader-4-line ri-spin mr-2"></i> ${isEditMode ? 'Saving...' : 'Creating...'}`;
+
+            const formData = new FormData(eventForm);
+            // The 'action' (create/update) and 'eventId' (if update) are already in hidden inputs
+
+            let apiUrl = '/iteam-university-website/admin/api/events.php';
+            let method = 'POST'; // Always POST, action field in FormData differentiates create/update
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: method,
+                    body: formData 
+                    // Headers are not explicitly set to 'multipart/form-data';
+                    // the browser will set it automatically when FormData includes a file.
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayMessage('success', result.message || `Event ${isEditMode ? 'updated' : 'created'} successfully!`);
+                    setTimeout(() => {
+                        if (typeof loadView === 'function') {
+                            // If creating, result might contain new event_id. If editing, use currentEditId.
+                            const targetEventId = result.event_id || currentEditId;
+                            if (targetEventId) {
+                                loadView(`event-details.html?id=${targetEventId}`);
+                            } else {
+                                loadView('events.html');
+                            }
+                        } else {
+                             window.location.hash = 'events.html'; // Fallback
+                        }
+                    }, 1500);
+                    if (!isEditMode) eventForm.reset(); // Reset form on successful creation
+                } else {
+                    displayMessage('error', result.message || `Failed to ${isEditMode ? 'update' : 'create'} event.`);
+                }
+            } catch (error) {
+                console.error('Form submission error:', error);
+                displayMessage('error', `An unexpected error occurred: ${error.message}`);
+            } finally {
+                submitEventBtn.disabled = false;
+                submitEventBtn.innerHTML = originalButtonText;
+            }
+        });
+    }
+})();
+</script>

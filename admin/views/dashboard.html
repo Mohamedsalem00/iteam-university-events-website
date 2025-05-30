@@ -1,0 +1,507 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a
+    href="dashboard.html"
+    class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link" 
+    data-view="dashboard.html"
+    >Home</a
+  >
+  <div
+    class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"
+  >
+    <i class="ri-arrow-right-s-line"></i>
+  </div>
+  <span class="text-gray-700 dark:text-gray-300">Dashboard</span>
+</div>
+<!-- Page Header -->
+<div
+  class="flex flex-col md:flex-row md:items-center justify-between mb-6"
+>
+  <h1 class="text-2xl font-bold">Dashboard</h1>
+  <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4 md:mt-0">
+    <a
+      href="create-event.html" class="px-4 py-2 bg-primary text-white rounded-button flex items-center nav-link hover:bg-secondary hover:text-white focus:ring-4"
+      data-view="create-event.html"
+    >
+      <div class="w-4 h-4 flex items-center justify-center mr-2">
+        <i class="ri-add-line"></i>
+      </div>
+      <span class="whitespace-nowrap">New Event</span>
+    </a>
+    
+    <button
+      id="exportDashboardDataBtn"
+      class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center"
+    >
+      <div class="w-4 h-4 flex items-center justify-center mr-2">
+        <i class="ri-download-line"></i>
+      </div>
+      <span class="whitespace-nowrap">Export</span>
+    </button>
+    <button class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center" id="refreshDashboardData">
+      <div class="w-4 h-4 flex items-center justify-center mr-2"><i class="ri-refresh-line"></i></div>
+      <span class="whitespace-nowrap">Refresh</span>
+    </button>
+  </div>
+</div>
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+  <div class="card p-6">
+    <div class="flex items-center">
+      <div
+        class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-primary"
+      >
+        <i class="ri-calendar-event-line text-xl"></i>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-semibold">Total Events</h3>
+        <p class="text-3xl font-bold" id="statTotalEvents">0</p>
+      </div>
+    </div>
+    <div class="mt-4 flex items-center text-sm">
+      <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-loader-4-line ri-spin"></i></div>
+      <span class="ml-2 text-gray-500 dark:text-gray-400">Loading trend...</span>
+    </div>
+  </div>
+  <div class="card p-6">
+    <div class="flex items-center">
+      <div
+        class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600"
+      >
+        <i class="ri-building-line text-xl"></i>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-semibold">Active Organizations</h3>
+        <p class="text-3xl font-bold" id="statActiveOrganizations">0</p>
+      </div>
+    </div>
+    <div class="mt-4 flex items-center text-sm">
+        <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-loader-4-line ri-spin"></i></div>
+        <span class="ml-2 text-gray-500 dark:text-gray-400">Loading trend...</span>
+    </div>
+  </div>
+  <div class="card p-6">
+    <div class="flex items-center">
+      <div
+        class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600"
+      >
+        <i class="ri-user-line text-xl"></i>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-semibold">Registered Students</h3>
+        <p class="text-3xl font-bold" id="statRegisteredStudents">0</p>
+      </div>
+    </div>
+     <div class="mt-4 flex items-center text-sm">
+        <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-loader-4-line ri-spin"></i></div>
+        <span class="ml-2 text-gray-500 dark:text-gray-400">Loading trend...</span>
+    </div>
+  </div>
+  <div class="card p-6">
+    <div class="flex items-center">
+      <div
+        class="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center text-yellow-600"
+      >
+        <i class="ri-calendar-check-line text-xl"></i>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-semibold">Upcoming Events</h3>
+        <p class="text-3xl font-bold" id="statUpcomingEvents">0</p>
+      </div>
+    </div>
+    <div class="mt-4 flex items-center text-sm">
+        <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-loader-4-line ri-spin"></i></div>
+        <span class="ml-2 text-gray-500 dark:text-gray-400">Loading trend...</span>
+    </div>
+  </div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+  <!-- Card 1 -->
+  <div class="card p-4 sm:p-5 md:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
+      <h3 class="text-base sm:text-lg font-semibold">Monthly Statistics</h3>
+      <div class="flex space-x-2">
+        <button class="px-3 py-1 text-sm bg-primary text-white rounded-button">Month</button>
+      </div>
+    </div>
+    <div id="monthlyStatsChart" class="w-full h-64 sm:h-72 md:h-80">
+      <div class="flex justify-center items-center h-full">
+        <i class="ri-loader-4-line ri-spin text-3xl text-primary"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2 -->
+  <div class="card p-4 sm:p-5 md:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
+      <h3 class="text-base sm:text-lg font-semibold">Events by Category</h3>
+      <button class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+        <i class="ri-more-2-fill"></i>
+      </button>
+    </div>
+    <div id="eventsByCategoryChart" class="w-full h-64 sm:h-72 md:h-80">
+      <div class="flex justify-center items-center h-full">
+        <i class="ri-loader-4-line ri-spin text-3xl text-primary"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Events Table -->
+<div class="card p-6 mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold">Recent Events</h3>
+    <a
+      href="events.html"
+      class="text-primary hover:underline text-sm flex items-center nav-link"
+      data-view="events.html"
+    >
+      <span>View All</span>
+      <div class="w-4 h-4 flex items-center justify-center ml-1">
+        <i class="ri-arrow-right-line"></i>
+      </div>
+    </a>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead>
+        <tr>
+          <th class="text-left py-2 px-3">Event Name</th>
+          <th class="text-left py-2 px-3">Organizer</th>
+          <th class="text-left py-2 px-3">Date</th>
+          <th class="text-left py-2 px-3">Status</th>
+          <th class="text-center py-2 px-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="dashboardRecentEventsTableBody">
+        <tr><td colspan="5" class="text-center py-4"><i class="ri-loader-4-line ri-spin text-xl"></i> Loading recent events...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- Activity Timeline -->
+<div class="card p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold">Recent Activity</h3>
+    <button id="refreshActivityBtn" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+      <i class="ri-refresh-line"></i>
+    </button>
+  </div>
+  <div id="dashboardRecentActivityList" class="relative pl-8 before:content-[''] before:absolute before:left-3 before:top-0 before:bottom-0 before:w-px before:bg-gray-200 dark:before:bg-gray-700">
+    <div class="text-center py-4"><i class="ri-loader-4-line ri-spin text-xl"></i> Loading recent activity...</div>
+  </div>
+</div>
+</section>
+
+<script>
+(function() { // Start IIFE for dashboard specific JS
+    console.log("Dashboard view specific JavaScript executed (IIFE).");
+
+    // --- Helper Functions ---
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const date = new Date(dateString);
+            if (isNaN(date)) return 'Invalid Date';
+            return date.toLocaleDateString(undefined, options);
+        } catch (e) {
+            return 'Invalid Date';
+        }
+    }
+
+    function getEventStatusBadge(status) {
+        const s = status ? String(status).toLowerCase() : 'unknown';
+        let badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'; // Default
+        let capitalizedStatus = s.charAt(0).toUpperCase() + s.slice(1);
+
+        switch (s) {
+            case 'upcoming':
+                badgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+                break;
+            case 'active': // Or 'ongoing'
+                badgeClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+                break;
+            case 'completed':
+                badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                break;
+            case 'cancelled':
+                badgeClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+                break;
+        }
+        return `<span class="px-2 py-1 text-xs font-medium rounded-full ${badgeClass}">${capitalizedStatus}</span>`;
+    }
+
+    let monthlyStatsChartInstance = null;
+    let eventsByCategoryChartInstance = null;
+
+    function initCharts() {
+        console.log("Attempting to initialize charts...");
+        const monthlyStatsChartElement = document.getElementById("monthlyStatsChart");
+        if (monthlyStatsChartElement) {
+            // Defer initialization to the next animation frame
+            requestAnimationFrame(() => {
+                // Check if the element is actually in the document and has dimensions
+                if (document.body.contains(monthlyStatsChartElement) && monthlyStatsChartElement.offsetWidth > 0 && monthlyStatsChartElement.offsetHeight > 0) {
+                    if (!echarts.getInstanceByDom(monthlyStatsChartElement)) {
+                        monthlyStatsChartElement.innerHTML = ''; // Clear potential loader
+                        monthlyStatsChartInstance = echarts.init(monthlyStatsChartElement);
+                        const monthlyStatsOption = {
+                            animation: false, // Consider true if you want animations
+                            tooltip: { trigger: "axis", backgroundColor: "rgba(255, 255, 255, 0.8)", borderColor: "#e9ecef", textStyle: { color: "#1f2937" }},
+                            legend: { data: ["Events", "Attendees", "Organizations"], bottom: 0, textStyle: { color: document.documentElement.classList.contains('dark') ? '#e0e0e0' : '#343a40' } },
+                            grid: { left: "3%", right: "4%", bottom: "15%", top: "10%", containLabel: true },
+                            xAxis: { type: "category", boundaryGap: false, data: [], axisLabel: { color: document.documentElement.classList.contains('dark') ? '#a0a0a0' : '#6c757d' } },
+                            yAxis: { type: "value", axisLabel: { color: document.documentElement.classList.contains('dark') ? '#a0a0a0' : '#6c757d' } },
+                            series: [
+                                { name: "Events", type: "line", smooth: true, data: [], lineStyle: { color: "rgba(87, 181, 231, 1)" }, itemStyle: { color: "rgba(87, 181, 231, 1)" }, areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(87, 181, 231, 0.2)" }, { offset: 1, color: "rgba(87, 181, 231, 0.01)" }]}}, showSymbol: false },
+                                { name: "Attendees", type: "line", smooth: true, data: [], lineStyle: { color: "rgba(141, 211, 199, 1)" }, itemStyle: { color: "rgba(141, 211, 199, 1)" }, areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(141, 211, 199, 0.2)" }, { offset: 1, color: "rgba(141, 211, 199, 0.01)" }]}}, showSymbol: false },
+                                { name: "Organizations", type: "line", smooth: true, data: [], lineStyle: { color: "rgba(251, 191, 114, 1)" }, itemStyle: { color: "rgba(251, 191, 114, 1)" }, areaStyle: { color: { type: "linear", x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: "rgba(251, 191, 114, 0.2)" }, { offset: 1, color: "rgba(251, 191, 114, 0.01)" }]}}, showSymbol: false }
+                            ]
+                        };
+                        monthlyStatsChartInstance.setOption(monthlyStatsOption);
+                        window.addEventListener("resize", () => { if(monthlyStatsChartInstance && monthlyStatsChartInstance.getDom()) monthlyStatsChartInstance.resize(); });
+                        console.log("Monthly Stats Chart initialized via rAF.");
+                    }
+                } else {
+                    console.warn("Monthly Stats Chart container not ready or not in DOM for init via rAF.");
+                }
+            });
+        } else {
+            console.error("Monthly Stats Chart element not found in DOM.");
+        }
+
+        const eventsByCategoryChartElement = document.getElementById("eventsByCategoryChart");
+        if (eventsByCategoryChartElement) {
+            requestAnimationFrame(() => {
+                if (document.body.contains(eventsByCategoryChartElement) && eventsByCategoryChartElement.offsetWidth > 0 && eventsByCategoryChartElement.offsetHeight > 0) {
+                    if (!echarts.getInstanceByDom(eventsByCategoryChartElement)) {
+                        eventsByCategoryChartElement.innerHTML = ''; // Clear potential loader
+                        eventsByCategoryChartInstance = echarts.init(eventsByCategoryChartElement);
+                        const eventsByCategoryOption = {
+                            animation: false,
+                            tooltip: { trigger: "item", backgroundColor: "rgba(255, 255, 255, 0.8)", borderColor: "#e9ecef", textStyle: { color: "#1f2937" }},
+                            legend: { orient: "vertical", right: 10, top: "center", data: [], textStyle: { color: document.documentElement.classList.contains('dark') ? '#e0e0e0' : '#343a40' } },
+                            series: [{
+                                name: "Events by Category", type: "pie", radius: ["40%", "70%"], center: ["40%", "50%"], avoidLabelOverlap: false,
+                                itemStyle: { borderRadius: 10, borderColor: "#fff", borderWidth: 2 },
+                                label: { show: false, position: "center" },
+                                emphasis: { label: { show: true, fontSize: "18", fontWeight: "bold" }},
+                                labelLine: { show: false },
+                                data: []
+                            }]
+                        };
+                        eventsByCategoryChartInstance.setOption(eventsByCategoryOption);
+                        window.addEventListener("resize", () => { if(eventsByCategoryChartInstance && eventsByCategoryChartInstance.getDom()) eventsByCategoryChartInstance.resize(); });
+                        console.log("Events by Category Chart initialized via rAF.");
+                    }
+                } else {
+                     console.warn("Events by Category Chart container not ready or not in DOM for init via rAF.");
+                }
+            });
+        } else {
+            console.error("Events by Category Chart element not found in DOM.");
+        }
+    }
+
+    function renderTrend(trendData, statCardElement) {
+        const trendElement = statCardElement.querySelector('.mt-4.flex.items-center.text-sm');
+        if (!trendElement || !trendData) {
+            if(trendElement) trendElement.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500">Trend data N/A</span>`;
+            return;
+        }
+
+        let iconClass = 'ri-subtract-line'; // Neutral
+        let textColor = 'text-gray-500 dark:text-gray-400';
+        let trendText = `${trendData.percentage}%`;
+
+        if (trendData.direction === 'up') {
+            iconClass = 'ri-arrow-up-line';
+            textColor = 'text-green-500';
+            trendText = `+${trendData.percentage}%`;
+        } else if (trendData.direction === 'down') {
+            iconClass = 'ri-arrow-down-line';
+            textColor = 'text-red-500';
+        }
+        
+        trendElement.innerHTML = `
+            <div class="w-4 h-4 flex items-center justify-center ${textColor}"><i class="${iconClass}"></i></div>
+            <span class="ml-1 ${textColor}">${trendText}</span>
+            <span class="ml-1 text-gray-500 dark:text-gray-400 text-xs">vs last 30 days</span>
+        `;
+    }
+    
+    // --- Data Fetching and Rendering ---
+    async function fetchDashboardData() {
+        console.log("Fetching dashboard data...");
+        try {
+            const responseDashboard = await fetch('/iteam-university-website/admin/api/dashboard_data.php');
+            if (!responseDashboard.ok) {
+                throw new Error(`HTTP error! status: ${responseDashboard.status}`);
+            }
+            const result = await responseDashboard.json();
+
+            if (result.success && result.data) {
+                const data = result.data;
+                // Populate Quick Stats
+                const statTotalEventsEl = document.getElementById('statTotalEvents');
+                if(statTotalEventsEl) {
+                    statTotalEventsEl.textContent = data.total_events || '0';
+                    renderTrend(data.total_events_trend, statTotalEventsEl.closest('.card'));
+                }
+                
+                const statActiveOrganizationsEl = document.getElementById('statActiveOrganizations');
+                if(statActiveOrganizationsEl) {
+                    statActiveOrganizationsEl.textContent = data.active_organizations || '0';
+                    renderTrend(data.active_organizations_trend, statActiveOrganizationsEl.closest('.card'));
+                }
+
+                const statRegisteredStudentsEl = document.getElementById('statRegisteredStudents');
+                if(statRegisteredStudentsEl) {
+                    statRegisteredStudentsEl.textContent = data.registered_students || '0';
+                    renderTrend(data.registered_students_trend, statRegisteredStudentsEl.closest('.card'));
+                }
+
+                const statUpcomingEventsEl = document.getElementById('statUpcomingEvents');
+                if(statUpcomingEventsEl) {
+                    statUpcomingEventsEl.textContent = data.upcoming_events || '0';
+                    renderTrend(data.upcoming_events_trend, statUpcomingEventsEl.closest('.card'));
+                }
+                
+                // Populate Recent Events
+                const recentEventsTableBody = document.getElementById('dashboardRecentEventsTableBody');
+                if (recentEventsTableBody) {
+                    recentEventsTableBody.innerHTML = ''; 
+                    if (data.recent_events && data.recent_events.length > 0) {
+                        data.recent_events.forEach(event => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700 font-medium">${event.title || 'N/A'}</td>
+                                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${event.organizer_name || 'N/A'}</td>
+                                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${formatDate(event.start_date)}</td>
+                                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700">${getEventStatusBadge(event.event_status || 'upcoming')}</td>
+                                <td class="py-2 px-2 sm:px-3 md:px-4 border-b border-gray-200 dark:border-gray-700 text-center">
+                                    <button onclick="viewDashboardEvent('${event.event_id}')" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-primary" title="View Details"><i class="ri-eye-line"></i></button>
+                                </td>
+                            `;
+                            recentEventsTableBody.appendChild(row);
+                        });
+                    } else {
+                        recentEventsTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No recent events found.</td></tr>';
+                    }
+                }
+
+                // Populate Recent Activity
+                const recentActivityList = document.getElementById('dashboardRecentActivityList');
+                if (recentActivityList) {
+                    recentActivityList.innerHTML = ''; 
+                    if (data.recent_activity && data.recent_activity.length > 0) {
+                        data.recent_activity.forEach(activity => {
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'mb-6 relative';
+                            let activityMessage = '';
+                            switch(activity.type) {
+                                case 'user_registered':
+                                    activityMessage = `<span class="font-medium">New student registered:</span> <span class="text-primary ml-1">${activity.primary_subject}</span>`;
+                                    break;
+                                case 'event_created':
+                                    activityMessage = `<span class="font-medium">New event created:</span> <span class="text-primary ml-1">${activity.primary_subject}</span> ${activity.secondary_subject ? 'by ' + activity.secondary_subject : ''}`;
+                                    break;
+                                case 'organization_registered':
+                                     activityMessage = `<span class="font-medium">New organization registered:</span> <span class="text-primary ml-1">${activity.primary_subject}</span>`;
+                                    break;
+                                default:
+                                    activityMessage = `<span class="font-medium">${activity.primary_subject || 'New activity'}</span>`;
+                            }
+
+                            itemDiv.innerHTML = `
+                                <div class="absolute left-[-30px] top-0 w-6 h-6 rounded-full ${activity.icon_bg_color || 'bg-gray-100 dark:bg-gray-700'} border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                                    <i class="${activity.icon || 'ri-notification-3-line'} text-xs"></i>
+                                </div>
+                                <div class="mb-1 text-sm">${activityMessage}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">${formatDate(activity.activity_date)}</div>
+                            `;
+                            recentActivityList.appendChild(itemDiv);
+                        });
+                    } else {
+                        recentActivityList.innerHTML = '<div class="text-center py-4 text-gray-500">No recent activity.</div>';
+                    }
+                }
+
+                // Update Monthly Statistics Chart
+                if (data.monthly_statistics && monthlyStatsChartInstance) {
+                     monthlyStatsChartInstance.setOption({
+                        xAxis: [{ data: data.monthly_statistics.labels }],
+                        series: [
+                            { name: "Events", data: data.monthly_statistics.series[0].data },
+                            { name: "Attendees", data: data.monthly_statistics.series[1].data },
+                            { name: "Organizations", data: data.monthly_statistics.series[2].data }
+                        ],
+                        legend: { data: data.monthly_statistics.series.map(s => s.name) }
+                    });
+                } else if (document.getElementById("monthlyStatsChart")) {
+                     document.getElementById("monthlyStatsChart").innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Could not load monthly statistics.</div>';
+                }
+
+                // Update Events by Category Chart
+                if (data.events_by_category && eventsByCategoryChartInstance) {
+                    eventsByCategoryChartInstance.setOption({
+                        legend: { data: data.events_by_category.legend },
+                        series: [{ data: data.events_by_category.data }]
+                    });
+                } else if (document.getElementById("eventsByCategoryChart")) {
+                    document.getElementById("eventsByCategoryChart").innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Could not load events by category.</div>';
+                }
+
+            } else {
+                console.error('Failed to load dashboard data:', result.message);
+                if(document.getElementById('dashboardRecentEventsTableBody')) document.getElementById('dashboardRecentEventsTableBody').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Error loading recent events.</td></tr>';
+                if(document.getElementById('dashboardRecentActivityList')) document.getElementById('dashboardRecentActivityList').innerHTML = '<div class="text-center py-4 text-red-500">Error loading recent activity.</div>';
+                if(document.getElementById('monthlyStatsChart')) document.getElementById('monthlyStatsChart').innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error loading monthly stats.</div>';
+                if(document.getElementById('eventsByCategoryChart')) document.getElementById('eventsByCategoryChart').innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Error loading category stats.</div>';
+                 document.querySelectorAll('.card .mt-4.flex.items-center.text-sm').forEach(el => {
+                    el.innerHTML = `<span class="text-xs text-red-500">Trend N/A</span>`;
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+            document.getElementById('statTotalEvents').textContent = 'N/A';
+            document.getElementById('statActiveOrganizations').textContent = 'N/A';
+            document.getElementById('statRegisteredStudents').textContent = 'N/A';
+            document.getElementById('statUpcomingEvents').textContent = 'N/A';
+            if(document.getElementById('dashboardRecentEventsTableBody')) document.getElementById('dashboardRecentEventsTableBody').innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Could not fetch recent events.</td></tr>';
+            if(document.getElementById('dashboardRecentActivityList')) document.getElementById('dashboardRecentActivityList').innerHTML = '<div class="text-center py-4 text-red-500">Could not fetch recent activity.</div>';
+            if(document.getElementById('monthlyStatsChart')) document.getElementById('monthlyStatsChart').innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Could not fetch monthly stats.</div>';
+            if(document.getElementById('eventsByCategoryChart')) document.getElementById('eventsByCategoryChart').innerHTML = '<div class="flex justify-center items-center h-full text-red-500">Could not fetch category stats.</div>';
+            document.querySelectorAll('.card .mt-4.flex.items-center.text-sm').forEach(el => {
+                el.innerHTML = `<span class="text-xs text-red-500">Trend N/A</span>`;
+            });
+        }
+    }
+    
+    window.viewDashboardEvent = function(eventId) {
+        console.log("View event from dashboard:", eventId);
+        if (typeof loadView === 'function') {
+            loadView(`event-details.html?id=${eventId}`); 
+        } else {
+            alert(`Navigate to event details for ID: ${eventId}`);
+        }
+    };
+    
+    const refreshActivityBtn = document.getElementById('refreshActivityBtn');
+    if (refreshActivityBtn) {
+        refreshActivityBtn.addEventListener('click', fetchDashboardData); 
+    }
+    document.getElementById('refreshDashboardData')?.addEventListener('click', fetchDashboardData);
+
+    initCharts(); // Call this to start the deferred initialization process
+
+    // Fetch data. The charts might not be fully initialized by ECharts yet,
+    // but the instances should be created by the time data is set if rAF has run.
+    // A small timeout can give rAF a bit more of a head start.
+    setTimeout(fetchDashboardData, 50); // Small delay
+
+})(); // End IIFE
+</script>

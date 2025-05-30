@@ -1,0 +1,573 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <a href="students.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Students</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300" id="studentDetailsBreadcrumbTitle">Student Details</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold" id="studentDetailsPageTitle">Student Details</h1>
+  <div class="flex space-x-3 mt-4 md:mt-0">
+    <button id="managStudentBtn" class="px-4 py-2 bg-secondary text-white rounded-button flex items-center text-sm">
+      <i class="ri-pencil-line mr-2"></i> Manage Student
+    </button>
+    <button id="toggleStudentStatusBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-button flex items-center text-sm">
+      <i class="ri-student-settings-line mr-2"></i> <span id="toggleStatusLabel">Change Status</span>
+    </button>
+    <button id="backToStudentsBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center text-sm nav-link" href="students.html" data-view="students.html">
+        <i class="ri-arrow-left-line mr-2"></i> Back to Students
+    </button>
+  </div>
+</div>
+
+<div id="studentDetailsContainer" class="space-y-6">
+  <!-- Loading State -->
+  <div id="studentDetailsLoading" class="card p-8 text-center">
+    <div class="flex justify-center items-center mb-3">
+        <i class="ri-loader-4-line ri-spin text-4xl text-primary"></i>
+    </div>
+    <p class="text-lg text-gray-600 dark:text-gray-400">Loading student details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div id="studentDetailsError" class="card p-8 text-center text-red-500 hidden">
+     <div class="flex justify-center items-center mb-3">
+        <i class="ri-error-warning-line text-4xl"></i>
+    </div>
+    <p class="text-lg" id="studentDetailsErrorMessage">Could not load student details.</p>
+    <button onclick="loadView('students.html')" class="mt-6 px-6 py-2 bg-primary text-white rounded-button">Go Back to Students</button>
+  </div>
+
+  <!-- Content Area (hidden by default, shown after data load) -->
+  <div id="studentDetailsContent" class="hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+      <!-- Left Column: Main Details & Info -->
+      <div class="lg:col-span-2 space-y-4 md:space-y-6">
+        <div class="card p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center">
+              <div id="studentAvatarContainer" class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary mr-4">
+                <span id="studentInitials">JD</span>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white" id="studentName">Student Name</h2>
+                <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  <i class="ri-mail-line mr-1 text-primary"></i>
+                  <span id="studentEmail">student@example.com</span>
+                </div>
+              </div>
+            </div>
+            <span id="studentStatusBadge" class="px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap">Status</span>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Account Information</h3>
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Student ID:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentId">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Account Type:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentRole">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Registered:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentRegisteredDate">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Last Login:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentLastLogin">-</div>
+                </li>
+              </ul>
+            </div>
+            
+            <div>
+              <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Contact Details</h3>
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Phone:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentPhone">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Location:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentLocation">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Department:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentDepartment">-</div>
+                </li>
+                <li class="flex items-start">
+                  <div class="w-32 text-sm text-gray-500 dark:text-gray-400">Title/Position:</div>
+                  <div class="flex-1 text-gray-800 dark:text-gray-200 font-medium" id="studentPosition">-</div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Biography</h3>
+          <div id="studentBio" class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+            <p>No biography information available.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Activity & Stats -->
+      <div>
+        <div class="card p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Student Activity</h3>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mr-4">
+                <i class="ri-calendar-event-line text-xl"></i>
+              </div>
+              <div>
+                <div class="text-lg font-semibold text-gray-800 dark:text-white" id="studentEventCount">0</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Registered Events</div>
+              </div>
+            </div>
+            
+            <div class="flex items-center">
+              <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mr-4">
+                <i class="ri-message-3-line text-xl"></i>
+              </div>
+              <div>
+                <div class="text-lg font-semibold text-gray-800 dark:text-white" id="studentCommentCount">0</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Comments</div>
+              </div>
+            </div>
+
+            <div class="flex items-center">
+              <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mr-4">
+                <i class="ri-history-line text-xl"></i>
+              </div>
+              <div>
+                <div class="text-lg font-semibold text-gray-800 dark:text-white" id="studentDaysJoined">0</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Days as Member</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Recent Events</h3>
+          <div id="studentRecentEvents" class="max-h-80 overflow-y-auto space-y-3 text-sm pr-2">
+            <p class="text-gray-500 dark:text-gray-400 py-4 text-center">Loading events...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Change Confirmation Modal -->
+<div id="statusConfirmModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-[60] hidden p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6 text-center">
+      <i class="ri-question-line text-5xl text-yellow-500 mx-auto mb-4"></i>
+      <h3 class="mb-5 text-lg font-normal text-gray-600 dark:text-gray-300" id="statusConfirmTitle">
+        Are you sure you want to change this student's status?
+      </h3>
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400" id="statusConfirmMessage">
+        This will affect the student's ability to access the system.
+      </p>
+      <button id="confirmStatusBtn" type="button" class="text-white bg-primary hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+        Yes, Change Status
+      </button>
+      <button id="cancelStatusBtn" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+</section>
+<script>
+(function() {
+    console.log("Student Details view specific JavaScript executed.");
+    
+    let studentId = null;
+
+    // Get student ID from either query parameters or URL path
+    const urlParams = new URLSearchParams(window.location.search);
+    const pathStudentId = window.location.pathname.match(/\/students\/(\d+)/);
+
+    if (pathStudentId && pathStudentId[1]) {
+        // Extract from path format: /admin/students/123
+        studentId = pathStudentId[1];
+    } else {
+        // Fall back to query parameter format: ?id=123
+        studentId = urlParams.get('id');
+    }
+
+    console.log("Student ID obtained:", studentId);
+
+    // Get DOM elements
+    const loadingDiv = document.getElementById('studentDetailsLoading');
+    const errorDiv = document.getElementById('studentDetailsError');
+    const errorMessageEl = document.getElementById('studentDetailsErrorMessage');
+    const contentDiv = document.getElementById('studentDetailsContent');
+    
+    // Student info elements
+    const studentDetailsBreadcrumbTitle = document.getElementById('studentDetailsBreadcrumbTitle');
+    const studentDetailsPageTitle = document.getElementById('studentDetailsPageTitle');
+    const studentNameEl = document.getElementById('studentName');
+    const studentEmailEl = document.getElementById('studentEmail');
+    const studentInitialsEl = document.getElementById('studentInitials');
+    const studentStatusBadgeEl = document.getElementById('studentStatusBadge');
+    const studentIdEl = document.getElementById('studentId');
+    const studentRoleEl = document.getElementById('studentRole');
+    const studentRegisteredDateEl = document.getElementById('studentRegisteredDate');
+    const studentLastLoginEl = document.getElementById('studentLastLogin');
+    const studentPhoneEl = document.getElementById('studentPhone');
+    const studentLocationEl = document.getElementById('studentLocation');
+    const studentDepartmentEl = document.getElementById('studentDepartment');
+    const studentPositionEl = document.getElementById('studentPosition');
+    const studentBioEl = document.getElementById('studentBio');
+    
+    // Activity elements
+    const studentEventCountEl = document.getElementById('studentEventCount');
+    const studentCommentCountEl = document.getElementById('studentCommentCount');
+    const studentDaysJoinedEl = document.getElementById('studentDaysJoined');
+    const studentRecentEventsEl = document.getElementById('studentRecentEvents');
+    
+    // Button elements
+    const managStudentBtn = document.getElementById('managStudentBtn');
+    const toggleStudentStatusBtn = document.getElementById('toggleStudentStatusBtn');
+    const toggleStatusLabelEl = document.getElementById('toggleStatusLabel');
+    
+    // Modal elements
+    const statusConfirmModal = document.getElementById('statusConfirmModal');
+    const statusConfirmTitle = document.getElementById('statusConfirmTitle');
+    const statusConfirmMessage = document.getElementById('statusConfirmMessage');
+    const confirmStatusBtn = document.getElementById('confirmStatusBtn');
+    const cancelStatusBtn = document.getElementById('cancelStatusBtn');
+    
+    let currentStudentStatus = '';
+    let currentStudentName = '';
+
+    function getInitials(firstName, lastName) {
+        if (!firstName && !lastName) return 'U';
+        let initials = '';
+        if (firstName && firstName.length > 0) initials += firstName[0];
+        if (lastName && lastName.length > 0) initials += lastName[0];
+        return initials.toUpperCase() || 'U';
+    }
+
+    function getStatusClass(status) {
+        status = status ? status.toLowerCase() : 'unknown';
+        let baseClass = 'px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap ';
+        switch (status) {
+            case 'active': return baseClass + 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+            case 'inactive': return baseClass + 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+            case 'pending': return baseClass + 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+            default: return baseClass + 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        }
+    }
+
+    function formatDate(dateString, includeTime = false) {
+        if (!dateString || dateString === '0000-00-00 00:00:00') return 'N/A';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date)) return 'Invalid Date';
+            
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            if (includeTime) {
+                dateOptions.hour = '2-digit';
+                dateOptions.minute = '2-digit';
+            }
+            return date.toLocaleDateString(undefined, dateOptions);
+        } catch (e) { return 'Invalid Date'; }
+    }
+
+    function calculateDaysSince(dateString) {
+        if (!dateString) return 0;
+        try {
+            const startDate = new Date(dateString);
+            const today = new Date();
+            const diffTime = Math.abs(today - startDate);
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    async function fetchStudentDetails() {
+        if (!studentId) {
+            loadingDiv.style.display = 'none';
+            errorMessageEl.textContent = 'No Student ID provided. Please go back and select a student.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        loadingDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        contentDiv.style.display = 'none';
+
+        try {
+            // Replace with your actual API endpoint
+            const response = await fetch(`/iteam-university-website/admin/api/students.php?student_id=${studentId}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: `HTTP error! Status: ${response.status}` }));
+                throw new Error(errorData.message || `Failed to fetch student data.`);
+            }
+            
+            const result = await response.json();
+
+            if (result.success && result.student) {
+                const student = result.student;
+                
+                // Set student name in breadcrumb and page title
+                const fullName = `${student.first_name || ''} ${student.last_name || ''}`.trim() || 'Student ' + studentId;
+                const shortName = fullName.length > 35 ? fullName.substring(0, 32) + "..." : fullName;
+                
+                if (studentDetailsBreadcrumbTitle) studentDetailsBreadcrumbTitle.textContent = shortName;
+                if (studentDetailsPageTitle) studentDetailsPageTitle.textContent = fullName;
+                document.title = `${shortName} | University Event Management`;
+
+                // Basic student info
+                if (studentNameEl) studentNameEl.textContent = fullName;
+                if (studentEmailEl) studentEmailEl.textContent = student.email || 'No email provided';
+                if (studentInitialsEl) studentInitialsEl.textContent = getInitials(student.first_name, student.last_name);
+                
+                // Status badge
+                currentStudentStatus = student.status || 'unknown';
+                if (studentStatusBadgeEl) {
+                    studentStatusBadgeEl.textContent = currentStudentStatus.charAt(0).toUpperCase() + currentStudentStatus.slice(1);
+                    studentStatusBadgeEl.className = getStatusClass(currentStudentStatus);
+                }
+                
+                // Account info
+                if (studentIdEl) studentIdEl.textContent = student.student_id || studentId;
+                if (studentRoleEl) studentRoleEl.textContent = (student.role || 'Student').charAt(0).toUpperCase() + (student.role || 'student').slice(1);
+                if (studentRegisteredDateEl) studentRegisteredDateEl.textContent = formatDate(student.registration_date);
+                if (studentLastLoginEl) studentLastLoginEl.textContent = formatDate(student.last_login, true) || 'Never';
+                
+                // Contact details
+                if (studentPhoneEl) studentPhoneEl.textContent = student.phone || 'Not provided';
+                if (studentLocationEl) studentLocationEl.textContent = student.location || 'Not provided';
+                if (studentDepartmentEl) studentDepartmentEl.textContent = student.department || 'Not specified';
+                if (studentPositionEl) studentPositionEl.textContent = student.position || student.title || 'Not specified';
+                
+                // Bio
+                if (studentBioEl && student.bio) {
+                    studentBioEl.innerHTML = student.bio.replace(/\n/g, '<br>');
+                } else if (studentBioEl) {
+                    studentBioEl.innerHTML = '<p class="italic text-gray-500 dark:text-gray-400">No biography information available.</p>';
+                }
+                
+                // Activity metrics
+                const eventCount = student.events ? student.events.length : (student.event_count || 0);
+                const commentCount = student.comments ? student.comments.length : (student.comment_count || 0);
+                const daysJoined = calculateDaysSince(student.registration_date);
+                
+                if (studentEventCountEl) studentEventCountEl.textContent = eventCount;
+                if (studentCommentCountEl) studentCommentCountEl.textContent = commentCount;
+                if (studentDaysJoinedEl) studentDaysJoinedEl.textContent = daysJoined;
+                
+                // Recent events
+                if (studentRecentEventsEl) {
+                    studentRecentEventsEl.innerHTML = '';
+                    
+                    if (student.events && student.events.length > 0) {
+                        student.events.forEach(event => {
+                            const eventDiv = document.createElement('div');
+                            eventDiv.className = 'flex items-center justify-between p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-colors duration-150';
+                            
+                            const eventDate = formatDate(event.event_date || event.start_date);
+                            eventDiv.innerHTML = `
+                                <div class="flex-1">
+                                    <div class="font-medium text-gray-800 dark:text-gray-200">${event.title || 'Untitled Event'}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">${eventDate}</div>
+                                </div>
+                                <button onclick="viewEvent('${event.event_id}')" class="ml-2 px-2 py-1 text-xs bg-primary/10 text-primary rounded hover:bg-primary/20">
+                                    View
+                                </button>
+                            `;
+                            studentRecentEventsEl.appendChild(eventDiv);
+                        });
+                    } else if (eventCount > 0) {
+                        studentRecentEventsEl.innerHTML = `
+                            <p class="text-gray-500 dark:text-gray-400 py-4 text-center">
+                                Student has ${eventCount} events, but details are not available.
+                            </p>
+                        `;
+                    } else {
+                        studentRecentEventsEl.innerHTML = `
+                            <p class="text-gray-500 dark:text-gray-400 py-4 text-center">
+                                This student hasn't registered for any events yet.
+                            </p>
+                        `;
+                    }
+                }
+                
+                // Setup action buttons
+                if (managStudentBtn) {
+                    managStudentBtn.onclick = () => {
+                        if (typeof loadView === 'function') {
+                            loadView(`manage-student.html?id=${studentId}`);
+                        } else {
+                            alert(`Manage student ID: ${studentId}`);
+                        }
+                    };
+                }
+                
+                // Toggle student status button
+                if (toggleStudentStatusBtn && toggleStatusLabelEl) {
+                    const isActive = currentStudentStatus.toLowerCase() === 'active';
+                    toggleStatusLabelEl.textContent = isActive ? 'Deactivate Student' : 'Activate Student';
+                    toggleStudentStatusBtn.className = `px-4 py-2 ${isActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white rounded-button flex items-center text-sm`;
+                    
+                    toggleStudentStatusBtn.onclick = () => showStatusConfirmModal();
+                }
+                
+                currentStudentName = fullName;
+                
+                // Show the content
+                loadingDiv.style.display = 'none';
+                contentDiv.style.display = 'block';
+                
+            } else {
+                throw new Error(result.message || 'Student not found or data is invalid.');
+            }
+        } catch (error) {
+            console.error('Error fetching student details:', error);
+            loadingDiv.style.display = 'none';
+            errorMessageEl.textContent = `Error: ${error.message}`;
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    function showStatusConfirmModal() {
+        const isCurrentlyActive = currentStudentStatus.toLowerCase() === 'active';
+        const newStatus = isCurrentlyActive ? 'inactive' : 'active';
+        const action = isCurrentlyActive ? 'deactivate' : 'activate';
+        
+        if (statusConfirmTitle) {
+            statusConfirmTitle.textContent = `Are you sure you want to ${action} this student?`;
+        }
+        
+        if (statusConfirmMessage) {
+            statusConfirmMessage.textContent = isCurrentlyActive 
+                ? `${currentStudentName} will no longer be able to log in or access the system.` 
+                : `${currentStudentName} will regain access to the system.`;
+        }
+        
+        if (confirmStatusBtn) {
+            confirmStatusBtn.className = `text-white ${isCurrentlyActive ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2`;
+            confirmStatusBtn.textContent = isCurrentlyActive ? 'Yes, Deactivate' : 'Yes, Activate';
+        }
+        
+        if (statusConfirmModal) {
+            statusConfirmModal.classList.remove('hidden');
+        }
+    }
+
+    function hideStatusConfirmModal() {
+        if (statusConfirmModal) {
+            statusConfirmModal.classList.add('hidden');
+        }
+    }
+
+    async function handleStatusChange() {
+        if (!studentId) {
+            alert('Student ID is missing. Cannot update status.');
+            hideStatusConfirmModal();
+            return;
+        }
+
+        const isCurrentlyActive = currentStudentStatus.toLowerCase() === 'active';
+        const newStatus = isCurrentlyActive ? 'inactive' : 'active';
+        
+        console.log(`Attempting to change student ${studentId} status to ${newStatus}`);
+        
+        if (confirmStatusBtn) {
+            confirmStatusBtn.disabled = true;
+            confirmStatusBtn.textContent = 'Processing...';
+        }
+
+        try {
+            // Replace with your actual API endpoint
+            const response = await fetch(`/iteam-university-website/admin/api/students.php`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    status: newStatus
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                alert(`Student status updated successfully to ${newStatus}!`);
+                hideStatusConfirmModal();
+                
+                // Refresh student data
+                fetchStudentDetails();
+            } else {
+                throw new Error(result.message || `Failed to update student status.`);
+            }
+        } catch (error) {
+            console.error('Error updating student status:', error);
+            alert(`Error: ${error.message}`);
+        } finally {
+            if (confirmStatusBtn) {
+                confirmStatusBtn.disabled = false;
+                confirmStatusBtn.textContent = isCurrentlyActive ? 'Yes, Deactivate' : 'Yes, Activate';
+            }
+        }
+    }
+
+    // Event navigation
+    window.viewEvent = function(eventId) {
+        if (typeof loadView === 'function') {
+            loadView(`events/${eventId}`);
+        } else if (window.router && typeof window.router.navigateTo === 'function') {
+            window.router.navigateTo(`events/${eventId}`);
+        } else {
+            window.location.href = `/iteam-university-website/admin/events/${eventId}`;
+        }
+    };
+
+    // Set up event listeners
+    if (confirmStatusBtn) {
+        confirmStatusBtn.addEventListener('click', handleStatusChange);
+    }
+    
+    if (cancelStatusBtn) {
+        cancelStatusBtn.addEventListener('click', hideStatusConfirmModal);
+    }
+    
+    if (statusConfirmModal) {
+        statusConfirmModal.addEventListener('click', function(event) {
+            if (event.target === statusConfirmModal) {
+                hideStatusConfirmModal();
+            }
+        });
+    }
+    
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && statusConfirmModal && !statusConfirmModal.classList.contains('hidden')) {
+            hideStatusConfirmModal();
+        }
+    });
+
+    // Define loadView function if it doesn't exist
+    window.loadView = typeof loadView !== 'undefined' ? loadView : (view) => { window.location.hash = view; };
+
+    // Load student data
+    fetchStudentDetails();
+})();
+</script>

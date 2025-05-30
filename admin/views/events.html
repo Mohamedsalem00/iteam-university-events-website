@@ -1,0 +1,570 @@
+<!-- Improved responsive elements for events.html -->
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs - More compact on mobile -->
+<div class="flex items-center text-xs sm:text-sm mb-4 sm:mb-6 overflow-x-auto">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link whitespace-nowrap">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400">
+    <i class="ri-arrow-right-s-line"></i>
+  </div>
+  <span class="text-gray-700 dark:text-gray-300 whitespace-nowrap">Events</span>
+</div>
+
+<!-- Page Header - Fixed layout issues -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-xl sm:text-2xl font-bold mb-4 md:mb-0">Event Management</h1>
+  <div class="flex flex-wrap gap-2 sm:space-x-3">
+    <a
+      href="create-event.html" 
+      data-view="create-event.html"
+      class="px-3 sm:px-4 py-2 bg-primary text-white rounded-button flex items-center justify-center nav-link hover:bg-secondary hover:text-white focus:ring-4 text-xs sm:text-sm"
+    >
+      <i class="ri-add-line mr-1 sm:mr-2"></i>
+      <span class="whitespace-nowrap">New Event</span>
+    </a>
+    <button
+      class="px-3 sm:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-button flex items-center justify-center text-xs sm:text-sm"
+      id="exportEventsBtn"
+    >
+      <i class="ri-download-line mr-1 sm:mr-2"></i>
+      <span class="whitespace-nowrap">Export</span>
+    </button>
+  </div>
+</div>
+
+<!-- Quick Stats - Optimized for mobile -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6">
+  <div class="card p-3 sm:p-4 md:p-6">
+    <div class="flex items-center">
+      <div
+        class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-primary"
+      >
+        <i class="ri-calendar-event-line text-lg sm:text-xl"></i>
+      </div>
+      <div class="ml-3 sm:ml-4">
+        <h3 class="text-sm sm:text-lg font-semibold">Total Events</h3>
+        <p class="text-xl sm:text-3xl font-bold" id="totalEvents">0</p>
+      </div>
+    </div>
+    <div class="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
+      <div class="w-4 h-4 flex items-center justify-center text-green-500">
+        <i class="ri-arrow-up-line"></i>
+      </div>
+      <span class="text-green-500 font-medium">0%</span>
+      <span class="ml-2 text-gray-500 dark:text-gray-400 text-xs sm:text-sm">from last month</span>
+    </div>
+  </div>
+   <!-- Add other quick stats cards here -->
+    <div class="card p-3 sm:p-4 md:p-6">
+        <div class="flex items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600">
+                <i class="ri-calendar-check-line text-lg sm:text-xl"></i>
+            </div>
+            <div class="ml-3 sm:ml-4">
+                <h3 class="text-sm sm:text-lg font-semibold">Upcoming Events</h3>
+                <p class="text-xl sm:text-3xl font-bold" id="upcomingEvents">0</p> <!-- Sample Data -->
+            </div>
+        </div>
+         <div class="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
+              <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-arrow-up-line"></i></div>
+              <span class="text-green-500 font-medium">0%</span>
+              <span class="ml-2 text-gray-500 dark:text-gray-400">from last month</span>
+            </div>
+    </div>
+    <div class="card p-3 sm:p-4 md:p-6">
+        <div class="flex items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600">
+                <i class="ri-user-line text-lg sm:text-xl"></i>
+            </div>
+            <div class="ml-3 sm:ml-4">
+                <h3 class="text-sm sm:text-lg font-semibold">Total Attendees</h3>
+                <p class="text-xl sm:text-3xl font-bold" id="totalAttendees">0</p> <!-- Sample Data -->
+            </div>
+        </div>
+        <div class="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
+            <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-arrow-up-line"></i></div>
+            <span class="text-green-500 font-medium">0%</span>
+            <span class="ml-2 text-gray-500 dark:text-gray-400">from last month</span>
+        </div>
+    </div>
+    <div class="card p-3 sm:p-4 md:p-6">
+        <div class="flex items-center">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-yellow-100 dark:bg-yellow-900 flex items-center justify-center text-yellow-600">
+                <i class="ri-time-line text-lg sm:text-xl"></i>
+            </div>
+            <div class="ml-3 sm:ml-4">
+                <h3 class="text-sm sm:text-lg font-semibold">Avg. Attendance</h3>
+                <p class="text-xl sm:text-3xl font-bold" id="avgAttendance">0</p> <!-- Sample Data -->
+            </div>
+        </div>
+        <div class="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
+            <div class="w-4 h-4 flex items-center justify-center text-green-500"><i class="ri-arrow-up-line"></i></div>
+            <span class="text-green-500 font-medium">0%</span>
+            <span class="ml-2 text-gray-500 dark:text-gray-400">from last month</span>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row - Enhanced responsive layout -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+  <!-- First Chart Card - Enhanced width handling -->
+  <div class="card p-3 sm:p-4 md:p-6 overflow-hidden w-full">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
+      <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-0">Event Registrations</h3>
+      <div class="flex flex-wrap gap-1 sm:gap-2">
+        <button class="px-2 sm:px-3 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-button chart-period active" data-period="week">Week</button>
+        <button class="px-2 sm:px-3 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-button chart-period" data-period="month">Month</button>
+        <button class="px-2 sm:px-3 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded-button chart-period" data-period="year">Year</button>
+      </div>
+    </div>
+    <!-- Improved chart container -->
+    <div class="chart-container w-full">
+      <div id="eventRegistrationsChart" style="width: 100%; height: 100%;"></div>
+    </div>
+  </div>
+  
+  <!-- Second Chart Card - Enhanced width handling -->
+  <div class="card p-3 sm:p-4 md:p-6 overflow-hidden w-full">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4">
+      <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-0">Attendance by Location</h3>
+      <button id="refreshAttendanceChart" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+        <i class="ri-refresh-line"></i>
+      </button>
+    </div>
+    <!-- Improved chart container -->
+    <div class="chart-container w-full">
+      <div id="attendanceByLocationChart" style="width: 100%; height: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Events Filters and Table - Optimize for mobile -->
+<div class="card p-3 sm:p-4 md:p-6 mb-6">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6">
+    <h3 class="text-base sm:text-lg font-semibold mb-2 sm:mb-0">All Events</h3>
+    <div class="flex justify-end">
+      <button id="refreshEvents" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+        <i class="ri-refresh-line"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Filters - Stack on mobile, grid on larger screens -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+    <div>
+      <label for="statusFilter" class="block text-xs sm:text-sm font-medium mb-1">Status</label>
+      <select id="statusFilter" class="w-full min-w-0 rounded-md text-xs sm:text-sm">
+        <option value="">All Statuses</option>
+        <option value="active">Active/Upcoming</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+    <div>
+      <label for="categoryFilter" class="block text-xs sm:text-sm font-medium mb-1">Category</label>
+      <select id="categoryFilter" class="w-full min-w-0 rounded-md text-xs sm:text-sm">
+        <option value="">All Categories</option>
+        <option value="workshop">Workshop</option>
+        <option value="conference">Conference</option>
+        <option value="fair">Fair</option>
+        <option value="webinar">Webinar</option>
+      </select>
+    </div>
+    <div>
+      <label for="organizerFilter" class="block text-xs sm:text-sm font-medium mb-1">Organizer Name</label>
+      <input type="text" id="organizerFilter" placeholder="Search organizer..." class="w-full min-w-0 rounded-md text-xs sm:text-sm">
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <label for="dateStartFilter" class="block text-xs sm:text-sm font-medium mb-1">Date From</label>
+        <input type="date" id="dateStartFilter" class="w-full min-w-0 rounded-md text-xs sm:text-sm">
+      </div>
+      <div>
+        <label for="dateEndFilter" class="block text-xs sm:text-sm font-medium mb-1">Date To</label>
+        <input type="date" id="dateEndFilter" class="w-full min-w-0 rounded-md text-xs sm:text-sm">
+      </div>
+    </div>
+  </div>
+  
+  <!-- Table with horizontal scroll on small screens -->
+  <div class="overflow-x-auto -mx-3 sm:-mx-4 md:-mx-6">
+    <div class="min-w-full inline-block align-middle px-3 sm:px-4 md:px-6">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead>
+          <tr>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer" data-sort="name">
+              Event Name <i class="ri-arrow-up-down-line text-xs ml-1"></i>
+            </th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Organizer</th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Attendees</th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+            <th scope="col" class="py-2 px-2 sm:py-3 sm:px-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="eventsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700 text-xs sm:text-sm">
+          <tr>
+            <td colspan="8" class="text-center py-4">Loading events data...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Pagination - Stack on mobile, flex on larger -->
+  <div class="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-6 space-y-3 sm:space-y-0">
+    <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 order-2 sm:order-1">
+      Showing <span id="paginationStart">0</span> to <span id="paginationEnd">0</span> of <span id="totalEventsCount">0</span> events
+    </div>
+    <div id="paginationControls" class="flex space-x-1 w-full sm:w-auto justify-center sm:justify-end order-1 sm:order-2">
+      <!-- Pagination buttons will be rendered here by JavaScript -->
+    </div>
+  </div>
+</div>
+</section>
+
+<style>
+  /* Improved chart container styling with better width handling */
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    touch-action: pan-y;
+    -webkit-overflow-scrolling: touch;
+    overflow: hidden; /* Prevent any overflow */
+  }
+  
+  /* Make charts adapt to container size */
+  .chart-container > div {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important; /* Force full width */
+    height: 100% !important; /* Force full height */
+    min-width: 200px; /* Minimum width to prevent collapse */
+  }
+  
+  /* Responsive height adjustments */
+  @media (max-width: 640px) {
+    .chart-container {
+      height: 200px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .chart-container {
+      height: 280px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .chart-container {
+      height: 300px;
+    }
+  }
+  
+  /* Fix for charts in flex/grid containers */
+  .grid > .card .chart-container {
+    max-width: 100%;
+    width: 100%;
+  }
+</style>
+
+<script>
+(function() { // Start IIFE
+    console.log("Events view specific JavaScript executed (IIFE).");
+
+    let eventRegistrationsChartInstance = null;
+    let attendanceByLocationChartInstance = null;
+
+    // --- DOM Elements ---
+    const eventsTableBody = document.getElementById('eventsTableBody');
+    const totalEventsCountSpan = document.getElementById('totalEventsCount');
+    const paginationStartSpan = document.getElementById('paginationStart');
+    const paginationEndSpan = document.getElementById('paginationEnd');
+    const paginationControlsContainer = document.getElementById('paginationControls');
+
+    // Filter Elements
+    const statusFilter = document.getElementById('statusFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const organizerFilter = document.getElementById('organizerFilter');
+    const dateStartFilter = document.getElementById('dateStartFilter');
+    const dateEndFilter = document.getElementById('dateEndFilter');
+    const refreshEventsButton = document.getElementById('refreshEvents');
+
+    let currentPage = 1;
+    const itemsPerPage = 10; // Or make this configurable
+
+    // --- Helper: Render Trend (Simplified) ---
+    function renderTrend(trendData, statCardElement) {
+        const trendElementContainer = statCardElement.querySelector('.mt-4.flex.items-center.text-sm');
+        if (!trendElementContainer) {
+            return;
+        }
+        trendElementContainer.innerHTML = `<span class="text-xs text-gray-400 dark:text-gray-500">Trend N/A</span>`;
+    }
+
+    // --- Chart Initialization ---
+    function initEventPageCharts() {
+        const eventRegChartElement = document.getElementById('eventRegistrationsChart');
+        if (eventRegChartElement && !echarts.getInstanceByDom(eventRegChartElement)) {
+            requestAnimationFrame(() => {
+                if (document.body.contains(eventRegChartElement) && eventRegChartElement.offsetWidth > 0) {
+                    eventRegistrationsChartInstance = echarts.init(eventRegChartElement);
+                    const optionReg = {
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                        xAxis: { type: 'category', data: [], axisTick: { alignWithLabel: true }, axisLabel: { color: document.documentElement.classList.contains('dark') ? '#a0a0a0' : '#6c757d' }},
+                        yAxis: { type: 'value', axisLabel: { color: document.documentElement.classList.contains('dark') ? '#a0a0a0' : '#6c757d' } },
+                        series: [{ name: 'Registrations', type: 'bar', barWidth: '60%', data: [], itemStyle: { color: 'rgba(87, 181, 231, 0.8)' } }]
+                    };
+                    eventRegistrationsChartInstance.setOption(optionReg);
+                    window.addEventListener("resize", () => { if(eventRegistrationsChartInstance && eventRegistrationsChartInstance.getDom()) eventRegistrationsChartInstance.resize(); });
+                }
+            });
+        }
+
+        const attendanceTypeChartElement = document.getElementById('attendanceByLocationChart');
+        if (attendanceTypeChartElement && !echarts.getInstanceByDom(attendanceTypeChartElement)) {
+             requestAnimationFrame(() => {
+                if (document.body.contains(attendanceTypeChartElement) && attendanceTypeChartElement.offsetWidth > 0) {
+                    attendanceByLocationChartInstance = echarts.init(attendanceTypeChartElement);
+                    const optionLoc = {
+                        tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+                        legend: { orient: 'vertical', left: 'right', top: 'center', data: [], textStyle: { color: document.documentElement.classList.contains('dark') ? '#e0e0e0' : '#343a40' }},
+                        series: [{ name: 'Attendance by Location/Type', type: 'pie', radius: ['45%', '75%'], center: ['40%', '50%'], avoidLabelOverlap: false, itemStyle: { borderRadius: 5, borderColor: '#fff', borderWidth: 1 }, label: { show: false, position: 'center' }, emphasis: { label: { show: true, fontSize: '16', fontWeight: 'bold' }}, labelLine: { show: false }, data: [] }]
+                    };
+                    attendanceByLocationChartInstance.setOption(optionLoc);
+                    window.addEventListener("resize", () => { if(attendanceByLocationChartInstance && attendanceByLocationChartInstance.getDom()) attendanceByLocationChartInstance.resize(); });
+                }
+            });
+        }
+    }
+
+    // --- Fetch and Populate Data for Events Page (Quick Stats & Charts) ---
+    async function fetchEventsPageData() {
+        if (!eventRegistrationsChartInstance && document.getElementById('eventRegistrationsChart')) {
+            initEventPageCharts();
+        }
+        if (!attendanceByLocationChartInstance && document.getElementById('attendanceByLocationChart')) {
+            initEventPageCharts();
+        }
+        console.log("Fetching data for Events Page Quick Stats & Charts from get_events.php...");
+        try {
+            const responseEvent = await fetch('/iteam-university-website/admin/api/events.php?limit=10000');
+            if (!responseEvent.ok) throw new Error(`HTTP error! status: ${responseEvent.status}`);
+            const result = await responseEvent.json();
+
+            if (result.success && result.events) {
+                const allEvents = result.events;
+                const totalEvents = allEvents.length;
+                document.getElementById('totalEvents').textContent = totalEvents;
+                const upcomingEventsCount = allEvents.filter(event => event.status === 'upcoming').length;
+                document.getElementById('upcomingEvents').textContent = upcomingEventsCount;
+                const totalAttendeesAllEvents = allEvents.reduce((sum, event) => sum + (parseInt(event.total_attendees, 10) || 0), 0);
+                document.getElementById('totalAttendees').textContent = totalAttendeesAllEvents;
+                const avgAttendance = totalEvents > 0 ? (totalAttendeesAllEvents / totalEvents).toFixed(1) : '0';
+                document.getElementById('avgAttendance').textContent = avgAttendance;
+                
+                ['totalEvents', 'upcomingEvents', 'totalAttendees', 'avgAttendance'].forEach(id => {
+                    const card = document.getElementById(id)?.closest('.card');
+                    if (card) renderTrend(null, card);
+                });
+
+                if (eventRegistrationsChartInstance) {
+                    const registrationChartLabels = ['Upcoming', 'Active', 'Completed'];
+                    const registrationChartData = [
+                        allEvents.filter(e => e.status === 'upcoming').length,
+                        allEvents.filter(e => e.status === 'active').length,
+                        allEvents.filter(e => e.status === 'completed').length
+                    ];
+                    eventRegistrationsChartInstance.setOption({
+                        xAxis: [{ data: registrationChartLabels }],
+                        series: [{ data: registrationChartData, name: 'Event Count by Status' }]
+                    });
+                }
+                if (attendanceByLocationChartInstance) {
+                    const attendanceByLocationData = {};
+                    allEvents.forEach(event => {
+                        const location = event.location || 'Unknown Location';
+                        attendanceByLocationData[location] = (attendanceByLocationData[location] || 0) + (parseInt(event.total_attendees, 10) || 0);
+                    });
+                    const pieChartData = Object.keys(attendanceByLocationData).map(loc => ({ name: loc, value: attendanceByLocationData[loc] })).sort((a,b) => b.value - a.value).slice(0, 7);
+                    const pieChartLegend = pieChartData.map(d => d.name);
+                    attendanceByLocationChartInstance.setOption({
+                        legend: { data: pieChartLegend },
+                        series: [{ data: pieChartData, name: 'Attendees by Location' }]
+                    });
+                }
+            } else { /* ... error handling for stats ... */ }
+        } catch (error) { /* ... error handling for stats ... */ }
+    }
+
+    // --- Fetch and Render Main Events Table ---
+    async function fetchAndRenderEvents(page = 1) {
+        currentPage = page;
+        if (!eventsTableBody) {
+            console.error("eventsTableBody not found in events.html");
+            return;
+        }
+        eventsTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4"><i class="ri-loader-4-line ri-spin text-xl"></i> Loading events data...</td></tr>`;
+        
+        const params = new URLSearchParams({
+            page: currentPage,
+            limit: itemsPerPage
+        });
+
+        if (statusFilter && statusFilter.value) params.append('status', statusFilter.value);
+        if (categoryFilter && categoryFilter.value) params.append('category', categoryFilter.value);
+        if (organizerFilter && organizerFilter.value.trim()) params.append('organizer_name', organizerFilter.value.trim());
+        if (dateStartFilter && dateStartFilter.value) params.append('date_start', dateStartFilter.value);
+        if (dateEndFilter && dateEndFilter.value) params.append('date_end', dateEndFilter.value);
+
+        try {
+            const apiUrl = `/iteam-university-website/admin/api/events.php?${params.toString()}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+
+            if (result.success && result.events) {
+                renderEventsTable(result.events);
+                renderPaginationControls(result.pagination);
+                if (result.pagination) {
+                    if(totalEventsCountSpan) totalEventsCountSpan.textContent = result.pagination.total_items || '0';
+                    if(paginationStartSpan) paginationStartSpan.textContent = result.pagination.start_item || (result.events.length > 0 ? 1 : 0);
+                    if(paginationEndSpan) paginationEndSpan.textContent = result.pagination.end_item || result.events.length;
+                } else { /* ... fallback for no pagination object ... */ }
+            } else { throw new Error(result.message || 'Failed to load events from API for table.'); }
+        } catch (error) {
+            console.error('Error fetching or rendering events for table:', error);
+            eventsTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-red-500">Error loading events. ${error.message}</td></tr>`;
+            if(totalEventsCountSpan) totalEventsCountSpan.textContent = '0';
+            if(paginationStartSpan) paginationStartSpan.textContent = '0';
+            if(paginationEndSpan) paginationEndSpan.textContent = '0';
+            if(paginationControlsContainer) paginationControlsContainer.innerHTML = '';
+        }
+    }
+
+    // --- Render Table Rows ---
+    function getStatusClass(status) {
+        status = status ? status.toLowerCase() : 'unknown';
+        switch (status) {
+            case 'active': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+            case 'upcoming': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+            case 'completed': return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+            default: return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200';
+        }
+    }
+
+    function renderEventsTable(events) {
+        if (!eventsTableBody) return;
+        eventsTableBody.innerHTML = '';
+
+        if (!events || events.length === 0) {
+            eventsTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-gray-500">No events found matching your criteria.</td></tr>`;
+            return;
+        }
+
+        events.forEach(event => {
+            const row = document.createElement('tr');
+            row.className = "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600";
+            const eventName = event.title || 'N/A';
+            const organizer = event.organizer_name || 'N/A';
+            const location = event.location || 'N/A';
+            const category = event.event_type ? event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1) : 'N/A';
+            const date = event.start_date ? new Date(event.start_date).toLocaleDateString() : 'N/A';
+            const attendees = event.total_attendees !== undefined ? event.total_attendees : 'N/A';
+            const status = event.status || 'unknown';
+            const statusClass = getStatusClass(status);
+            const eventId = event.event_id || null;
+
+            row.innerHTML = `
+                <td class="py-2 px-2 sm:px-3 md:px-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${eventName}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4">${organizer}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4">${location}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4">${category}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4">${date}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4">${attendees}</td>
+                <td class="py-2 px-2 sm:px-3 md:px-4"><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                <td class="py-2 px-2 sm:px-3 md:px-4">
+                    <button class="text-primary hover:underline" onclick="viewEventDetails('${eventId}')" ${!eventId ? 'disabled' : ''}>Details</button>
+                </td>
+            `;
+            eventsTableBody.appendChild(row);
+        });
+    }
+    
+    // --- Render Pagination Controls ---
+    function renderPaginationControls(pagination) {
+        if (!paginationControlsContainer || !pagination || pagination.total_pages <= 1) {
+            if(paginationControlsContainer) paginationControlsContainer.innerHTML = '';
+            return;
+        }
+        paginationControlsContainer.innerHTML = '';
+
+        const { current_page, total_pages } = pagination;
+
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = `<i class="ri-arrow-left-s-line"></i> Prev`;
+        prevButton.className = `px-3 py-1 text-sm rounded-button border dark:border-gray-600 ${current_page === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-600'}`;
+        if (current_page === 1) prevButton.disabled = true;
+        prevButton.addEventListener('click', () => fetchAndRenderEvents(current_page - 1));
+        paginationControlsContainer.appendChild(prevButton);
+
+        const pageInfo = document.createElement('span');
+        pageInfo.className = 'px-3 py-1 text-sm';
+        pageInfo.textContent = `Page ${current_page} of ${total_pages}`;
+        paginationControlsContainer.appendChild(pageInfo);
+
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = `Next <i class="ri-arrow-right-s-line"></i>`;
+        nextButton.className = `px-3 py-1 text-sm rounded-button border dark:border-gray-600 ${current_page === total_pages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-600'}`;
+        if (current_page === total_pages) nextButton.disabled = true;
+        nextButton.addEventListener('click', () => fetchAndRenderEvents(current_page + 1));
+        paginationControlsContainer.appendChild(nextButton);
+    }
+
+    window.viewEventDetails = function(eventId) {
+        if (!eventId) {
+            alert("Event ID is missing.");
+            return;
+        }
+        
+        console.log("View details for event ID:", eventId);
+        
+        // Use direct URL navigation to prevent the nested views issue
+        // This causes a full page reload which avoids the SPA router issues
+        window.location.href = `/iteam-university-website/admin/events/${eventId}`;
+        
+        // Return false to prevent any default action
+        return false;
+    };
+    
+    [statusFilter, categoryFilter, dateStartFilter, dateEndFilter].forEach(filterElement => {
+        if (filterElement) {
+            filterElement.addEventListener('change', () => fetchAndRenderEvents(1));
+        }
+    });
+    if (organizerFilter) {
+        let debounceTimer;
+        organizerFilter.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetchAndRenderEvents(1);
+            }, 500);
+        });
+    }
+    if(refreshEventsButton) {
+        refreshEventsButton.addEventListener('click', () => {
+            fetchEventsPageData(); 
+            fetchAndRenderEvents(1); 
+        });
+    }
+
+    initEventPageCharts(); 
+    fetchEventsPageData();
+    setTimeout(() => fetchAndRenderEvents(currentPage), 50);
+
+})(); // End IIFE
+</script>

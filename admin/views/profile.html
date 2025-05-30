@@ -1,0 +1,150 @@
+<section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-sm mb-6">
+  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300">Account</span>
+  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+  <span class="text-gray-700 dark:text-gray-300">Profile</span>
+</div>
+
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Student Profile</h1>
+</div>
+
+<!-- Profile Content -->
+<div id="profileLoadingIndicator" class="text-center py-10">
+    <p class="text-gray-500 dark:text-gray-400">Loading profile...</p>
+    <!-- You can add a spinner icon here if you have one -->
+</div>
+
+<div id="profileContentArea" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
+  <!-- Profile Card -->
+  <div class="lg:col-span-1 card p-6">
+    <div class="flex flex-col items-center">
+      <div class="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden mb-4 border border-gray-300 dark:border-gray-600">
+        <img id="profilePagePicture" src="assets/images/default-avatar.png" alt="Profile Picture" class="w-full h-full object-cover">
+      </div>
+      <h2 id="profilePageStudentname" class="text-xl font-semibold text-center">Admin Name</h2>
+      <p class="text-gray-500 dark:text-gray-400">Administrator</p>
+      <button id="editProfilePictureBtn" class="mt-4 px-4 py-2 bg-primary text-white rounded-button text-sm opacity-50 cursor-not-allowed" title="Feature not yet implemented" disabled>Edit Profile Picture</button>
+    </div>
+  </div>
+
+  <!-- Profile Details Form -->
+  <div class="lg:col-span-2 card p-6">
+    <h2 class="text-xl font-semibold mb-4">Profile Information</h2>
+    <form id="profileUpdateForm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label for="profileFullName" class="block text-sm font-medium mb-1">Studentname</label>
+          <input type="text" id="profileFullName" name="username" class="w-full rounded-md bg-gray-100 dark:bg-gray-700 cursor-not-allowed" readonly>
+        </div>
+        <div>
+          <label for="profileEmail" class="block text-sm font-medium mb-1">Email Address</label>
+          <input type="email" id="profileEmail" name="email" class="w-full rounded-md bg-gray-100 dark:bg-gray-700 cursor-not-allowed" readonly>
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="profileDepartment" class="block text-sm font-medium mb-1">Department (Static)</label>
+        <input type="text" id="profileDepartment" value="Administration" class="w-full rounded-md bg-gray-100 dark:bg-gray-700 cursor-not-allowed" readonly>
+      </div>
+      <div class="mb-4">
+        <label for="profileBio" class="block text-sm font-medium mb-1">Bio (Static)</label>
+        <textarea id="profileBio" rows="4" class="w-full rounded-md bg-gray-100 dark:bg-gray-700 cursor-not-allowed" readonly>Experienced university administrator with a passion for enhancing student and faculty experiences.</textarea>
+      </div>
+      <div class="text-right">
+        <button type="submit" id="saveProfileChangesBtn" class="px-6 py-2 bg-primary text-white rounded-button opacity-50 cursor-not-allowed" title="Feature not yet implemented" disabled>Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="profileErrorIndicator" class="text-center py-10 hidden">
+    <p class="text-red-500">Failed to load profile data. Please try again later.</p>
+</div>
+
+</section>
+<script>
+(function() { // IIFE to encapsulate scope
+    console.log("Profile view specific JavaScript executed.");
+
+    const profileLoadingIndicator = document.getElementById('profileLoadingIndicator');
+    const profileContentArea = document.getElementById('profileContentArea');
+    const profileErrorIndicator = document.getElementById('profileErrorIndicator');
+
+    const profilePagePicture = document.getElementById('profilePagePicture');
+    const profilePageStudentname = document.getElementById('profilePageStudentname');
+    const profileFullNameInput = document.getElementById('profileFullName');
+    const profileEmailInput = document.getElementById('profileEmail');
+    // const editProfilePictureBtn = document.getElementById('editProfilePictureBtn'); // For future use
+    // const saveProfileChangesBtn = document.getElementById('saveProfileChangesBtn'); // For future use
+    // const profileUpdateForm = document.getElementById('profileUpdateForm'); // For future use
+
+    const defaultAvatar = 'assets/images/default-avatar.png'; // Ensure this path is correct
+
+    async function fetchAdminProfile() {
+        profileLoadingIndicator.classList.remove('hidden');
+        profileContentArea.classList.add('hidden');
+        profileErrorIndicator.classList.add('hidden');
+
+        try {
+            const response = await fetch('/iteam-university-website/admin/api/admin_profile.php');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            if (data.success && data.profile) {
+                const profile = data.profile;
+
+                // Populate profile card
+                profilePagePicture.src = profile.profile_picture || defaultAvatar;
+                profilePagePicture.alt = profile.username ? `${profile.username}'s Profile Picture` : 'Profile Picture';
+                profilePagePicture.onerror = function() {
+                    this.src = defaultAvatar; // Fallback if the fetched image fails
+                    console.warn('Admin profile picture failed to load from API, using default.');
+                };
+                profilePageStudentname.textContent = profile.username || 'N/A';
+
+                // Populate form fields
+                profileFullNameInput.value = profile.username || '';
+                profileEmailInput.value = profile.email || '';
+                
+                // Show content, hide loader
+                profileContentArea.classList.remove('hidden');
+                profileLoadingIndicator.classList.add('hidden');
+
+            } else {
+                throw new Error(data.message || 'Failed to retrieve profile data.');
+            }
+        } catch (error) {
+            console.error('Error fetching admin profile:', error);
+            profileLoadingIndicator.classList.add('hidden');
+            profileErrorIndicator.classList.remove('hidden');
+            profileContentArea.classList.add('hidden');
+
+            // Set defaults on error for safety, though area is hidden
+            profilePagePicture.src = defaultAvatar;
+            profilePageStudentname.textContent = 'Error';
+            profileFullNameInput.value = '';
+            profileEmailInput.value = '';
+        }
+    }
+
+    // Initial fetch
+    fetchAdminProfile();
+
+    // Placeholder for future form submission logic
+    // if (profileUpdateForm) {
+    //     profileUpdateForm.addEventListener('submit', function(event) {
+    //         event.preventDefault();
+    //         alert('Update functionality not yet implemented.');
+    //         // Here you would gather form data and send a POST/PUT request
+    //         // to an update_profile.php endpoint.
+    //     });
+    // }
+
+})(); // End of IIFE
+</script>
