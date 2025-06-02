@@ -700,7 +700,7 @@
                         localStorage.removeItem('userType');
                         
                         // Redirect to login page
-                        window.location.href = '../login.html';
+                        window.location.href = '/iteam-university-website/auth/login.html';
                     }
                 });
             });
@@ -743,7 +743,7 @@
                     loadJobOffers();
                 } else {
                     // Not logged in or error
-                    window.location.href = '../login.html';
+                    window.location.href = '/iteam-university-website/auth/login.html';
                 }
             })
             .catch(error => {

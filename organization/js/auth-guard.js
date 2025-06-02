@@ -13,7 +13,7 @@
     function getBaseUrl() {
         // Get current path
         const path = window.location.pathname;
-        const projectName = 'iteam-university-website/student';
+        const projectName = '/iteam-university-website/organization';
         
         // Find the position of the project name in the path
         const projectPos = path.indexOf(projectName);
