@@ -246,7 +246,7 @@
                                 <svg class="w-6 h-6 text-dashboard-text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
-                                <a id="application-resume" href="#" class="text-theme-primary hover:underline">View Resume</a>
+                                <a id="application-resume" href="#" target="_blank" class="text-theme-primary hover:underline">View Resume</a>
                             </div>
                         </div>
                         
@@ -271,10 +271,135 @@
     <!-- Footer will be loaded here -->
     <div id="footer-placeholder"></div>
 
+     <script src="../../frontend/js/config.js"></script>
     <script src="../js/main.js"></script>
     <script src="../js/components.js"></script>
     <script src="../js/models.js"></script>
     
+    <script>
+        // If these functions aren't defined in models.js, we'll define them here
+        if (typeof showConfirmModal !== 'function') {
+            function showConfirmModal(title, message, confirmCallback) {
+                // Create modal elements
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+                
+                const modalContent = document.createElement('div');
+                modalContent.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden';
+                
+                modalContent.innerHTML = `
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-2">${title}</h3>
+                        <p class="text-dashboard-text-secondary mb-6">${message}</p>
+                        <div class="flex justify-end space-x-3">
+                            <button id="cancel-btn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-dashboard-text hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                                Cancel
+                            </button>
+                            <button id="confirm-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modalOverlay.appendChild(modalContent);
+                document.body.appendChild(modalOverlay);
+                
+                // Add event listeners
+                const cancelBtn = document.getElementById('cancel-btn');
+                const confirmBtn = document.getElementById('confirm-btn');
+                
+                cancelBtn.addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                });
+                
+                confirmBtn.addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                    if (typeof confirmCallback === 'function') {
+                        confirmCallback();
+                    }
+                });
+            }
+        }
+
+        if (typeof showSuccessModal !== 'function') {
+            function showSuccessModal(title, message) {
+                // Create modal elements
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+                
+                const modalContent = document.createElement('div');
+                modalContent.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden';
+                
+                modalContent.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="mr-3 p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+                                <svg class="w-6 h-6 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold">${title}</h3>
+                        </div>
+                        <p class="text-dashboard-text-secondary mb-6">${message}</p>
+                        <div class="flex justify-end">
+                            <button id="success-ok-btn" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modalOverlay.appendChild(modalContent);
+                document.body.appendChild(modalOverlay);
+                
+                // Add event listeners
+                const okBtn = document.getElementById('success-ok-btn');
+                okBtn.addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                });
+            }
+        }
+
+        if (typeof showErrorModal !== 'function') {
+            function showErrorModal(title, message) {
+                // Create modal elements
+                const modalOverlay = document.createElement('div');
+                modalOverlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+                
+                const modalContent = document.createElement('div');
+                modalContent.className = 'bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 overflow-hidden';
+                
+                modalContent.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="mr-3 p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                                <svg class="w-6 h-6 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold">${title}</h3>
+                        </div>
+                        <p class="text-dashboard-text-secondary mb-6">${message}</p>
+                        <div class="flex justify-end">
+                            <button id="error-ok-btn" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modalOverlay.appendChild(modalContent);
+                document.body.appendChild(modalOverlay);
+                
+                // Add event listeners
+                const okBtn = document.getElementById('error-ok-btn');
+                okBtn.addEventListener('click', () => {
+                    document.body.removeChild(modalOverlay);
+                });
+            }
+        }
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elements
@@ -543,7 +668,7 @@
                 
                 // Set resume link if available
                 if (app.resume_path) {
-                    applicationResume.href = '../' + app.resume_path;
+                    applicationResume.href = app.resume_path;
                     applicationResume.classList.remove('hidden');
                     applicationResume.parentElement.classList.remove('hidden');
                 } else {
@@ -585,22 +710,20 @@
             function withdrawApplicationById(applicationId) {
                 if (!applicationId) return;
                 
-                // Show a confirmation modal using the existing models.js
-                if (typeof showConfirmModal === 'function') {
+                // First close the application modal to prevent layering issues
+                closeModal();
+                
+                // Then show the confirmation modal with a slight delay
+                setTimeout(function() {
                     showConfirmModal(
                         'Withdraw Application', 
                         'Are you sure you want to withdraw your application? This action cannot be undone.',
-                        () => {
+                        function() {
                             // User confirmed, proceed with withdrawal
                             performWithdrawal(applicationId);
                         }
                     );
-                } else {
-                    // Fallback if the showConfirmModal function is not available
-                    if (confirm('Are you sure you want to withdraw your application? This action cannot be undone.')) {
-                        performWithdrawal(applicationId);
-                    }
-                }
+                }, 300); // Short delay to ensure smooth transition
             }
             
             // Perform the actual withdrawal
@@ -608,36 +731,28 @@
                 fetch(`../api/job-applications.php?action=withdraw&id=${applicationId}`, {
                     method: 'POST'
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        // Close the modal
-                        closeModal();
-                        
                         // Show success message
-                        if (typeof showSuccessModal === 'function') {
-                            showSuccessModal('Application Withdrawn', data.message);
-                        } else {
-                            alert('Application successfully withdrawn.');
-                        }
+                        showSuccessModal('Application Withdrawn', data.message);
                         
-                        // Reload applications
-                        loadApplications();
+                        // Reload applications with a slight delay to ensure the modal is visible
+                        setTimeout(function() {
+                            loadApplications();
+                        }, 500);
                     } else {
-                        if (typeof showErrorModal === 'function') {
-                            showErrorModal('Error', data.message || 'Failed to withdraw application.');
-                        } else {
-                            alert('Error: ' + (data.message || 'Failed to withdraw application.'));
-                        }
+                        showErrorModal('Error', data.message || 'Failed to withdraw application.');
                     }
                 })
                 .catch(error => {
                     console.error('Error withdrawing application:', error);
-                    if (typeof showErrorModal === 'function') {
-                        showErrorModal('Error', 'An unexpected error occurred. Please try again later.');
-                    } else {
-                        alert('An unexpected error occurred. Please try again later.');
-                    }
+                    showErrorModal('Error', 'An unexpected error occurred. Please try again later.');
                 });
             }
             

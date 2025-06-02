@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Process profile picture upload if provided
         $profilePicturePath = null;
         if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = '../uploads/profile_pictures/';
+            $uploadDir = '/iteam-university-website/frontend/uploads/profile_pictures/';
             
             // Create directory if it doesn't exist
             if (!file_exists($uploadDir)) {
