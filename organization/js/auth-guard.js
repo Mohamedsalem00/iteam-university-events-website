@@ -7,6 +7,8 @@
  */
 
 (function() {
+
+
     // Figure out the base URL for redirects
     function getBaseUrl() {
         // Get current path
@@ -235,7 +237,7 @@
         // Build login URL based on current path
         const baseUrl = getBaseUrl();
         const relativePath = getRelativePath();
-        const loginUrl = relativePath + 'pages/login.html';
+        const loginUrl = '/iteam-university-website/auth/login.html';
         
         console.log('Redirecting to:', loginUrl);
         

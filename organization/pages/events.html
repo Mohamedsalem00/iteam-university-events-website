@@ -498,6 +498,80 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+<div id="success-modal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="success-modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        
+        <!-- Center modal -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div>
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="mt-3 text-center sm:mt-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="success-modal-title">
+                        Success
+                    </h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="success-modal-message">
+                            Operation completed successfully.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-6">
+                <button type="button" id="close-success-modal" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-theme-primary text-base font-medium text-white hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary sm:text-sm">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="error-modal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="error-modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        
+        <!-- Center modal -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div>
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="mt-3 text-center sm:mt-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="error-modal-title">
+                        Error
+                    </h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-400" id="error-modal-message">
+                            An error occurred.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-5 sm:mt-6">
+                <button type="button" id="close-error-modal" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Dark mode toggle functionality
@@ -831,6 +905,35 @@
             });
         };
 
+
+        // Show success modal
+const showSuccessModal = function(message) {
+    const modal = document.getElementById('success-modal');
+    const modalMessage = document.getElementById('success-modal-message');
+    
+    modalMessage.textContent = message;
+    modal.classList.remove('hidden');
+};
+
+// Show error modal
+const showErrorModal = function(message) {
+    const modal = document.getElementById('error-modal');
+    const modalMessage = document.getElementById('error-modal-message');
+    
+    modalMessage.textContent = message;
+    modal.classList.remove('hidden');
+};
+
+// Close success modal
+const closeSuccessModal = function() {
+    document.getElementById('success-modal').classList.add('hidden');
+};
+
+// Close error modal
+const closeErrorModal = function() {
+    document.getElementById('error-modal').classList.add('hidden');
+};
+
         // Update pagination controls
         const updatePagination = function(totalResults) {
             const pageInfo = document.getElementById('page-info');
@@ -971,28 +1074,55 @@
                     const startDate = new Date(event.start_date);
                     const endDate = new Date(event.end_date);
                     
+                    // Set the input values directly first (important for form submission)
+                    document.getElementById('start_date').value = formatDateForInput(startDate);
+                    document.getElementById('end_date').value = formatDateForInput(endDate);
+                    
                     // Initialize flatpickr with existing dates
-                    flatpickr("#start_date", {
+                    const startPickr = flatpickr("#start_date", {
                         enableTime: true,
                         dateFormat: "Y-m-d H:i",
                         defaultDate: startDate,
-                        minDate: "today"
+                        minDate: "today",
+                        onChange: function(selectedDates, dateStr) {
+                            // Update the input value when date changes
+                            document.getElementById('start_date').value = dateStr;
+                        }
                     });
                     
-                    flatpickr("#end_date", {
+                    const endPickr = flatpickr("#end_date", {
                         enableTime: true,
                         dateFormat: "Y-m-d H:i",
                         defaultDate: endDate,
-                        minDate: "today"
+                        minDate: "today",
+                        onChange: function(selectedDates, dateStr) {
+                            // Update the input value when date changes
+                            document.getElementById('end_date').value = dateStr;
+                        }
                     });
+
+                    // Force flatpickr to update the input values
+                    startPickr.setDate(startDate);
+                    endPickr.setDate(endDate);
                 }
             })
             .catch(error => {
                 console.error('Error fetching event details:', error);
                 closeEventModal();
-                alert('Error loading event details. Please try again.');
+                showErrorModal('Error loading event details. Please try again.');
             });
         };
+
+        // Add this helper function for date formatting
+function formatDateForInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
 
         // Open the delete confirmation modal
         const openDeleteModal = function(eventId, eventTitle) {
@@ -1043,14 +1173,14 @@
                     loadEvents();
                     
                     // Show success message
-                    alert(isEditMode ? 'Event updated successfully!' : 'Event created successfully!');
+                     showSuccessModal(isEditMode ? 'Event updated successfully!' : 'Event created successfully!');
                 } else {
-                    alert('Error: ' + data.message);
+                    showErrorModal('Error: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error submitting event:', error);
-                alert('An error occurred. Please try again.');
+                showErrorModal('An error occurred. Please try again.');
             });
         };
 
@@ -1069,15 +1199,16 @@
                     closeDeleteModal();
                     loadEvents();
                     
-                    // Show success message
-                    alert('Event deleted successfully!');
+                    // Show success message with custom modal instead of alert
+                    showSuccessModal('Event deleted successfully!');
                 } else {
-                    alert('Error: ' + data.message);
+                    // Show error message with custom modal
+                    showErrorModal('Error: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error deleting event:', error);
-                alert('An error occurred. Please try again.');
+                showErrorModal('An error occurred. Please try again.');
             });
         };
 
@@ -1106,6 +1237,8 @@
         document.getElementById('event-form').addEventListener('submit', submitEventForm);
         document.getElementById('confirm-delete').addEventListener('click', deleteEvent);
         document.getElementById('cancel-delete').addEventListener('click', closeDeleteModal);
+        document.getElementById('close-success-modal').addEventListener('click', closeSuccessModal);
+        document.getElementById('close-error-modal').addEventListener('click', closeErrorModal);
 
         // Initial load
         loadOrgData();

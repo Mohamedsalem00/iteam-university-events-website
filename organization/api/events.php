@@ -260,6 +260,22 @@ function updateEvent($conn, $organizationId) {
             }
         }
         
+        // Validate dates
+        $startDate = new DateTime($data['start_date']);
+        $endDate = new DateTime($data['end_date']);
+        $now = new DateTime();
+        
+        if ($endDate <= $startDate) {
+            echo json_encode(['success' => false, 'message' => 'End date must be after start date']);
+            exit();
+        }
+        
+        // Handle optional fields with default values
+        $thumbnail_url = isset($data['thumbnail_url']) && !empty($data['thumbnail_url']) ? 
+                         $data['thumbnail_url'] : NULL;
+        $requires_approval = isset($data['requires_approval']) ? 
+                            (bool)$data['requires_approval'] : false;
+        
         // Update the event
         $stmt = $conn->prepare("
             UPDATE events SET
@@ -283,11 +299,10 @@ function updateEvent($conn, $organizationId) {
         $stmt->bindParam(':end_date', $data['end_date']);
         $stmt->bindParam(':location', $data['location']);
         $stmt->bindParam(':event_type', $data['event_type']);
-        $stmt->bindParam(':max_capacity', $data['max_capacity']);
+        $stmt->bindParam(':max_capacity', $data['max_capacity'], PDO::PARAM_INT);
         $stmt->bindParam(':organizer_id', $organizationId);
-        $stmt->bindParam(':thumbnail_url', $data['thumbnail_url']);
-        $requiresApproval = isset($data['requires_approval']) ? $data['requires_approval'] : false;
-        $stmt->bindParam(':requires_approval', $requiresApproval);
+        $stmt->bindParam(':thumbnail_url', $thumbnail_url);
+        $stmt->bindParam(':requires_approval', $requires_approval, PDO::PARAM_BOOL);
         
         $stmt->execute();
         
