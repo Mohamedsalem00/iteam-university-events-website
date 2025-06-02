@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply user type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="icon" href="../../images/favicon.svg" type="image/svg+xml">
+    <title>Manage Registrations - Organization Dashboard</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg-dark dark:text-dashboard-text-dark min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar / Navigation -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64">
+                <!-- Sidebar component -->
+                <div class="flex flex-col h-0 flex-1 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                        <div class="flex items-center flex-shrink-0 px-4">
+                            <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
+                            <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+                        </div>
+                        <div class="mt-5 flex-1 px-2 bg-white dark:bg-gray-800 space-y-1">
+                            <!-- Navigation Links -->
+                            <a href="dashboard.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Dashboard
+                            </a>
+                            <a href="events.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Events
+                            </a>
+                            <a href="registrations.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-theme-primary text-white">
+                                <svg class="mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Registrations
+                            </a>
+                            <a href="job-offers.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                Job Offers
+                            </a>
+                            <a href="analytics.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Analytics
+                            </a>
+                            <a href="profile.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Profile
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex-shrink-0 w-full group block">
+                            <div class="flex items-center">
+                                <div id="org-avatar" class="h-9 w-9 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-lg font-medium text-white">
+                                    <!-- Will be filled dynamically with organization initial -->
+                                </div>
+                                <div class="ml-3">
+                                    <p id="org-name" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <!-- Will be filled dynamically -->
+                                    </p>
+                                    <button id="logout-btn" class="text-xs font-medium text-theme-primary hover:text-theme-primary-hover group-hover:text-theme-primary-hover">
+                                        Sign out
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content area -->
+        <div class="flex flex-col w-0 flex-1 overflow-hidden">
+            <!-- Top navigation -->
+            <div class="relative z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 shadow">
+                <button id="sidebar-toggle" class="px-4 border-r border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 focus:text-gray-600 dark:focus:text-gray-400 md:hidden">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div class="flex-1 px-4 flex justify-between">
+                    <div class="flex-1 flex">
+                        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white self-center">Manage Registrations</h1>
+                    </div>
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- Dark mode toggle -->
+                        <button id="dark-mode-toggle" class="p-1 rounded-full text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800 focus:ring-theme-primary">
+                            <!-- Sun icon for dark mode (shown in dark mode) -->
+                            <svg id="sun-icon" class="h-6 w-6 hidden dark:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <!-- Moon icon for light mode (shown in light mode) -->
+                            <svg id="moon-icon" class="h-6 w-6 block dark:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
+
+                        <!-- Notification dropdown -->
+                        <div class="ml-3 relative">
+                            <button id="notification-btn" class="p-1 rounded-full text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800 focus:ring-theme-primary">
+                                <span class="sr-only">View notifications</span>
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span id="notification-badge" class="hidden absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">0</span>
+                            </button>
+                            <!-- Notification dropdown menu -->
+                            <div id="notification-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-96 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                                <div class="py-1" role="none">
+                                    <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Notifications</h3>
+                                            <button id="mark-all-read" class="text-xs text-theme-primary hover:text-theme-primary-hover">
+                                                Mark all as read
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="notification-list" class="max-h-60 overflow-y-auto">
+                                        <!-- Notifications will be inserted here dynamically -->
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">Loading notifications...</p>
+                                    </div>
+                                    <div class="border-t border-gray-200 dark:border-gray-700">
+                                        <a href="#" class="block w-full px-4 py-2 text-sm text-center text-theme-primary hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            View all notifications
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <main class="flex-1 relative overflow-y-auto focus:outline-none bg-gray-100 dark:bg-gray-900 p-4 md:p-6">
+                <!-- Page header -->
+                <div class="flex justify-between items-center pb-5 border-b border-gray-200 dark:border-gray-700 mb-5">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Registrations</h3>
+                        <p class="mt-2 max-w-4xl text-sm text-gray-500 dark:text-gray-400">
+                            Manage student registrations for your events.
+                        </p>
+                    </div>
+                    <div>
+                        <button id="export-csv" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-theme-primary hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Export to CSV
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filters and search -->
+                <div class="mb-6 bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Event filter -->
+                            <div>
+                                <label for="event-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Event</label>
+                                <select id="event-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-theme-primary focus:border-theme-primary sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                    <option value="">All Events</option>
+                                    <!-- Event options will be inserted here dynamically -->
+                                </select>
+                            </div>
+                            <!-- Status filter -->
+                            <div>
+                                <label for="status-filter" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Status</label>
+                                <select id="status-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-theme-primary focus:border-theme-primary sm:text-sm rounded-md dark:bg-gray-700 dark:text-white">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="attended">Attended</option>
+                                    <option value="absent">Absent</option>
+                                </select>
+                            </div>
+                            <!-- Search -->
+                            <div>
+                                <label for="search-registrations" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Search</label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input type="text" id="search-registrations" class="block w-full pl-10 sm:text-sm border-gray-300 dark:border-gray-700 rounded-md dark:bg-gray-700 dark:text-white focus:ring-theme-primary focus:border-theme-primary" placeholder="Search by name, email, or event">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Registration list -->
+                <div class="bg-white dark:bg-gray-800 shadow overflow-hidden rounded-lg">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Student
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Event
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Registration Date
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Status
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrations-list" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                        Loading registrations...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div id="pagination" class="bg-white dark:bg-gray-800 px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 sm:px-6">
+                        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                            <div>
+                                <p id="page-info" class="text-sm text-gray-700 dark:text-gray-300">
+                                    Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> registrations
+                                </p>
+                            </div>
+                            <div>
+                                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                    <button id="prev-page" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <span class="sr-only">Previous</span>
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <!-- Page numbers will be inserted here -->
+                                    <div id="page-numbers" class="relative inline-flex items-center px-4 py-2"></div>
+                                    <button id="next-page" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <span class="sr-only">Next</span>
+                                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                        <!-- Mobile pagination -->
+                        <div class="flex items-center justify-between sm:hidden">
+                            <button id="mobile-prev-page" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                Previous
+                            </button>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                Page <span id="current-page">1</span>
+                            </div>
+                            <button id="mobile-next-page" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile sidebar menu (hidden by default) -->
+    <div id="mobile-sidebar" class="fixed inset-0 flex z-40 md:hidden hidden" role="dialog" aria-modal="true">
+        <!-- Sidebar backdrop -->
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+
+        <!-- Sidebar panel -->
+        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800">
+            <!-- Close button -->
+            <div class="absolute top-0 right-0 -mr-12 pt-2">
+                <button id="close-sidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                    <span class="sr-only">Close sidebar</span>
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile sidebar content -->
+            <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                <div class="flex-shrink-0 flex items-center px-4">
+                    <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
+                    <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+                </div>
+                <nav class="mt-5 px-2 space-y-1">
+                    <!-- Navigation Links -->
+                    <a href="dashboard.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="events.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Events
+                    </a>
+                    <a href="registrations.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-theme-primary text-white">
+                        <svg class="mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Registrations
+                    </a>
+                    <a href="job-offers.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Job Offers
+                    </a>
+                    <a href="analytics.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="profile.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Profile
+                    </a>
+                </nav>
+            </div>
+            <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex-shrink-0 w-full group block">
+                    <div class="flex items-center">
+                        <div class="h-9 w-9 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-lg font-medium text-white mobile-org-avatar">
+                            <!-- Will be filled dynamically -->
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mobile-org-name">
+                                <!-- Will be filled dynamically -->
+                            </p>
+                            <button class="mobile-logout-btn text-xs font-medium text-theme-primary hover:text-theme-primary-hover">
+                                Sign out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Sidebar placeholder (to prevent shifts) -->
+        <div class="flex-shrink-0 w-14" aria-hidden="true"></div>
+    </div>
+
+    <!-- Registration Details Modal -->
+    <div id="registration-modal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="registration-modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="registration-modal-title">
+                                Registration Details
+                            </h3>
+                            <div class="mt-4">
+                                <div id="registration-details" class="space-y-4">
+                                    <!-- Registration details will be inserted here -->
+                                    <p class="text-center text-gray-500 dark:text-gray-400">Loading registration details...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="close-registration-modal" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-theme-primary text-base font-medium text-white hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary sm:ml-3 sm:w-auto sm:text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Confirmation Modal -->
+    <div id="action-modal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="action-modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="action-modal-title">
+                                Confirm Action
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500 dark:text-gray-400" id="action-modal-message">
+                                    Are you sure you want to perform this action?
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" id="confirm-action" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Confirm
+                    </button>
+                    <button type="button" id="cancel-action" class="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-200 dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            // Save preference to localStorage
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.setItem('darkMode', 'dark');
+            } else {
+                localStorage.removeItem('darkMode');
+            }
+        });
+
+        // Sidebar toggle
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const mobileSidebar = document.getElementById('mobile-sidebar');
+        const closeSidebar = document.getElementById('close-sidebar');
+        sidebarToggle.addEventListener('click', () => {
+            mobileSidebar.classList.toggle('hidden');
+        });
+        closeSidebar.addEventListener('click', () => {
+            mobileSidebar.classList.add('hidden');
+        });
+
+        // Logout functionality
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.addEventListener('click', () => {
+            // Show confirmation modal
+            document.getElementById('action-modal').classList.remove('hidden');
+        });
+
+        // Confirm logout action
+        document.getElementById('confirm-action').addEventListener('click', () => {
+            // Perform logout action (e.g., clear session, redirect)
+            localStorage.removeItem('userType');
+            localStorage.removeItem('darkMode');
+            window.location.href = '../../index.html';
+        });
+
+        // Cancel action (close modal)
+        document.getElementById('cancel-action').addEventListener('click', () => {
+            document.getElementById('action-modal').classList.add('hidden');
+        });
+
+        // Close registration details modal
+        document.getElementById('close-registration-modal').addEventListener('click', () => {
+            document.getElementById('registration-modal').classList.add('hidden');
+        });
+
+        
+
+        document.addEventListener('DOMContentLoaded', function() {
+        // Variables for pagination and filtering
+        let currentPage = 1;
+        let totalPages = 1; 
+        let registrationsPerPage = 10;
+        let organizationId = null;
+        let eventFilter = '';
+        let statusFilter = '';
+        let searchQuery = '';
+        let selectedRegistrationId = null;
+
+        // Parse URL parameters on page load
+        const parseUrlParams = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Check for event_id parameter
+            if(urlParams.has('event_id')) {
+                eventFilter = urlParams.get('event_id');
+            }
+            
+            // Check for status parameter
+            if(urlParams.has('status')) {
+                statusFilter = urlParams.get('status');
+            }
+            
+            // Check for search parameter
+            if(urlParams.has('search')) {
+                searchQuery = urlParams.get('search');
+            }
+            
+            // Check for page parameter
+            if(urlParams.has('page')) {
+                currentPage = parseInt(urlParams.get('page')) || 1;
+            }
+        };
+
+        // Update UI to reflect current filters
+        const updateFilterUI = function() {
+            // Update event filter dropdown
+            if(eventFilter && document.getElementById('event-filter')) {
+                document.getElementById('event-filter').value = eventFilter;
+            }
+            
+            // Update status filter dropdown
+            if(statusFilter && document.getElementById('status-filter')) {
+                document.getElementById('status-filter').value = statusFilter;
+            }
+            
+            // Update search input
+            if(searchQuery && document.getElementById('search-registrations')) {
+                document.getElementById('search-registrations').value = searchQuery;
+            }
+        };
+
+        // Update browser URL with current filters (for sharing/bookmarking)
+        const updateBrowserURL = function() {
+            const url = new URL(window.location);
+            
+            // Clear existing parameters
+            url.search = '';
+            
+            // Add current filters
+            if(eventFilter) url.searchParams.set('event_id', eventFilter);
+            if(statusFilter) url.searchParams.set('status', statusFilter);
+            if(searchQuery) url.searchParams.set('search', searchQuery);
+            if(currentPage > 1) url.searchParams.set('page', currentPage);
+            
+            // Update URL without refreshing page
+            window.history.replaceState({}, '', url);
+        };
+
+        // Load organization data
+        const loadOrgData = function() {
+            fetch('../../api/organization.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const org = data.organization;
+                    
+                    // Set organization name and initial
+                    document.getElementById('org-name').textContent = org.name;
+                    document.getElementById('org-avatar').textContent = org.name.charAt(0).toUpperCase();
+                    
+                    if (document.querySelector('.mobile-org-name')) {
+                        document.querySelector('.mobile-org-name').textContent = org.name;
+                    }
+                    if (document.querySelector('.mobile-org-avatar')) {
+                        document.querySelector('.mobile-org-avatar').textContent = org.name.charAt(0).toUpperCase();
+                    }
+                    
+                    // Store organization ID
+                    organizationId = org.organization_id;
+                    
+                    // Parse URL parameters before loading data
+                    parseUrlParams();
+                    
+                    // Now load registrations and events data
+                    loadRegistrations();
+                } else {
+                    // Not logged in or error
+                    window.location.href = '../login.html';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading organization data:', error);
+            });
+        };
+
+        // Load registrations from API
+        const loadRegistrations = function() {
+            const registrationsList = document.getElementById('registrations-list');
+            registrationsList.innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                        <svg class="animate-spin h-6 w-6 text-theme-primary mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-2">Loading registrations...</p>
+                    </td>
+                </tr>
+            `;
+
+            // API URL with parameters
+            const url = `../../api/registrations.php?page=${currentPage}&limit=${registrationsPerPage}&event_id=${eventFilter}&status=${statusFilter}&search=${searchQuery}`;
+            
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update pagination info
+                    totalPages = data.pages;
+                    updatePagination(data.total);
+                    
+                    // Populate event filter dropdown
+                    populateEventFilter(data.events);
+                    
+                    // Update filter UI to match current filters
+                    updateFilterUI();
+                    
+                    // Update browser URL
+                    updateBrowserURL();
+                    
+                    // Display registrations
+                    if (data.registrations.length === 0) {
+                        registrationsList.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                    No registrations found
+                                </td>
+                            </tr>
+                        `;
+                    } else {
+                        let registrationsHtml = '';
+                        
+                        data.registrations.forEach(registration => {
+                            // Format date
+                            const regDate = new Date(registration.registration_date);
+                            const formattedDate = regDate.toLocaleDateString('en-US', {
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric'
+                            });
+                            
+                            // Status badge class
+                            let statusClass = '';
+                            switch(registration.status.toLowerCase()) {
+                                case 'approved':
+                                    statusClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+                                    break;
+                                case 'pending':
+                                    statusClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+                                    break;
+                                case 'rejected':
+                                    statusClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                                    break;
+                                case 'attended':
+                                    statusClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+                                    break;
+                                case 'absent':
+                                    statusClass = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                                    break;
+                                default:
+                                    statusClass = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+                            }
+                            
+                            // Student name initial for avatar
+                            const nameInitial = registration.first_name.charAt(0).toUpperCase();
+                            
+                            registrationsHtml += `
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700" data-registration-id="${registration.registration_id}">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-sm font-medium text-white">
+                                                ${nameInitial}
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">${registration.first_name} ${registration.last_name}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">${registration.email}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">${registration.event_title}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">${registration.event_type}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-white">${formattedDate}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${statusClass}">
+                                            ${registration.status.charAt(0).toUpperCase() + registration.status.slice(1)}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-2">
+                                            <button class="view-details text-theme-primary hover:text-theme-primary-hover" data-registration-id="${registration.registration_id}">
+                                                View Details
+                                            </button>
+                                            <div class="relative" id="action-dropdown-${registration.registration_id}">
+                                                <button class="action-dropdown-btn text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200" data-registration-id="${registration.registration_id}">
+                                                    Actions
+                                                    <svg class="h-4 w-4 inline ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                    </svg>
+                                                </button>
+                                                <div class="action-menu hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                    <div class="py-1" role="none">
+                                                        ${registration.status !== 'approved' && registration.status !== 'attended' ? 
+                                                        `<button class="approve-btn text-left w-full block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-registration-id="${registration.registration_id}">Approve</button>` : ''}
+                                                        
+                                                        ${registration.status !== 'rejected' ? 
+                                                        `<button class="reject-btn text-left w-full block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-registration-id="${registration.registration_id}">Reject</button>` : ''}
+                                                        
+                                                        ${registration.status === 'approved' ? 
+                                                        `<button class="attend-btn text-left w-full block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-registration-id="${registration.registration_id}">Mark Attended</button>
+                                                        <button class="absent-btn text-left w-full block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" data-registration-id="${registration.registration_id}">Mark Absent</button>` : ''}
+                                                        
+                                                        <button class="delete-btn text-left w-full block px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700" data-registration-id="${registration.registration_id}">Delete</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        
+                        // Insert registrations HTML into the table
+                        registrationsList.innerHTML = registrationsHtml;
+                        
+                        // Add event listeners to the action buttons
+                        addActionListeners();
+                    }
+                } else {
+                    registrationsList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                Error loading registrations. ${data.message || 'Please try again.'}
+                            </td>
+                        </tr>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading registrations:', error);
+                registrationsList.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                            Error loading registrations. Please try again later.
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        // Add event listeners to all action buttons
+        const addActionListeners = function() {
+            // View details buttons
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const registrationId = this.dataset.registrationId;
+                    loadRegistrationDetails(registrationId);
+                });
+            });
+            
+            // Action dropdown buttons
+            document.querySelectorAll('.action-dropdown-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const registrationId = this.dataset.registrationId;
+                    const dropdownMenu = document.querySelector(`#action-dropdown-${registrationId} .action-menu`);
+                    
+                    // Close all other open dropdowns
+                    document.querySelectorAll('.action-menu').forEach(menu => {
+                        if (menu !== dropdownMenu) {
+                            menu.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Toggle this dropdown
+                    dropdownMenu.classList.toggle('hidden');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function() {
+                document.querySelectorAll('.action-menu').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            });
+            
+            // Approve buttons
+            document.querySelectorAll('.approve-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const registrationId = this.dataset.registrationId;
+                    handleRegistrationAction(registrationId, 'approve');
+                });
+            });
+            
+            // Reject buttons
+            document.querySelectorAll('.reject-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const registrationId = this.dataset.registrationId;
+                    handleRegistrationAction(registrationId, 'reject');
+                });
+            });
+            
+            // Mark attended buttons
+            document.querySelectorAll('.attend-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const registrationId = this.dataset.registrationId;
+                    handleRegistrationAction(registrationId, 'mark_attended');
+                });
+            });
+            
+            // Mark absent buttons
+            document.querySelectorAll('.absent-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const registrationId = this.dataset.registrationId;
+                    handleRegistrationAction(registrationId, 'mark_absent');
+                });
+            });
+            
+            // Delete buttons
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const registrationId = this.dataset.registrationId;
+                    selectedRegistrationId = registrationId;
+                    
+                    // Update confirmation modal
+                    document.getElementById('action-modal-title').textContent = 'Delete Registration';
+                    document.getElementById('action-modal-message').textContent = 'Are you sure you want to delete this registration? This action cannot be undone.';
+                    document.getElementById('confirm-action').textContent = 'Delete';
+                    
+                    // Set up the confirm button to handle delete action
+                    document.getElementById('confirm-action').onclick = function() {
+                        deleteRegistration(selectedRegistrationId);
+                    };
+                    
+                    // Show the confirmation modal
+                    document.getElementById('action-modal').classList.remove('hidden');
+                });
+            });
+        };
+
+        // Load registration details
+        const loadRegistrationDetails = function(registrationId) {
+            fetch(`../../api/registrations.php?registration_id=${registrationId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.registration) {
+                    const reg = data.registration;
+                    
+                    // Format dates
+                    const regDate = new Date(reg.registration_date);
+                    const eventStartDate = new Date(reg.start_date);
+                    const eventEndDate = new Date(reg.end_date);
+                    
+                    const formattedRegDate = regDate.toLocaleString('en-US');
+                    const formattedEventDates = `${eventStartDate.toLocaleString('en-US')} - ${eventEndDate.toLocaleString('en-US')}`;
+                    
+                    // Set modal title
+                    document.getElementById('registration-modal-title').textContent = `Registration Details: ${reg.first_name} ${reg.last_name}`;
+                    
+                    // Populate details
+                    document.getElementById('registration-details').innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Student Information</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Name: ${reg.first_name} ${reg.last_name}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Email: ${reg.email}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Student ID: ${reg.student_id}</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Event Information</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Event: ${reg.event_title}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Type: ${reg.event_type}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Dates: ${formattedEventDates}</p>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">Registration Details</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Date: ${formattedRegDate}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Status: <span class="font-medium">${reg.status.charAt(0).toUpperCase() + reg.status.slice(1)}</span></p>
+                                ${reg.check_in_time ? `<p class="text-sm text-gray-600 dark:text-gray-400">Check-in: ${new Date(reg.check_in_time).toLocaleString('en-US')}</p>` : ''}
+                                ${reg.notes ? `<p class="text-sm text-gray-600 dark:text-gray-400">Notes: ${reg.notes}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Show modal
+                    document.getElementById('registration-modal').classList.remove('hidden');
+                } else {
+                    alert('Error loading registration details. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading registration details:', error);
+                alert('Error loading registration details. Please try again.');
+            });
+        };
+
+        // Handle registration status changes (approve, reject, etc.)
+        const handleRegistrationAction = function(registrationId, action) {
+            fetch('../../api/registrations.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    registration_id: registrationId,
+                    action: action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload registrations to show updated status
+                    loadRegistrations();
+                    
+                    // Close any open dropdowns
+                    document.querySelectorAll('.action-menu').forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+                    
+                    // Show success message
+                    alert(`Registration successfully ${data.new_status}`);
+                } else {
+                    alert('Error: ' + (data.message || 'Something went wrong'));
+                }
+            })
+            .catch(error => {
+                console.error('Error handling registration action:', error);
+                alert('Error processing your request. Please try again.');
+            });
+        };
+
+        // Delete registration
+        const deleteRegistration = function(registrationId) {
+            fetch(`../../api/registrations.php?registration_id=${registrationId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide confirmation modal
+                    document.getElementById('action-modal').classList.add('hidden');
+                    
+                    // Reload registrations
+                    loadRegistrations();
+                    
+                    // Show success message
+                    alert('Registration deleted successfully');
+                } else {
+                    alert('Error: ' + (data.message || 'Something went wrong'));
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting registration:', error);
+                alert('Error deleting registration. Please try again.');
+            });
+        };
+
+        // Update pagination controls
+        const updatePagination = function(totalRegistrations) {
+            const pageInfo = document.getElementById('page-info');
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            const mobilePrevPageBtn = document.getElementById('mobile-prev-page');
+            const mobileNextPageBtn = document.getElementById('mobile-next-page');
+            
+            // Update page info text
+            if (pageInfo) {
+                const start = (currentPage - 1) * registrationsPerPage + 1;
+                const end = Math.min(currentPage * registrationsPerPage, totalRegistrations);
+                pageInfo.textContent = `Showing ${start > totalRegistrations ? 0 : start} to ${end} of ${totalRegistrations} registrations`;
+            }
+            
+            // Show/hide prev/next buttons
+            if (prevPageBtn && nextPageBtn) {
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+                
+                // Add event listeners
+                prevPageBtn.onclick = function() {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        loadRegistrations();
+                    }
+                };
+                
+                nextPageBtn.onclick = function() {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        loadRegistrations();
+                    }
+                };
+            }
+            
+            if (mobilePrevPageBtn && mobileNextPageBtn) {
+                mobilePrevPageBtn.disabled = currentPage === 1;
+                mobileNextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+                
+                // Add event listeners
+                mobilePrevPageBtn.onclick = function() {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        loadRegistrations();
+                    }
+                };
+                
+                mobileNextPageBtn.onclick = function() {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        loadRegistrations();
+                    }
+                };
+            }
+            
+            // Current page indicator (mobile)
+            document.getElementById('current-page').textContent = currentPage;
+            
+            // Generate and insert page number buttons
+            const pageNumbersContainer = document.getElementById('page-numbers');
+            if (pageNumbersContainer) {
+                pageNumbersContainer.innerHTML = '';
+                
+                // Only show a reasonable number of page buttons
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium ${i === currentPage ? 'bg-theme-primary text-white' : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`;
+                    pageButton.textContent = i;
+                    pageButton.onclick = function() {
+                        currentPage = i;
+                        loadRegistrations();
+                    };
+                    
+                    pageNumbersContainer.appendChild(pageButton);
+                }
+            }
+        };
+
+        // Populate event filter dropdown
+        const populateEventFilter = function(events) {
+            const eventFilter = document.getElementById('event-filter');
+            if (eventFilter) {
+                // Keep the first "All Events" option
+                const allOption = eventFilter.options[0];
+                eventFilter.innerHTML = '';
+                eventFilter.appendChild(allOption);
+                
+                // Add event options
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.event_id;
+                    option.textContent = event.title;
+                    eventFilter.appendChild(option);
+                });
+                
+                // Restore selected value if there was one
+                if (eventFilter.value) {
+                    eventFilter.value = eventFilter.value;
+                }
+            }
+        };
+
+        // Export registrations to CSV
+        document.getElementById('export-csv').addEventListener('click', function() {
+            // Build the API URL with current filters
+            const url = `../../api/registrations.php?page=1&limit=1000&event_id=${eventFilter}&status=${statusFilter}&search=${searchQuery}&format=csv`;
+            
+            // Create a temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'registrations.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Setup filter and search event handlers
+        document.getElementById('event-filter').addEventListener('change', function() {
+            eventFilter = this.value;
+            currentPage = 1; // Reset to first page
+            loadRegistrations();
+        });
+        
+        document.getElementById('status-filter').addEventListener('change', function() {
+            statusFilter = this.value;
+            currentPage = 1; // Reset to first page
+            loadRegistrations();
+        });
+        
+        document.getElementById('search-registrations').addEventListener('input', function() {
+            searchQuery = this.value;
+            currentPage = 1; // Reset to first page
+            loadRegistrations();
+        });
+
+        // Load initial data
+        loadOrgData();
+        
+        // Notification dropdown functionality
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationDropdown = document.getElementById('notification-dropdown');
+        
+        if (notificationBtn && notificationDropdown) {
+            notificationBtn.addEventListener('click', function() {
+                notificationDropdown.classList.toggle('hidden');
+            });
+            
+            // Close notification dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!notificationBtn.contains(event.target) && !notificationDropdown.contains(event.target)) {
+                    notificationDropdown.classList.add('hidden');
+                }
+            });
+        }});
+    </script>
+</body>
+</html>

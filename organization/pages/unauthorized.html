@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+</script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Unauthorized - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <section class="relative flex items-center min-h-screen pt-16 bg-white dark:bg-gray-900">
+        <div class="container mx-auto px-4 py-16">
+            <div class="max-w-lg mx-auto text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-24 w-24 text-red-500 mb-8" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" />
+                </svg>
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Access Denied</h1>
+                <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                    You don't have permission to access this page. This page may only be available to certain account types.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="index.html" class="px-6 py-3 rounded-lg bg-theme-primary text-white font-medium hover:bg-theme-primary-hover transition-all">
+                        Return to Home
+                    </a>
+                    <button id="go-back-btn" class="px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-all">
+                        Go Back
+                    </button>
+                </div>
+                <p class="mt-8 text-sm text-gray-500 dark:text-gray-400">
+                    If you believe you should have access to this page, please contact support.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle go back button
+            document.getElementById('go-back-btn').addEventListener('click', function() {
+                window.history.back();
+            });
+        });
+    </script>
+</body>
+</html>

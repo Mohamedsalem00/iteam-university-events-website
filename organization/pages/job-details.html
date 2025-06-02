@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Job Details - Student Event Platform</title>
+    <meta name="description" content="View details and apply for this job opportunity">
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Loading state -->
+            <div id="loading-state" class="py-16 flex justify-center items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
+            </div>
+            
+            <!-- Error state -->
+            <div id="error-state" class="hidden py-16">
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <p class="font-medium">Error loading job details</p>
+                            <p class="text-sm mt-1" id="error-message">Please try again later or check the job ID.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-6">
+                    <a href="job-offers.html" class="inline-flex items-center px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Job Listings
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Job content -->
+            <div id="job-content" class="hidden">
+                <!-- Back navigation -->
+                <div class="mb-6">
+                    <a href="job-offers.html" class="inline-flex items-center text-theme-primary hover:underline">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Back to Job Listings
+                    </a>
+                </div>
+                
+                <!-- Job header -->
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden mb-6">
+                    <div class="p-6">
+                        <div id="application-badge" class="hidden mb-4">
+                            <span class="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-sm font-medium px-3 py-1 rounded">
+                                You've Applied
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-5 mb-6">
+                            <div id="org-logo" class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                <img id="logo-img" class="w-full h-full object-cover hidden" alt="Organization Logo">
+                                <div id="org-initials" class="text-3xl font-bold text-gray-500"></div>
+                            </div>
+                            <div>
+                                <h1 id="job-title" class="text-3xl font-bold"></h1>
+                                <p id="org-name" class="text-dashboard-text-secondary text-lg"></p>
+                                <p class="text-sm text-dashboard-text-secondary mt-1">
+                                    <span>Posted on </span>
+                                    <span id="posted-date"></span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Job details grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="flex items-start">
+                                <div class="text-theme-primary mr-3 mt-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-dashboard-text-secondary text-sm">Location</p>
+                                    <p id="job-location" class="font-medium">Remote/Flexible</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-theme-primary mr-3 mt-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-dashboard-text-secondary text-sm">Job Type</p>
+                                    <p id="job-type" class="font-medium">Full-time</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-theme-primary mr-3 mt-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-dashboard-text-secondary text-sm">Start Date</p>
+                                    <p id="start-date" class="font-medium">Immediate</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-theme-primary mr-3 mt-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-dashboard-text-secondary text-sm">Applications</p>
+                                    <p id="app-count" class="font-medium">Open</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="apply-now-btn" class="bg-theme-primary text-white rounded-lg px-6 py-3 font-medium hover:bg-theme-primary-hover transition flex-1 flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                                </svg>
+                                Apply Now
+                            </button>
+                            
+                            <a id="contact-link" href="#" class="bg-white dark:bg-gray-700 text-theme-primary dark:text-blue-400 border border-theme-primary dark:border-blue-500 rounded-lg px-6 py-3 font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition flex items-center justify-center hidden">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Contact Employer
+                            </a>
+                            
+                            <button id="share-btn" class="bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg px-6 py-3 font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                                </svg>
+                                Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Login to apply CTA (for guests only) -->
+                <div id="login-to-apply" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/30 text-blue-800 dark:text-blue-300 rounded-lg p-6 mb-6">
+                    <div class="flex items-start">
+                        <svg class="h-6 w-6 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-lg">Want to apply for this job?</p>
+                            <p class="mt-1 mb-4">Please <a href="auth/login.html" class="font-bold underline hover:text-blue-600 dark:hover:text-blue-400 transition">log in</a> or <a href="auth/signup.html" class="font-bold underline hover:text-blue-600 dark:hover:text-blue-400 transition">register</a> as a student to apply for this job.</p>
+                            <div class="flex gap-4 mt-2">
+                                <a href="auth/login.html" class="inline-flex items-center px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">
+                                    Login to Apply
+                                </a>
+                                <a href="auth/signup.html" class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition">
+                                    Create Account
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Job description -->
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden mb-6">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold mb-4">Job Description</h2>
+                        <div id="job-description" class="prose dark:prose-invert max-w-none"></div>
+                    </div>
+                </div>
+                
+                <!-- Application section -->
+                <div id="application-section" class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden mb-6">
+                    <div class="p-6">
+                        <div id="application-status" class="hidden mb-6">
+                            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 text-green-800 dark:text-green-300 rounded-lg p-4">
+                                <div class="flex">
+                                    <svg class="h-5 w-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <p id="application-message"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold mb-4">Apply for this Position</h2>
+                        
+                        <form id="application-form">
+                            <input type="hidden" id="job-id-input" name="job_id" value="">
+                            
+                            <div class="mb-6">
+                                <label for="cover-letter" class="block text-sm font-medium text-dashboard-text-secondary mb-2">Cover Letter <span class="text-red-500">*</span></label>
+                                <textarea id="cover-letter" name="cover_letter" rows="6" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary" placeholder="Tell the organization why you're a good fit for this position..." required></textarea>
+                                <p class="text-xs text-dashboard-text-secondary mt-1">Explain why you're interested in this position and what makes you a good candidate.</p>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label for="resume-upload" class="block text-sm font-medium text-dashboard-text-secondary mb-2">Resume (PDF, DOC, DOCX) <span class="text-red-500">*</span></label>
+                                <div class="flex items-center">
+                                    <label for="resume-upload" class="cursor-pointer bg-white dark:bg-gray-700 border border-dashboard-border dark:border-dashboard-border rounded-lg px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center">
+                                        <svg class="w-5 h-5 mr-2 text-dashboard-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                        <span>Upload Resume</span>
+                                    </label>
+                                    <input type="file" id="resume-upload" name="resume" accept=".pdf,.doc,.docx" class="hidden" required>
+                                    <span id="selected-file" class="ml-3 text-sm text-dashboard-text-secondary">No file selected</span>
+                                </div>
+                                <p class="text-xs text-dashboard-text-secondary mt-1">Accepted formats: PDF, DOC, DOCX (Maximum 5MB)</p>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button id="submit-application" type="submit" class="bg-theme-primary text-white rounded-lg px-6 py-3 font-medium hover:bg-theme-primary-hover transition">
+                                    <span id="submit-text">Submit Application</span>
+                                    <span id="submit-spinner" class="hidden">
+                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Submitting...
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Similar Jobs -->
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold mb-4">Similar Jobs</h2>
+                        <div id="similar-jobs" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div id="similar-jobs-loading" class="col-span-2 py-8 flex justify-center">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-primary"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/models.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            const jobContent = document.getElementById('job-content');
+            
+            // Job information elements
+            const jobTitle = document.getElementById('job-title');
+            const orgName = document.getElementById('org-name');
+            const postedDate = document.getElementById('posted-date');
+            const jobLocation = document.getElementById('job-location');
+            const jobType = document.getElementById('job-type');
+            const startDate = document.getElementById('start-date');
+            const appCount = document.getElementById('app-count');
+            const jobDescription = document.getElementById('job-description');
+            const logoImg = document.getElementById('logo-img');
+            const orgInitials = document.getElementById('org-initials');
+            const contactLink = document.getElementById('contact-link');
+            const applicationBadge = document.getElementById('application-badge');
+            
+            // Application elements
+            const applyNowBtn = document.getElementById('apply-now-btn');
+            const applicationSection = document.getElementById('application-section');
+            const applicationForm = document.getElementById('application-form');
+            const jobIdInput = document.getElementById('job-id-input');
+            const resumeUpload = document.getElementById('resume-upload');
+            const selectedFile = document.getElementById('selected-file');
+            const submitButton = document.getElementById('submit-application');
+            const submitText = document.getElementById('submit-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+            const coverLetter = document.getElementById('cover-letter');
+            const applicationStatus = document.getElementById('application-status');
+            const applicationMessage = document.getElementById('application-message');
+            
+            // Login to apply section
+            const loginToApply = document.getElementById('login-to-apply');
+            
+            // Similar jobs
+            const similarJobsContainer = document.getElementById('similar-jobs');
+            const similarJobsLoading = document.getElementById('similar-jobs-loading');
+            
+            // Share button
+            const shareBtn = document.getElementById('share-btn');
+            
+            // Get job ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const jobId = urlParams.get('id');
+            
+            // State variables
+            let currentJob = null;
+            let similarJobs = [];
+            let userType = localStorage.getItem('userType') || '';
+            let isLoggedIn = !!localStorage.getItem('userType');
+            let myApplications = []; // Will store IDs of jobs user has applied to
+            
+            // Initialize
+            if (!jobId) {
+                showError("Missing job ID. Please return to the job listings page.");
+            } else {
+                loadJobDetails(jobId);
+                loadUserApplications();
+            }
+            
+            // Add event listeners
+            if (applyNowBtn) {
+                applyNowBtn.addEventListener('click', function() {
+                    // Scroll to application form
+                    applicationSection.scrollIntoView({ behavior: 'smooth' });
+                });
+            }
+            
+            if (resumeUpload) {
+                resumeUpload.addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        selectedFile.textContent = this.files[0].name;
+                    } else {
+                        selectedFile.textContent = 'No file selected';
+                    }
+                });
+            }
+            
+            if (applicationForm) {
+                applicationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitApplication();
+                });
+            }
+            
+            if (shareBtn) {
+                shareBtn.addEventListener('click', shareJob);
+            }
+            
+            // Load job details from API
+            function loadJobDetails(id) {
+                showLoading();
+                
+                fetch(`../api/job-detail.php?id=${id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || 'Failed to load job details');
+                        }
+                        
+                        if (!data.job) {
+                            throw new Error('Job not found');
+                        }
+                        
+                        currentJob = data.job;
+                        displayJobDetails();
+                        hideLoading();
+                        showContent();
+                        
+                        // Load similar jobs
+                        loadSimilarJobs(id, currentJob.organization_id);
+                        
+                        // Update page title and metadata
+                        document.title = `${currentJob.title} at ${currentJob.organization_name} - Student Event Platform`;
+                    })
+                    .catch(error => {
+                        console.error('Error loading job details:', error);
+                        showError(error.message || 'Failed to load job details. Please try again later.');
+                    });
+            }
+            
+            // Load similar jobs
+            function loadSimilarJobs(jobId, orgId) {
+                fetch(`../api/similar-jobs.php?job_id=${jobId}&org_id=${orgId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        similarJobsLoading.classList.add('hidden');
+                        
+                        if (data.success && data.jobs && data.jobs.length > 0) {
+                            similarJobs = data.jobs;
+                            displaySimilarJobs();
+                        } else {
+                            similarJobsContainer.innerHTML = `
+                                <div class="col-span-2 text-center py-4 text-dashboard-text-secondary">
+                                    No similar jobs found at this time.
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading similar jobs:', error);
+                        similarJobsLoading.classList.add('hidden');
+                        similarJobsContainer.innerHTML = `
+                            <div class="col-span-2 text-center py-4 text-dashboard-text-secondary">
+                                Could not load similar jobs.
+                            </div>
+                        `;
+                    });
+            }
+            
+            // Load user's applications
+            function loadUserApplications() {
+                if (!isLoggedIn) return;
+                
+                fetch('../api/job-applications.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            myApplications = data.applications.map(app => parseInt(app.job_offer_id));
+                            
+                            // If current job is loaded, check if user has applied
+                            if (currentJob) {
+                                checkIfApplied();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading user applications:', error);
+                    });
+            }
+            
+            // Display job details
+            function displayJobDetails() {
+                // Format posted date
+                const postedDate = new Date(currentJob.posted_date);
+                const formattedDate = new Intl.DateTimeFormat('en-US', { 
+                    month: 'long', 
+                    day: 'numeric',  
+                    year: 'numeric'
+                }).format(postedDate);
+                
+                // Calculate days ago
+                const daysAgo = Math.floor((new Date() - postedDate) / (1000 * 60 * 60 * 24));
+                const timeAgo = daysAgo === 0 ? 'Today' : 
+                                daysAgo === 1 ? 'Yesterday' : 
+                                `${daysAgo} days ago`;
+                
+                // Set content
+                jobTitle.textContent = currentJob.title;
+                orgName.textContent = currentJob.organization_name;
+                postedDate.textContent = `${formattedDate} (${timeAgo})`;
+                jobLocation.textContent = currentJob.location || 'Remote/Flexible';
+                jobType.textContent = currentJob.job_type || 'Full-time';
+                startDate.textContent = currentJob.start_date || 'Immediate';
+                appCount.textContent = currentJob.status === 'closed' ? 'Closed' : 'Open';
+                jobDescription.innerHTML = currentJob.description.replace(/\n/g, '<br>');
+                jobIdInput.value = currentJob.job_offer_id;
+                
+                // Set organization logo or initials
+                if (currentJob.organization_logo) {
+                    logoImg.src = currentJob.organization_logo;
+                    logoImg.classList.remove('hidden');
+                    orgInitials.classList.add('hidden');
+                } else {
+                    logoImg.classList.add('hidden');
+                    orgInitials.classList.remove('hidden');
+                    
+                    // Set organization initials
+                    const name = currentJob.organization_name || 'Organization';
+                    const initials = name.split(' ')
+                        .map(word => word[0])
+                        .join('')
+                        .substring(0, 2)
+                        .toUpperCase();
+                    
+                    orgInitials.textContent = initials;
+                    
+                    // Set a background color based on organization name
+                    const stringToColor = (str) => {
+                        let hash = 0;
+                        for (let i = 0; i < str.length; i++) {
+                            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        let color = '#';
+                        for (let i = 0; i < 3; i++) {
+                            const value = (hash >> (i * 8)) & 0xFF;
+                            color += ('00' + value.toString(16)).substr(-2);
+                        }
+                        return color;
+                    };
+                    
+                    const bgColor = stringToColor(name);
+                    orgInitials.style.backgroundColor = bgColor + '20'; // Add transparency
+                    orgInitials.style.color = bgColor;
+                }
+                
+                // Set contact link
+                if (currentJob.organization_email) {
+                    contactLink.href = `mailto:${currentJob.organization_email}?subject=Regarding ${currentJob.title} position`;
+                    contactLink.classList.remove('hidden');
+                }
+                
+                // Show the right section based on user login state
+                if (isLoggedIn) {
+                    // User is logged in
+                    loginToApply.classList.add('hidden');
+                    
+                    // Handle apply access
+                    if (userType === 'student') {
+                        applyNowBtn.classList.remove('hidden');
+                        applicationSection.classList.remove('hidden');
+                        checkIfApplied();
+                    } else {
+                        // Non-student user cannot apply
+                        applyNowBtn.classList.add('hidden');
+                        applicationSection.classList.add('hidden');
+                    }
+                } else {
+                    // Guest user
+                    applyNowBtn.classList.add('hidden');
+                    applicationSection.classList.add('hidden');
+                    loginToApply.classList.remove('hidden');
+                }
+                
+                // Disable application if job is closed
+                if (currentJob.status === 'closed') {
+                    applyNowBtn.textContent = 'Job Closed';
+                    applyNowBtn.disabled = true;
+                    applyNowBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-500', 'hover:bg-gray-500');
+                    
+                    if (applicationForm) {
+                        applicationForm.classList.add('opacity-50', 'pointer-events-none');
+                        submitButton.disabled = true;
+                        
+                        // Show closed status message
+                        applicationStatus.classList.remove('hidden');
+                        updateStatusDisplay('yellow', 'Job Closed', 'This position is no longer accepting applications.');
+                    }
+                }
+            }
+            
+            // Check if the user has already applied to this job
+            function checkIfApplied() {
+                const hasApplied = myApplications.includes(parseInt(currentJob.job_offer_id));
+                
+                if (hasApplied) {
+                    // Show application badge
+                    applicationBadge.classList.remove('hidden');
+                    
+                    // Update application status section
+                    applicationStatus.classList.remove('hidden');
+                    updateStatusDisplay('green', 'Application Submitted!', 'You have already applied to this job. You can track its status in <a href="my-applications.html" class="underline font-bold">My Applications</a>.');
+                    
+                    // Disable form
+                    if (applicationForm) {
+                        submitButton.disabled = true;
+                        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                        applicationForm.classList.add('opacity-50', 'pointer-events-none');
+                    }
+                    
+                    // Update apply now button
+                    applyNowBtn.textContent = 'Applied';
+                    applyNowBtn.disabled = true;
+                    applyNowBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-green-600', 'hover:bg-green-600');
+                }
+            }
+            
+            // Display similar jobs
+            function displaySimilarJobs() {
+                // Clear previous content
+                similarJobsContainer.innerHTML = '';
+                
+                // Only show up to 4 similar jobs
+                const jobsToShow = similarJobs.slice(0, 4);
+                
+                jobsToShow.forEach(job => {
+                    const hasApplied = myApplications.includes(parseInt(job.job_offer_id));
+                    const appliedBadge = hasApplied ? `
+                        <span class="absolute top-2 right-2 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                            Applied
+                        </span>
+                    ` : '';
+                    
+                    const postedDate = new Date(job.posted_date);
+                    const timeAgo = Math.floor((new Date() - postedDate) / (1000 * 60 * 60 * 24));
+                    const timeAgoStr = timeAgo === 0 ? 'Today' : 
+                                      timeAgo === 1 ? 'Yesterday' : 
+                                      `${timeAgo} days ago`;
+                    
+                    const jobCard = document.createElement('div');
+                    jobCard.className = 'bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 relative hover:bg-gray-100 dark:hover:bg-gray-700/50 transition';
+                    jobCard.innerHTML = `
+                        ${appliedBadge}
+                        <h3 class="font-semibold mb-1">${job.title}</h3>
+                        <p class="text-sm text-dashboard-text-secondary mb-2">${job.organization_name}</p>
+                        <p class="text-xs text-dashboard-text-secondary">Posted ${timeAgoStr}</p>
+                        <a href="job-details.html?id=${job.job_offer_id}" class="absolute inset-0 focus:outline-none" aria-label="View job details"></a>
+                    `;
+                    similarJobsContainer.appendChild(jobCard);
+                });
+            }
+            
+            // Submit job application
+            function submitApplication() {
+                if (!isLoggedIn || userType !== 'student') {
+                    showErrorModal('Authentication Required', 'You must be logged in as a student to apply for jobs.');
+                    return;
+                }
+                
+                // Validate form
+                if (!applicationForm.checkValidity()) {
+                    applicationForm.reportValidity();
+                    return;
+                }
+                
+                // Show loading state
+                submitButton.disabled = true;
+                submitText.classList.add('hidden');
+                submitSpinner.classList.remove('hidden');
+                
+                // Disable form fields
+                const formControls = applicationForm.querySelectorAll('input, textarea');
+                formControls.forEach(control => {
+                    control.disabled = true;
+                });
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('job_id', jobIdInput.value);
+                formData.append('cover_letter', coverLetter.value);
+                if (resumeUpload.files[0]) {
+                    formData.append('resume', resumeUpload.files[0]);
+                }
+                
+                // Send request
+                fetch('../api/job-applications.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset button state
+                    submitButton.disabled = false;
+                    formControls.forEach(control => {
+                        control.disabled = false;
+                    });
+                    submitText.classList.remove('hidden');
+                    submitSpinner.classList.add('hidden');
+                    
+                    if (data.success) {
+                        // Update applications list
+                        myApplications.push(parseInt(currentJob.job_offer_id));
+                        
+                        // Update UI for success
+                        updateStatusDisplay('green', 'Success!', 'Your application has been submitted. You can track its status in <a href="my-applications.html" class="underline font-bold">My Applications</a>.');
+                        
+                        // Show application badge
+                        applicationBadge.classList.remove('hidden');
+                        
+                        // Disable form
+                        submitButton.disabled = true;
+                        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                        applicationForm.classList.add('opacity-50', 'pointer-events-none');
+                        
+                        // Update apply now button
+                        applyNowBtn.textContent = 'Applied';
+                        applyNowBtn.disabled = true;
+                        applyNowBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-green-600', 'hover:bg-green-600');
+                        
+                        // Show success message
+                        showSuccessModal('Application Submitted', 'Your application has been submitted successfully! You can track its status in "My Applications".');
+                    } else {
+                        // Show error with specific feedback
+                        updateStatusDisplay('red', 'Error:', data.message || 'There was an error submitting your application. Please try again.');
+                        
+                        // Show error modal
+                        showErrorModal('Error Submitting Application', data.message || 'There was an error submitting your application. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting application:', error);
+                    
+                    // Reset button state
+                    submitButton.disabled = false;
+                    formControls.forEach(control => {
+                        control.disabled = false;
+                    });
+                    submitText.classList.remove('hidden');
+                    submitSpinner.classList.add('hidden');
+                    
+                    // Show error in the form and modal
+                    updateStatusDisplay('red', 'Error:', 'Network error. Please check your connection and try again.');
+                    
+                    showErrorModal('Connection Error', 'There was a problem connecting to the server. Please check your internet connection and try again.');
+                });
+            }
+            
+            // Update status display
+            function updateStatusDisplay(color, title, message) {
+                applicationStatus.classList.remove('hidden');
+                
+                // Find the status message container
+                const statusBox = applicationStatus.querySelector('div');
+                
+                // Remove all color-specific classes
+                statusBox.className = statusBox.className
+                    .replace(/bg-\w+-50/g, '')
+                    .replace(/dark:bg-\w+-900\/20/g, '')
+                    .replace(/border-\w+-200/g, '')
+                    .replace(/dark:border-\w+-800\/30/g, '')
+                    .replace(/text-\w+-800/g, '')
+                    .replace(/dark:text-\w+-300/g, '')
+                    .trim();
+                
+                // Add the new color classes
+                statusBox.classList.add(
+                    `bg-${color}-50`,
+                    `dark:bg-${color}-900/20`,
+                    `border-${color}-200`, 
+                    `dark:border-${color}-800/30`,
+                    `text-${color}-800`,
+                    `dark:text-${color}-300`
+                );
+                
+                // Set the message content
+                applicationMessage.innerHTML = `<span class="font-semibold">${title}</span> ${message}`;
+            }
+            
+            // Share job
+            function shareJob() {
+                if (!currentJob) return;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: `${currentJob.title} at ${currentJob.organization_name}`,
+                        text: `Check out this job: ${currentJob.title} at ${currentJob.organization_name}`,
+                        url: window.location.href
+                    })
+                    .catch(error => console.error('Error sharing:', error));
+                } else {
+                    // Fallback for browsers that don't support the Web Share API
+                    const shareUrl = window.location.href;
+                    prompt('Copy this link to share:', shareUrl);
+                }
+            }
+            
+            // UI state management
+            function showLoading() {
+                loadingState.classList.remove('hidden');
+                errorState.classList.add('hidden');
+                jobContent.classList.add('hidden');
+            }
+            
+            function hideLoading() {
+                loadingState.classList.add('hidden');
+            }
+            
+            function showContent() {
+                jobContent.classList.remove('hidden');
+            }
+            
+            function showError(message) {
+                hideLoading();
+                errorState.classList.remove('hidden');
+                jobContent.classList.add('hidden');
+                
+                if (errorMessage) {
+                    errorMessage.textContent = message;
+                }
+            }
+            
+            function showSuccessModal(title, message) {
+                // Create modal element
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+                modal.innerHTML = `
+                    <div class="fixed inset-0 bg-black bg-opacity-50" id="success-modal-backdrop"></div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full z-10 relative">
+                        <div class="p-6">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-2 mr-3 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${title}</h3>
+                                    <p class="mt-1 text-gray-600 dark:text-gray-300">${message}</p>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end">
+                                <button id="success-modal-close" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">
+                                    Got it
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Append to body
+                document.body.appendChild(modal);
+                
+                // Add event listeners
+                const closeBtn = document.getElementById('success-modal-close');
+                const backdrop = document.getElementById('success-modal-backdrop');
+                
+                closeBtn.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                backdrop.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+            }
+            
+            function showErrorModal(title, message) {
+                // Create modal element
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+                modal.innerHTML = `
+                    <div class="fixed inset-0 bg-black bg-opacity-50" id="error-modal-backdrop"></div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full z-10 relative">
+                        <div class="p-6">
+                            <div class="flex items-start">
+                                <div class="bg-red-100 dark:bg-red-900/30 rounded-full p-2 mr-3 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${title}</h3>
+                                    <p class="mt-1 text-gray-600 dark:text-gray-300">${message}</p>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end">
+                                <button id="error-modal-close" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Append to body
+                document.body.appendChild(modal);
+                
+                // Add event listeners
+                const closeBtn = document.getElementById('error-modal-close');
+                const backdrop = document.getElementById('error-modal-backdrop');
+                
+                closeBtn.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                backdrop.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+            }
+        });
+    </script>
+        <script>
+      // Ensure DOM is fully loaded before loading the AI assistant
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a short moment to ensure all other DOM operations are complete
+        setTimeout(function () {
+          // Create and add the script element
+          const script = document.createElement("script");
+          script.src = "../js/ai-assistant.js";
+          document.body.appendChild(script);
+        }, 500);
+      });
+    </script>
+</body>
+</html>

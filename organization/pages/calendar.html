@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+</script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Calendar - Student Event Platform</title>
+    
+    <style>
+        /* Event indicators */
+        .event-indicator {
+            border-left: 3px solid;
+            padding: 2px 6px;
+            margin-bottom: 2px;
+            border-radius: 3px;
+        }
+        
+        /* Active day styling */
+        .current-day {
+            position: relative;
+        }
+        
+        .today-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: var(--theme-primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* Tooltip styling */
+        .event-tooltip {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            width: 250px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+            pointer-events: none;
+        }
+        
+        .dark .event-tooltip {
+            background-color: #2d3748;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.25);
+        }
+        
+        .event-tooltip.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        .event-tooltip .event-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid;
+            border-radius: 4px;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark .event-tooltip .event-item {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .event-tooltip .event-title {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .event-tooltip .event-time,
+        .event-tooltip .event-location {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        
+        .dark .event-tooltip .event-time,
+        .dark .event-tooltip .event-location {
+            color: #9CA3AF;
+        }
+        
+        .event-tooltip .event-status {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            margin-top: 4px;
+        }
+        
+        .event-tooltip .event-status.upcoming {
+            background-color: #3B82F6;
+            color: white;
+        }
+        
+        .event-tooltip .event-status.completed {
+            background-color: #10B981;
+            color: white;
+        }
+        
+        .event-tooltip .event-status.cancelled {
+            background-color: #EF4444;
+            color: white;
+        }
+        
+        /* Mobile tooltip backdrop */
+        .tooltip-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+        
+        .tooltip-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Style tweaks for weekday headers */
+        .weekday-header {
+            color: #4B5563;
+            background-color: #F3F4F6;
+        }
+        
+        .dark .weekday-header {
+            color: #D1D5DB;
+            background-color: #374151;
+        }
+        
+        /* Registration status badge styles */
+        .registration-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .registration-badge.registered {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+        }
+        
+        .dark .registration-badge.registered {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #34D399;
+        }
+        
+        .registration-badge.not-registered {
+            background-color: rgba(209, 213, 219, 0.2);
+            color: #6B7280;
+        }
+        
+        .dark .registration-badge.not-registered {
+            background-color: rgba(209, 213, 219, 0.1);
+            color: #9CA3AF;
+        }
+        
+        /* My events toggle button styles */
+        .toggle-active {
+            background-color: var(--theme-primary);
+            color: white;
+        }
+        
+        .toggle-inactive {
+            border: 1px solid var(--theme-primary);
+            color: var(--theme-primary);
+            background-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
+      data-auth-required="true" 
+      data-roles="student">
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <section class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
+        <!-- Main Content -->
+        <div class="w-full py-4 sm:py-8 relative">
+            <div class="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
+                    <!-- Events List Section -->
+                    <div class="xl:col-span-5 order-2 xl:order-1">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <h2 class="font-manrope text-xl sm:text-2xl lg:text-3xl leading-tight text-gray-900 dark:text-white">Upcoming Events</h2>
+                                <div class="flex gap-2">
+                                    <button id="my-events-toggle" class="text-sm px-3 py-1 rounded-full toggle-inactive">My Events</button>
+                                    <button id="all-events-toggle" class="text-sm px-3 py-1 rounded-full toggle-active">All Events</button>
+                                </div>
+                            </div>
+                            <div id="events-list" class="flex gap-4 sm:gap-5 flex-col overflow-y-auto max-h-[calc(100vh-20rem)] sm:max-h-[calc(100vh-22rem)]">
+                                <!-- Events will be dynamically inserted here -->
+                                <div class="flex justify-center items-center py-10">
+                                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Section -->
+                    <div class="xl:col-span-7 order-1 xl:order-2">
+                        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6">
+                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between mb-4 sm:mb-6">
+                                <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                                    <h5 id="current-month-year" class="text-lg sm:text-xl leading-8 font-semibold text-gray-900 dark:text-white"></h5>
+                                    <div class="flex items-center">
+                                        <button id="prev-month" class="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-indigo-600 dark:hover:bg-indigo-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <path d="M10.0002 11.9999L6 7.99971L10.0025 3.99719" stroke="currentcolor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                        </button>
+                                        <button id="next-month" class="text-indigo-600 dark:text-indigo-400 p-2 rounded-lg transition-all duration-300 hover:text-white hover:bg-indigo-600 dark:hover:bg-indigo-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                <path d="M6.00236 3.99707L10.0025 7.99723L6 11.9998" stroke="currentcolor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center rounded-lg p-1 bg-indigo-50 dark:bg-gray-700 gap-1 w-full sm:w-auto justify-end sm:justify-start">
+                                    <button class="py-2 px-4 rounded-lg bg-indigo-600 dark:bg-indigo-500 text-white text-sm font-medium transition-all duration-300 hover:bg-indigo-600 hover:text-white">Month</button>
+                                </div>
+                            </div>
+
+                            <!-- Calendar container with overflow handling -->
+                            <div class="overflow-x-auto sm:overflow-visible pb-2">
+                                <div class="border calendar-grid border-indigo-100 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden min-w-[640px] sm:min-w-0">
+                                    <!-- Weekday headers with rounded corners -->
+                                    <div class="grid grid-cols-7 border-b border-indigo-100 dark:border-gray-700">
+                                        <div class="py-3 border-r weekday-header border-indigo-100 dark:border-gray-700 flex items-center justify-center text-sm font-medium">Sun</div>
+                                        <div class="py-3 border-r weekday-header border-indigo-100 dark:border-gray-700 flex items-center justify-center text-sm font-medium">Mon</div>
+                                        <div class="py-3 border-r weekday-header border-indigo-100 dark:border-gray-700 flex items-center justify-center text-sm font-medium">Tue</div>
+                                        <div class="py-3 border-r weekday-header border-indigo-100 dark:border-gray-700 flex items-center justify-center text-sm font-medium">Wed</div>
+                                        <div class="py-3 border-r weekday-header border-indigo-100 dark:border-gray-700 flex items-center justify-center text-sm font-medium">Thu</div>
+                                        <div class="py-3 border-r weekday-header border-indigo-100 dark:border-gray-700 flex items-center justify-center text-sm font-medium">Fri</div>
+                                        <div class="py-3 weekday-header flex items-center justify-center text-sm font-medium">Sat</div>
+                                    </div>
+                                    
+                                    <!-- Calendar grid with more rounded styling -->
+                                    <div id="calendar-days-grid" class="grid grid-cols-7"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Details Modal -->
+    <div id="event-modal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6 mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">Event Details</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="event-details-container" class="space-y-4">
+                <!-- Event details will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Confirmation Modal -->
+    <div id="registration-modal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6 mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="registration-modal-title" class="text-lg font-semibold text-gray-900 dark:text-white">Register for Event</h3>
+                <button id="close-registration-modal-btn" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <p id="registration-message" class="mb-6">Are you sure you want to register for this event?</p>
+            <div class="flex justify-end gap-4">
+                <button id="cancel-registration-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600">Cancel</button>
+                <button id="confirm-registration-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Registration Modal -->
+    <div id="cancel-registration-modal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6 mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Cancel Registration</h3>
+                <button id="close-cancel-modal-btn" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <p class="mb-6">Are you sure you want to cancel your registration for <span id="cancel-event-name" class="font-medium"></span>?</p>
+            <div class="flex justify-end gap-4">
+                <button id="keep-registration-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600">Keep Registration</button>
+                <button id="confirm-cancel-btn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Cancel Registration</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // Note: In a real application, this would come from the logged-in student
+        const CURRENT_student_id = 1;  // Simulated current student for demo purposes
+    
+        // Track which events the current student is registered for
+        let studentRegistrations = [];
+        let allEvents = [];
+        let isMyEventsActive = false;
+
+        // --- Calendar Functionality ---
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        const monthYearDisplay = document.getElementById('current-month-year');
+        const calendarDaysGrid = document.getElementById('calendar-days-grid');
+
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+                           "July", "August", "September", "October", "November", "December"];
+
+        // Initialize the calendar when the DOM is fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCalendar);
+        } else {
+            // DOM already loaded, initialize immediately
+            initializeCalendar();
+        }
+    
+        // Initialize the calendar
+        async function initializeCalendar() {
+            try {
+                showLoadingState();
+                
+                // Fetch events from API
+                await fetchEventsForCurrentMonth();
+                
+                // Render calendar and events list
+                renderCalendar(currentMonth, currentYear, allEvents);
+                renderEventsList(allEvents);
+                
+                // Set up event listeners
+                setupEventListeners();
+                
+                hideLoadingState();
+            } catch (error) {
+                console.error('Error initializing calendar:', error);
+                showNotification('Error loading calendar data', 'error');
+                hideLoadingState();
+                showErrorState();
+            }
+        }
+        
+        // Fetch events for the current month from API
+        async function fetchEventsForCurrentMonth() {
+            try {
+                const response = await fetch(`../api/calendar-events.php?month=${currentMonth}&year=${currentYear}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load events');
+                }
+                
+                // Update global variables
+                allEvents = data.events;
+                
+                // No need for separate student registrations call as the API already includes this info
+                return allEvents;
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                throw error;
+            }
+        }
+        
+        // Helper function to show loading state
+        function showLoadingState() {
+            const eventsListContainer = document.getElementById('events-list');
+            eventsListContainer.innerHTML = `
+                <div class="flex justify-center items-center py-10">
+                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
+                </div>
+            `;
+        }
+        
+        // Helper function to hide loading state
+        function hideLoadingState() {
+            // Nothing to do here as the list will be populated
+        }
+        
+        // Helper function to show error state
+        function showErrorState() {
+            const eventsListContainer = document.getElementById('events-list');
+            eventsListContainer.innerHTML = `
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 my-4">
+                    <div class="flex">
+                        <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <p class="font-medium">Error loading calendar data</p>
+                            <p class="text-sm mt-1">Please try again later or contact support if the problem persists.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Update the setupEventListeners function to fetch new events when changing months
+        function setupEventListeners() {
+            // Event toggle buttons
+            const myEventsToggle = document.getElementById('my-events-toggle');
+            const allEventsToggle = document.getElementById('all-events-toggle');
+            
+            myEventsToggle.addEventListener('click', () => {
+                isMyEventsActive = true;
+                myEventsToggle.classList.add('toggle-active');
+                myEventsToggle.classList.remove('toggle-inactive');
+                allEventsToggle.classList.add('toggle-inactive');
+                allEventsToggle.classList.remove('toggle-active');
+                
+                // Filter events to show only those the student is registered for
+                const myEvents = allEvents.filter(event => event.isRegistered);
+                renderEventsList(myEvents);
+                
+                // Update the calendar to highlight only registered events
+                renderCalendar(currentMonth, currentYear, allEvents, true); // Pass true to indicate "My Events" mode
+            });
+            
+            allEventsToggle.addEventListener('click', () => {
+                isMyEventsActive = false;
+                allEventsToggle.classList.add('toggle-active');
+                allEventsToggle.classList.remove('toggle-inactive');
+                myEventsToggle.classList.add('toggle-inactive');
+                myEventsToggle.classList.remove('toggle-active');
+                
+                renderEventsList(allEvents);
+                renderCalendar(currentMonth, currentYear, allEvents, false); // Pass false to indicate "All Events" mode
+            });
+            
+            // Close event modal button
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                document.getElementById('event-modal').classList.add('hidden');
+            });
+            
+            // Registration modal buttons
+            document.getElementById('close-registration-modal-btn').addEventListener('click', () => {
+                document.getElementById('registration-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-registration-btn').addEventListener('click', () => {
+                document.getElementById('registration-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('confirm-registration-btn').addEventListener('click', handleEventRegistration);
+            
+            // Cancel registration modal buttons
+            document.getElementById('close-cancel-modal-btn').addEventListener('click', () => {
+                document.getElementById('cancel-registration-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('keep-registration-btn').addEventListener('click', () => {
+                document.getElementById('cancel-registration-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('confirm-cancel-btn').addEventListener('click', handleCancelRegistration);
+            
+            // Event listeners for month navigation
+            document.getElementById('prev-month').addEventListener('click', async () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                await changeMonth();
+            });
+
+            document.getElementById('next-month').addEventListener('click', async () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                await changeMonth();
+            });
+        }
+        
+        // Function to handle month changes
+        async function changeMonth() {
+            try {
+                showLoadingState();
+                await fetchEventsForCurrentMonth();
+                renderCalendar(currentMonth, currentYear, allEvents);
+                
+                // Update events list based on current filter
+                if (isMyEventsActive) {
+                    const myEvents = allEvents.filter(event => event.isRegistered);
+                    renderEventsList(myEvents);
+                } else {
+                    renderEventsList(allEvents);
+                }
+                
+                hideLoadingState();
+            } catch (error) {
+                console.error('Error changing month:', error);
+                showNotification('Error loading events for selected month', 'error');
+                showErrorState();
+            }
+        }
+
+        // Function to handle event registration
+        async function handleEventRegistration() {
+            const modal = document.getElementById('registration-modal');
+            const eventId = modal.getAttribute('data-event-id');
+            
+            if (!eventId) {
+                console.error('No event ID found for registration');
+                return;
+            }
+            
+            try {
+                const confirmBtn = document.getElementById('confirm-registration-btn');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Registering...';
+                
+                // Make API call to register for event
+                const response = await fetch('../api/event-registration.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        event_id: eventId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to register for event');
+                }
+                
+                // Update event registration status in our local data
+                const eventIndex = allEvents.findIndex(e => e.event_id == eventId);
+                if (eventIndex !== -1) {
+                    allEvents[eventIndex].isRegistered = true;
+                    allEvents[eventIndex].registrationStatus = data.status || 'pending';
+                    allEvents[eventIndex].registrationId = data.registration_id;
+                }
+                
+                // Close modal
+                modal.classList.add('hidden');
+                document.getElementById('event-modal').classList.add('hidden');
+                
+                // Show success notification with the appropriate message
+                showNotification(data.message, 'success');
+                
+                // Refresh events list and calendar
+                if (isMyEventsActive) {
+                    const myEvents = allEvents.filter(event => event.isRegistered);
+                    renderEventsList(myEvents);
+                } else {
+                    renderEventsList(allEvents);
+                }
+                
+                renderCalendar(currentMonth, currentYear, allEvents);
+                
+            } catch (error) {
+                console.error('Error registering for event:', error);
+                showNotification(error.message || 'Failed to register for event', 'error');
+            } finally {
+                const confirmBtn = document.getElementById('confirm-registration-btn');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Register';
+            }
+        }
+
+        // Function to handle registration cancellation
+        async function handleCancelRegistration() {
+            const modal = document.getElementById('cancel-registration-modal');
+            const eventId = modal.getAttribute('data-event-id');
+            const registrationId = modal.getAttribute('data-registration-id');
+            
+            if (!eventId) {
+                console.error('Missing event ID for cancellation');
+                return;
+            }
+            
+            try {
+                const confirmBtn = document.getElementById('confirm-cancel-btn');
+                confirmBtn.disabled = true;
+                confirmBtn.textContent = 'Cancelling...';
+                
+                // Prepare the request payload
+                const payload = {
+                    action: 'cancel',
+                    event_id: eventId
+                };
+                
+                // Add registration_id if available (for backward compatibility with both APIs)
+                if (registrationId) {
+                    payload.registration_id = registrationId;
+                }
+                
+                // Make API call to cancel registration
+                const response = await fetch('../api/event-registration.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to cancel registration');
+                }
+                
+                // Update event registration status in our local data
+                const eventIndex = allEvents.findIndex(e => e.event_id == eventId);
+                if (eventIndex !== -1) {
+                    allEvents[eventIndex].isRegistered = false;
+                    allEvents[eventIndex].registrationStatus = null;
+                    allEvents[eventIndex].registrationId = null;
+                }
+                
+                // Close modal
+                modal.classList.add('hidden');
+                document.getElementById('event-modal').classList.add('hidden');
+                
+                // Show success notification
+                showNotification('Registration cancelled successfully', 'success');
+                
+                // Refresh events list and calendar
+                if (isMyEventsActive) {
+                    const myEvents = allEvents.filter(event => event.isRegistered);
+                    renderEventsList(myEvents);
+                } else {
+                    renderEventsList(allEvents);
+                }
+                
+                renderCalendar(currentMonth, currentYear, allEvents, isMyEventsActive);
+                
+            } catch (error) {
+                console.error('Error cancelling registration:', error);
+                showNotification(error.message || 'Failed to cancel registration', 'error');
+            } finally {
+                const confirmBtn = document.getElementById('confirm-cancel-btn');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Cancel Registration';
+            }
+        }
+
+        // Function to open registration confirmation modal
+        function openRegistrationModal(event) {
+            const modal = document.getElementById('registration-modal');
+            const title = document.getElementById('registration-modal-title');
+            const message = document.getElementById('registration-message');
+            
+            // Store the event ID in the modal for the confirm handler
+            modal.setAttribute('data-event-id', event.event_id);
+            
+            title.textContent = `Register for ${event.title}`;
+            message.textContent = `Are you sure you want to register for "${event.title}"?`;
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+        }
+
+       // Update the openCancelRegistrationModal function to ensure consistent data attributes
+
+function openCancelRegistrationModal(event) {
+    const modal = document.getElementById('cancel-registration-modal');
+    const eventNameSpan = document.getElementById('cancel-event-name');
+    
+    // Store the event ID and registration ID in the modal for the confirm handler
+    modal.setAttribute('data-event-id', event.event_id);
+    
+    // Use registrationId if available, but don't require it
+    if (event.registrationId) {
+        modal.setAttribute('data-registration-id', event.registrationId);
+    }
+    
+    eventNameSpan.textContent = event.title || 'this event';
+    
+    // Show the modal
+    modal.classList.remove('hidden');
+}
+
+        // Function to open event details modal
+        function openEventDetailsModal(event) {
+            const modal = document.getElementById('event-modal');
+            const detailsContainer = document.getElementById('event-details-container');
+            
+            // Format dates for display
+            const startDate = new Date(event.start_date);
+            const endDate = new Date(event.end_date);
+            const formattedDate = startDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            const formattedStartTime = startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const formattedEndTime = endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            
+            // Check if event is in the past
+            const now = new Date();
+            const isPastEvent = endDate < now;
+            
+            // Check if event is full
+            const isEventFull = event.max_capacity && event.current_attendees >= event.max_capacity;
+            
+            // Update modal content
+            detailsContainer.innerHTML = `
+                <div>
+                    <h1 class="text-xl font-bold mb-2">${event.title}</h1>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-2 bg-${getEventTypeClass(event.event_type)}-100 text-${getEventTypeClass(event.event_type)}-800 dark:bg-${getEventTypeClass(event.event_type)}-900/30 dark:text-${getEventTypeClass(event.event_type)}-400">
+                        ${capitalizeFirstLetter(event.event_type)}
+                    </span>
+                    
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">${event.description || 'No description available.'}</p>
+                    
+                    <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium">Date & Time</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${formattedDate}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${formattedStartTime} - ${formattedEndTime}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium">Location</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${event.location}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium">Organizer</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${event.organizer_name || 'Not specified'}</p>
+                            </div>
+                        </div>
+                        
+                        ${event.max_capacity ? `
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                            <div>
+                                <p class="font-medium">Capacity</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${event.current_attendees} / ${event.max_capacity} participants</p>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+                    
+                    <div class="flex justify-end">
+                        ${event.status === 'upcoming' ? 
+                            (!isPastEvent && !isEventFull ? 
+                                (event.isRegistered ? 
+                                    `<button id="cancel-registration" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Cancel Registration</button>` : 
+                                    `<button id="register-event" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Register</button>`
+                                ) : 
+                                (isEventFull ? 
+                                    `<span class="px-3 py-1.5 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 rounded">Event Full</span>` :
+                                    `<span class="px-3 py-1.5 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 rounded">Event Ended</span>`
+                                )
+                            ) :
+                            `<span class="px-3 py-1.5 bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-300 rounded">Event Completed</span>`
+                        }
+                    </div>
+                </div>
+            `;
+    
+            // Add event listeners for registration buttons
+            const registerBtn = detailsContainer.querySelector('#register-event');
+            if (registerBtn) {
+                registerBtn.addEventListener('click', () => {
+                    openRegistrationModal(event);
+                });
+            }
+            
+            const cancelBtn = detailsContainer.querySelector('#cancel-registration');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => {
+                    openCancelRegistrationModal(event);
+                });
+            }
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+        }
+
+        // Function to render the calendar
+        function renderCalendar(month, year, events, myEventsOnly = false) {
+            // Update month/year display
+            monthYearDisplay.textContent = `${monthNames[month]} ${year}`;
+            
+            // Clear existing calendar grid
+            calendarDaysGrid.innerHTML = '';
+            
+            // Get the first day of the month (0 = Sunday, 6 = Saturday)
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            
+            // Get the number of days in the month
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Get the number of days in previous month
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            // Calculate previous month and year
+            let prevMonth = month - 1;
+            let prevYear = year;
+            if (prevMonth < 0) {
+                prevMonth = 11;
+                prevYear--;
+            }
+            
+            // Calculate next month and year
+            let nextMonth = month + 1;
+            let nextYear = year;
+            if (nextMonth > 11) {
+                nextMonth = 0;
+                nextYear++;
+            }
+            
+            // Get current date for highlighting today
+            const today = new Date();
+            const currentDay = today.getDate();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            // Filter events for "My Events" view if needed
+            const filteredEvents = myEventsOnly ? events.filter(event => event.isRegistered) : events;
+            
+            // Group events by date for easy lookup
+            const eventsByDate = {};
+            filteredEvents.forEach(event => {
+                const eventDate = new Date(event.start_date);
+                const dateKey = `${eventDate.getFullYear()}-${eventDate.getMonth()}-${eventDate.getDate()}`;
+                if (!eventsByDate[dateKey]) {
+                    eventsByDate[dateKey] = [];
+                }
+                eventsByDate[dateKey].push(event);
+            });
+            
+            // Create days for previous month (if needed)
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const day = daysInPrevMonth - firstDayOfMonth + i + 1;
+                const dateObj = new Date(prevYear, prevMonth, day);
+                const dateKey = `${prevYear}-${prevMonth}-${day}`;
+                const dayEvents = eventsByDate[dateKey] || [];
+                
+                createCalendarDayElement(dateObj, dayEvents, true);
+            }
+            
+            // Create days for current month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateObj = new Date(year, month, day);
+                const dateKey = `${year}-${month}-${day}`;
+                const dayEvents = eventsByDate[dateKey] || [];
+                const isToday = day === currentDay && month === currentMonth && year === currentYear;
+                
+                createCalendarDayElement(dateObj, dayEvents, false, isToday);
+            }
+            
+            // Fill in remaining days from next month
+            const totalCellsCreated = firstDayOfMonth + daysInMonth;
+            const remainingCells = (Math.ceil(totalCellsCreated / 7) * 7) - totalCellsCreated;
+            
+            for (let day = 1; day <= remainingCells; day++) {
+                const dateObj = new Date(nextYear, nextMonth, day);
+                const dateKey = `${nextYear}-${nextMonth}-${day}`;
+                const dayEvents = eventsByDate[dateKey] || [];
+                
+                createCalendarDayElement(dateObj, dayEvents, true);
+            }
+        }
+
+        // Create a day cell for the calendar
+        function createCalendarDayElement(date, events, isOutsideMonth = false, isToday = false) {
+            const day = document.createElement('div');
+            const dayNum = date.getDate();
+            
+            // Determine cell classes based on day position and state
+            let cellClasses = 'min-h-[100px] p-2 border-b border-r border-indigo-100 dark:border-gray-700 bg-white dark:bg-gray-800';
+            
+            // Apply opacity for days outside the current month
+            if (isOutsideMonth) {
+                cellClasses += ' opacity-50';
+            }
+            
+            // Remove right border from last column (Saturday)
+            if (date.getDay() === 6) {
+                cellClasses = cellClasses.replace('border-r', '');
+            }
+            
+            // Remove bottom border from last row
+            const lastRowStart = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate() - 6 + (new Date(date.getFullYear(), date.getMonth(), 1).getDay());
+            if (dayNum >= lastRowStart && date.getMonth() === currentMonth) {
+                cellClasses = cellClasses.replace('border-b', '');
+            }
+            
+            day.className = cellClasses;
+            
+            // Create day number indicator
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'flex justify-between items-center mb-1';
+            
+            const dayNumberElement = document.createElement('span');
+            if (isToday) {
+                dayNumberElement.className = 'today-indicator';
+            } else {
+                dayNumberElement.className = 'text-sm font-medium';
+            }
+            dayNumberElement.textContent = dayNum;
+            
+            dayHeader.appendChild(dayNumberElement);
+            day.appendChild(dayHeader);
+            
+            // Add events to the day cell
+            const eventsList = document.createElement('div');
+            eventsList.className = 'flex flex-col gap-1 overflow-y-auto max-h-[60px]';
+            
+            if (events.length > 0) {
+                events.slice(0, 3).forEach(event => {
+                    const eventIndicator = document.createElement('div');
+                    const color = getEventTypeColor(event.event_type);
+                    eventIndicator.className = `event-indicator text-xs truncate cursor-pointer ${event.isRegistered ? 'font-medium' : ''}`;
+                    eventIndicator.style.borderLeftColor = color;
+                    eventIndicator.style.backgroundColor = hexToRgba(color, 0.1);
+                    eventIndicator.textContent = event.title;
+                    
+                    eventIndicator.addEventListener('click', () => {
+                        openEventDetailsModal(event);
+                    });
+                    
+                    eventsList.appendChild(eventIndicator);
+                });
+                
+                if (events.length > 3) {
+                    const moreIndicator = document.createElement('div');
+                    moreIndicator.className = 'text-xs text-gray-500 dark:text-gray-400 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400';
+                    moreIndicator.textContent = `+${events.length - 3} more`;
+                    eventsList.appendChild(moreIndicator);
+                }
+            }
+            
+            day.appendChild(eventsList);
+            calendarDaysGrid.appendChild(day);
+        }
+
+        // Render events list below calendar
+        function renderEventsList(events) {
+            const eventsListContainer = document.getElementById('events-list');
+            eventsListContainer.innerHTML = '';
+            
+            // Sort events by date (most recent first)
+            const sortedEvents = [...events].sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+            
+            if (sortedEvents.length === 0) {
+                eventsListContainer.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <h3 class="font-medium text-gray-600 dark:text-gray-300 mb-1">No events found</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm max-w-md">
+                            ${isMyEventsActive ? 
+                                'You haven\'t registered for any events yet.' : 
+                                'There are no events scheduled for this month.'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Group events by month and day
+            const eventsByMonthDay = {};
+            
+            sortedEvents.forEach(event => {
+                const eventDate = new Date(event.start_date);
+                const monthKey = `${monthNames[eventDate.getMonth()]} ${eventDate.getFullYear()}`;
+                
+                if (!eventsByMonthDay[monthKey]) {
+                    eventsByMonthDay[monthKey] = {};
+                }
+                
+                const dayKey = eventDate.getDate();
+                
+                if (!eventsByMonthDay[monthKey][dayKey]) {
+                    eventsByMonthDay[monthKey][dayKey] = [];
+                }
+                
+                eventsByMonthDay[monthKey][dayKey].push(event);
+            });
+            
+            // Create HTML for the grouped events
+            for (const monthKey in eventsByMonthDay) {
+                // Add month header
+                const monthHeader = document.createElement('div');
+                monthHeader.className = 'mb-6';
+                monthHeader.innerHTML = `<h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">${monthKey}</h3>`;
+                eventsListContainer.appendChild(monthHeader);
+                
+                for (const dayKey in eventsByMonthDay[monthKey]) {
+                    const eventsForDay = eventsByMonthDay[monthKey][dayKey];
+                    
+                    // Format the day display
+                    const eventDate = new Date(eventsForDay[0].start_date);
+                    const dayName = eventDate.toLocaleDateString('en-US', { weekday: 'long' });
+                    const formattedDay = `${dayName}, ${monthNames[eventDate.getMonth()]} ${dayKey}`;
+                    
+                    // Add day header
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'flex items-start mb-3';
+                    dayHeader.innerHTML = `
+                        <div class="rounded-lg bg-indigo-50 dark:bg-indigo-900/30 w-10 h-10 flex items-center justify-center mr-3 text-indigo-600 dark:text-indigo-400 font-medium">
+                            ${dayKey}
+                        </div>
+                        <div class="pt-1 text-gray-700 dark:text-gray-300">
+                            ${formattedDay}
+                        </div>
+                    `;
+                    eventsListContainer.appendChild(dayHeader);
+                    
+                    // Add events for this day
+                    for (const event of eventsForDay) {
+                        const eventItem = createEventListItem(event);
+                        eventsListContainer.appendChild(eventItem);
+                    }
+                    
+                    // Add spacing between days
+                    const spacer = document.createElement('div');
+                    spacer.className = 'mb-5';
+                    eventsListContainer.appendChild(spacer);
+                }
+            }
+        }
+
+        // Create an event list item
+        function createEventListItem(event) {
+            const eventItem = document.createElement('div');
+            eventItem.className = 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg p-4 mb-3 shadow-sm hover:shadow-md transition cursor-pointer';
+            
+            // Format times
+            const startTime = new Date(event.start_date).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            const endTime = new Date(event.end_date).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            // Determine the badge for the event type
+            const typeColor = getEventTypeColor(event.event_type);
+            const badgeStyle = `background-color: ${hexToRgba(typeColor, 0.1)}; color: ${typeColor}; border-color: ${hexToRgba(typeColor, 0.3)}`;
+            
+            // Check if event is in the past
+            const isPastEvent = new Date(event.end_date) < new Date();
+            
+            // Create HTML content
+            eventItem.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border" style="${badgeStyle}">
+                        ${capitalizeFirstLetter(event.event_type)}
+                    </span>
+                    ${event.isRegistered ? 
+                        `<span class="registration-badge registered">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            Registered
+                        </span>` : 
+                        `<span class="registration-badge not-registered">
+                            ${isPastEvent ? 'Past Event' : 'Not Registered'}
+                        </span>`
+                    }
+                </div>
+                
+                <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">${event.title}</h3>
+                
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    ${startTime} - ${endTime}
+                </div>
+                
+                <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    ${event.location || 'No location specified'}
+                </div>
+            `;
+    
+            // Add click event to open event details
+            eventItem.addEventListener('click', () => {
+                openEventDetailsModal(event);
+            });
+            
+            return eventItem;
+        }
+
+        // Helper function for getting color based on event type
+        function getEventTypeColor(eventType) {
+            switch (eventType) {
+                case 'conference':
+                    return '#3B82F6'; // Blue
+                case 'workshop':
+                    return '#10B981'; // Green
+                case 'webinar':
+                    return '#8B5CF6'; // Purple
+                case 'fair':
+                    return '#F59E0B'; // Amber
+                case 'social':
+                    return '#EC4899'; // Pink
+                case 'competition':
+                    return '#EF4444'; // Red
+                default:
+                    return '#6B7280'; // Gray
+            }
+        }
+
+        // Helper function for getting Tailwind class based on event type
+        function getEventTypeClass(eventType) {
+            switch (eventType) {
+                case 'conference':
+                    return 'blue';
+                case 'workshop':
+                    return 'green';
+                case 'webinar':
+                    return 'purple';
+                case 'fair':
+                    return 'yellow';
+                case 'social':
+                    return 'pink';
+                case 'competition':
+                    return 'red';
+                default:
+                    return 'gray';
+            }
+        }
+
+        // Helper function to capitalize first letter
+        function capitalizeFirstLetter(string) {
+            if (!string) return '';
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Helper function to convert hex color to rgba
+        function hexToRgba(hex, alpha = 1) {
+            if (!hex) return `rgba(107, 114, 128, ${alpha})`;  // Default gray
+            
+            // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+            const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+            hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+                return r + r + g + g + b + b;
+            });
+            
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (!result) return `rgba(107, 114, 128, ${alpha})`;  // Default gray
+            
+            const r = parseInt(result[1], 16);
+            const g = parseInt(result[2], 16);
+            const b = parseInt(result[3], 16);
+            
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Helper function to display notification
+        function showNotification(message, type = 'success') {
+            // Check if notification container exists, if not create it
+            let notificationContainer = document.getElementById('notification-container');
+            if (!notificationContainer) {
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notification-container';
+                notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col space-y-2';
+                document.body.appendChild(notificationContainer);
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out max-w-xs ${
+                type === 'success' ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800/30 text-green-800 dark:text-green-300' :
+                type === 'error' ? 'bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300' :
+                'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/30 text-blue-800 dark:text-blue-300'
+            }`;
+            
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        ${type === 'success' ? `
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        ` : type === 'error' ? `
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        ` : `
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                        `}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add notification to container
+            notificationContainer.appendChild(notification);
+            
+            // Remove notification after a delay
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'translate-x-5');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 5000);
+        }
+    })();
+    </script>
+
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Your existing scripts - NO auth-guard.js here anymore -->
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+        <script>
+      // Ensure DOM is fully loaded before loading the AI assistant
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a short moment to ensure all other DOM operations are complete
+        setTimeout(function () {
+          // Create and add the script element
+          const script = document.createElement("script");
+          script.src = "../js/ai-assistant.js";
+          document.body.appendChild(script);
+        }, 500);
+      });
+    </script>
+</body>
+</html>

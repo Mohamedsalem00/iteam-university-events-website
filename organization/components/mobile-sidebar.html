@@ -1,0 +1,86 @@
+<div id="mobile-sidebar" class="fixed inset-0 flex z-40 md:hidden hidden" role="dialog" aria-modal="true">
+    <!-- Sidebar backdrop -->
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+
+    <!-- Sidebar panel -->
+    <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800">
+        <!-- Close button -->
+        <div class="absolute top-0 right-0 -mr-12 pt-2">
+            <button id="close-sidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                <span class="sr-only">Close sidebar</span>
+                <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile sidebar content -->
+        <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+            <div class="flex-shrink-0 flex items-center px-4">
+                <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
+                <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+            </div>
+            <nav class="mt-5 px-2 space-y-1">
+                <!-- Navigation Links -->
+                <a href="dashboard.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md mobile-nav-link" data-page="dashboard">
+                    <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="events.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md mobile-nav-link" data-page="events">
+                    <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Events
+                </a>
+                <a href="registrations.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md mobile-nav-link" data-page="registrations">
+                    <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    Registrations
+                </a>
+                <a href="job-offers.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md mobile-nav-link" data-page="job-offers">
+                    <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    Job Offers
+                </a>
+                <a href="analytics.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md mobile-nav-link" data-page="analytics">
+                    <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Analytics
+                </a>
+                <a href="profile.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md mobile-nav-link" data-page="profile">
+                    <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Profile
+                </a>
+            </nav>
+        </div>
+        <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex-shrink-0 w-full group block">
+                <div class="flex items-center">
+                    <div class="h-9 w-9 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-lg font-medium text-white mobile-org-avatar">
+                        O
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mobile-org-name">
+                            Organization Name
+                        </p>
+                        <button class="mobile-logout-btn text-xs font-medium text-theme-primary hover:text-theme-primary-hover">
+                            Sign out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar placeholder (to prevent shifts) -->
+    <div class="flex-shrink-0 w-14" aria-hidden="true">
+        <!-- Dummy element for spacing -->
+    </div>
+</div>
