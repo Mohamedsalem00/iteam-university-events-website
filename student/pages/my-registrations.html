@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    <!-- Apply student type immediately to prevent flash -->
+    <script>
+        // Apply student type immediately to prevent flash
+        (function() {
+            const userType = localStorage.getItem('userType');
+            if (userType) {
+                document.body.classList.add('is-' + userType);
+            }
+        })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>My Registrations - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
+      data-auth-required="true" 
+      data-roles="student">
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row items-start justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold">My Registrations</h1>
+                    <p class="text-dashboard-text-secondary mt-1">Track and manage your registered events</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <!-- Updated the select filter options to include all possible statuses -->
+                    <select id="filter-status" class="bg-white dark:bg-gray-700 border border-dashboard-border dark:border-dashboard-border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                        <option value="all">All Registrations</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Events Tabs -->
+            <div class="border-b border-dashboard-border dark:border-dashboard-border mb-6">
+                <div class="flex -mb-px">
+                    <button id="tab-upcoming" class="py-2 px-4 border-b-2 border-theme-primary text-theme-primary font-medium">
+                        Upcoming (<span id="upcoming-count">0</span>)
+                    </button>
+                    <button id="tab-past" class="py-2 px-4 border-b-2 border-transparent text-dashboard-text-secondary font-medium hover:text-dashboard-text">
+                        Past (<span id="past-count">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div id="loading-state" class="flex flex-col items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
+                <p class="mt-4 text-dashboard-text-secondary">Loading your registrations...</p>
+            </div>
+            
+            <!-- Error state -->
+            <div id="error-state" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <p class="font-medium">Error loading registrations</p>
+                        <p class="text-sm mt-1" id="error-message">Please try again later.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- No registrations state -->
+            <div id="empty-state" class="hidden text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">No registrations found</h3>
+                <p class="mt-2 text-dashboard-text-secondary">You haven't registered for any events yet.</p>
+                <a href="events.html" class="mt-4 inline-block bg-theme-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-theme-primary-dark transition">
+                    Browse Events
+                </a>
+            </div>
+
+            <!-- Registrations List - Will be populated from API -->
+            <div id="registrations-container" class="space-y-4 hidden">
+                <!-- Registration items will be added here dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Add CONFIG script before your other scripts -->
+    <script src="/iteam-university-website/frontend/js/config.js"></script>
+    <!-- Your existing scripts -->
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    
+    <!-- Events page script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const registrationsContainer = document.getElementById('registrations-container');
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            const emptyState = document.getElementById('empty-state');
+            const upcomingCount = document.getElementById('upcoming-count');
+            const pastCount = document.getElementById('past-count');
+            const tabUpcoming = document.getElementById('tab-upcoming');
+            const tabPast = document.getElementById('tab-past');
+            const filterStatus = document.getElementById('filter-status');
+            
+            // Add the fixImagePath function to handle paths correctly
+            function fixImagePath(imageUrl) {
+                if (!imageUrl) {
+                    // Use placeholder from CONFIG if available, otherwise use a default
+                    return typeof CONFIG !== 'undefined' && CONFIG.PLACEHOLDER_EVENT_IMAGE_PATH ? 
+                        CONFIG.PLACEHOLDER_EVENT_IMAGE_PATH : 
+                        '/iteam-university-website/frontend/assets/images/gallery/placeholder_event.png';
+                }
+                
+                // If it's already an absolute URL (starts with http or /), leave it unchanged
+                if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+                    return imageUrl;
+                }
+                
+                // If it starts with 'frontend/' or 'assets/', make it absolute from site root
+                if (imageUrl.startsWith('frontend/') || imageUrl.startsWith('assets/')) {
+                    return typeof CONFIG !== 'undefined' && CONFIG.BASE_URL ? 
+                        `${CONFIG.BASE_URL}/${imageUrl}` : 
+                        `/iteam-university-website/${imageUrl}`;
+                }
+                
+                // For other relative paths, assume they're relative to student folder
+                return typeof CONFIG !== 'undefined' && CONFIG.STUDENT_PATH ? 
+                    `${CONFIG.STUDENT_PATH}/${imageUrl}` : 
+                    `/iteam-university-website/student/${imageUrl}`;
+            }
+            
+            // Variables to store registration data
+            let registrations = [];
+            let currentTab = 'upcoming';
+            let currentFilter = 'all';
+            
+            // Initialize
+            loadstudentRegistrations();
+            
+            // Tab event listeners
+            tabUpcoming.addEventListener('click', () => {
+                setActiveTab('upcoming');
+                displayRegistrations();
+            });
+            
+            tabPast.addEventListener('click', () => {
+                setActiveTab('past');
+                displayRegistrations();
+            });
+            
+            // Filter event listener
+            filterStatus.addEventListener('change', (e) => {
+                currentFilter = e.target.value;
+                displayRegistrations();
+            });
+            
+            // Function to load student registrations from API
+            function loadstudentRegistrations() {
+                // Show loading state
+                loadingState.classList.remove('hidden');
+                registrationsContainer.classList.add('hidden');
+                errorState.classList.add('hidden');
+                emptyState.classList.add('hidden');
+                
+                // Get student ID from session
+                const studentId = getstudentId();
+                
+                // First, ensure we have the student ID
+                if (!studentId) {
+                    // Try to get student info from server session
+                    fetch('../api/auth.php?check=1')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Auth check failed with status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success && data.student && data.student.id) {
+                                // Store studentId for future use
+                                localStorage.setItem('studentId', data.student.id);
+                                
+                                // Now proceed with loading registrations using the student ID
+                                fetchRegistrations(data.student.id);
+                            } else {
+                                showError("Could not determine your student ID. Please try logging in again.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Auth check error:', error);
+                            showError("Authentication error: " + error.message);
+                        });
+                } else {
+                    // We have the student ID, proceed with loading registrations
+                    fetchRegistrations(studentId);
+                }
+            }
+            
+            // Add this new function to handle the actual registration fetching
+            function fetchRegistrations(studentId) {
+                // Fetch registrations
+                fetch(`../api/registrations.php?student_id=${studentId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || "Failed to load registrations");
+                        }
+                        
+                        // Store registrations data
+                        registrations = data.registrations || [];
+                        
+                        // Process and display registrations
+                        processRegistrations();
+                        displayRegistrations();
+                        
+                        // Hide loading state
+                        loadingState.classList.add('hidden');
+                        
+                        // Show appropriate state
+                        if (registrations.length === 0) {
+                            emptyState.classList.remove('hidden');
+                        } else {
+                            registrationsContainer.classList.remove('hidden');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading registrations:', error);
+                        showError(error.message);
+                    });
+            }
+            
+            // Function to get student ID from localStorage or session
+            function getstudentId() {
+                // This could be enhanced to use a more secure method
+                const accountId = localStorage.getItem('accountId');
+                if (accountId) {
+                    return accountId;
+                }
+                
+                // For demo purposes we'll fall back to student email
+                const userEmail = localStorage.getItem('userEmail');
+                return userEmail;
+            }
+            
+            // Function to process registrations data
+            function processRegistrations() {
+                const now = new Date();
+                let upcomingEvents = 0;
+                let pastEvents = 0;
+                
+                registrations.forEach(reg => {
+                    // Convert string dates to Date objects
+                    reg.startDate = new Date(reg.start_date);
+                    reg.endDate = new Date(reg.end_date);
+                    
+                    // Determine if event is upcoming or past
+                    reg.isPast = reg.endDate < now;
+                    
+                    // Count upcoming and past events
+                    if (reg.isPast) {
+                        pastEvents++;
+                    } else {
+                        upcomingEvents++;
+                    }
+                });
+                
+                // Update tab counts
+                upcomingCount.textContent = upcomingEvents;
+                pastCount.textContent = pastEvents;
+            }
+            
+            // Function to display filtered registrations
+            function displayRegistrations() {
+                // Clear current registrations
+                registrationsContainer.innerHTML = '';
+                
+                // Filter registrations based on current tab and filter
+                const filtered = registrations.filter(reg => {
+                    // First filter by tab (upcoming/past)
+                    const matchesTab = (currentTab === 'upcoming' && !reg.isPast) || 
+                                      (currentTab === 'past' && reg.isPast);
+                    
+                    // Then filter by status
+                    let matchesStatus = true;
+                    if (currentFilter !== 'all') {
+                        matchesStatus = reg.status === currentFilter;
+                    }
+                    
+                    return matchesTab && matchesStatus;
+                });
+                
+                // Show empty state if no filtered results
+                if (filtered.length === 0) {
+                    registrationsContainer.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                } else {
+                    registrationsContainer.classList.remove('hidden');
+                    emptyState.classList.add('hidden');
+                    
+                    // Create and append registration cards
+                    filtered.forEach(reg => {
+                        registrationsContainer.appendChild(createRegistrationCard(reg));
+                    });
+                }
+            }
+            
+            // Function to create a registration card element
+            function createRegistrationCard(registration) {
+                // Format dates
+                const eventDate = new Intl.DateTimeFormat('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }).format(registration.startDate);
+                
+                const startTime = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                }).format(registration.startDate);
+                
+                const endTime = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                }).format(registration.endDate);
+                
+                // Determine badge class and text
+                let badgeClass = '';
+                let badgeText = '';
+                
+                // First, check the admin status of the registration
+                if (registration.status === 'cancelled') {
+                    badgeClass = 'bg-dashboard-danger';
+                    badgeText = 'Cancelled';
+                } else if (registration.status === 'pending') {
+                    badgeClass = 'bg-dashboard-warning';
+                    badgeText = 'Pending Approval';
+                } else if (registration.status === 'confirmed') {
+                    // If confirmed, then check the date to determine if upcoming or past
+                    if (registration.isPast) {
+                        badgeClass = 'bg-dashboard-secondary';
+                        badgeText = 'Completed';
+                    } else if (registration.startDate.toDateString() === new Date().toDateString()) {
+                        badgeClass = 'bg-dashboard-success';
+                        badgeText = 'Today';
+                    } else {
+                        badgeClass = 'bg-dashboard-info';
+                        badgeText = 'Upcoming';
+                    }
+                } else {
+                    // Unknown status (fallback)
+                    badgeClass = 'bg-dashboard-secondary';
+                    badgeText = registration.status || 'Unknown Status';
+                }
+                
+                // Card HTML - update image paths with fixImagePath
+                const card = document.createElement('div');
+                card.className = 'bg-dashboard-card-bg dark:bg-dashboard-card-bg rounded-2xl shadow-md overflow-hidden';
+                card.innerHTML = `
+                    <div class="flex flex-col md:flex-row">
+                        <div class="md:w-1/4 h-44 md:h-auto relative">
+                            <img src="${fixImagePath(registration.thumbnail_url)}" alt="${registration.title}" class="w-full h-full object-cover">
+                            <div class="absolute top-3 left-3">
+                                <span class="${badgeClass} text-white text-xs font-medium px-2 py-1 rounded-full">
+                                    ${badgeText}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6 md:w-3/4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex flex-col md:flex-row md:items-center justify-between mb-2">
+                                    <h2 class="text-xl font-bold">${registration.title}</h2>
+                                    <span class="inline-block mt-2 md:mt-0 ${badgeClass} text-white text-xs px-3 py-1 rounded-full">
+                                        ${badgeText}
+                                    </span>
+                                </div>
+                                <div class="flex flex-wrap gap-y-2 text-dashboard-text-secondary mb-4">
+                                    <div class="mr-4 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="text-sm">${eventDate}</span>
+                                    </div>
+                                    <div class="mr-4 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7v10M8 7v10m8-5H8" />
+                                        </svg>
+                                        <span class="text-sm">${startTime} - ${endTime}</span>
+                                    </div>
+                                    <div class="mr-4 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span class="text-sm">Registered: ${new Date(registration.registration_date).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                                <p class="text-base mb-4">
+                                    ${registration.description || 'No description available.'}
+                                </p>
+                                
+                                ${registration.status === 'pending' ? 
+                                    `<div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 text-yellow-800 dark:text-yellow-300 rounded-lg p-3 mb-4">
+                                        <div class="flex items-center">
+                                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <p class="font-medium">Your registration is pending administrator approval</p>
+                                        </div>
+                                    </div>` : 
+                                    ''
+                                }
+                                
+                                ${registration.status === 'cancelled' ? 
+                                    `<div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-3 mb-4">
+                                        <div class="flex items-center">
+                                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            <p class="font-medium">Your registration has been cancelled by the administrator</p>
+                                        </div>
+                                    </div>` : 
+                                    ''
+                                }
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center mb-2 sm:mb-0">
+                                    <img src="${fixImagePath(registration.organizer_image || CONFIG.ORGANIZATION_PLACEHOLDER_IMAGE_PATH )}" alt="Organizer" class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <p class="text-sm font-semibold">${registration.organizer_name || 'Event Organizer'}</p>
+                                        <p class="text-xs text-dashboard-text-secondary">${registration.organizer_description || 'Event Host'}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="event-details.html?id=${registration.event_id}" class="inline-block bg-theme-primary text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-theme-primary-dark transition">
+                                        View Details
+                                    </a>
+                                    ${registration.status === 'pending' || registration.status === 'confirmed' && !registration.isPast ? 
+                                        `<button class="cancel-registration-btn ml-2 inline-block bg-white dark:bg-gray-800 text-red-500 border border-red-200 dark:border-red-800/30 rounded-lg px-4 py-2 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition" data-registration-id="${registration.registration_id}">
+                                            Cancel
+                                        </button>` : 
+                                        ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add event listener to cancel button if present
+                const cancelBtn = card.querySelector('.cancel-registration-btn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        const registrationId = this.getAttribute('data-registration-id');
+                        cancelRegistration(registrationId); // Use our new cancelRegistration function without the confirm dialog
+                    });
+                }
+                
+                return card;
+            }
+            
+            // Function to set active tab
+            function setActiveTab(tab) {
+                currentTab = tab;
+                
+                if (tab === 'upcoming') {
+                    tabUpcoming.classList.add('border-theme-primary', 'text-theme-primary');
+                    tabUpcoming.classList.remove('border-transparent', 'text-dashboard-text-secondary');
+                    
+                    tabPast.classList.remove('border-theme-primary', 'text-theme-primary');
+                    tabPast.classList.add('border-transparent', 'text-dashboard-text-secondary');
+                } else {
+                    tabPast.classList.add('border-theme-primary', 'text-theme-primary');
+                    tabPast.classList.remove('border-transparent', 'text-dashboard-text-secondary');
+                    
+                    tabUpcoming.classList.remove('border-theme-primary', 'text-theme-primary');
+                    tabUpcoming.classList.add('border-transparent', 'text-dashboard-text-secondary');
+                }
+            }
+            
+            // Function to show error state
+            function showError(message) {
+                loadingState.classList.add('hidden');
+                registrationsContainer.classList.add('hidden');
+                emptyState.classList.add('hidden');
+                
+                errorState.classList.remove('hidden');
+                errorMessage.textContent = message || 'An error occurred while loading your registrations.';
+            }
+            
+            // Update the cancelRegistration function
+            function cancelRegistration(registrationId) {
+                // Find the registration object to get its event_id
+                const registration = registrations.find(reg => reg.registration_id == registrationId);
+                
+                if (!registration) {
+                    showError("Could not find registration details");
+                    return;
+                }
+
+                showConfirmModal(
+                    'Cancel Registration',
+                    'Are you sure you want to cancel your registration for this event? This action cannot be undone.',
+                    () => {
+                        // Show loading indicator
+                        loadingState.classList.remove('hidden');
+                        
+                        fetch('../api/event-registration.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                action: 'cancel',
+                                event_id: registration.event_id,
+                                registration_id: registrationId
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Server responded with status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (!data.success) {
+                                throw new Error(data.message || "Failed to cancel registration");
+                            }
+                            
+                            // Show success message
+                            showSuccessModal(
+                                "Registration Cancelled",
+                                "Your registration has been cancelled successfully.",
+                                () => {
+                                    // Remove the cancelled registration from our local array
+                                    registrations = registrations.filter(reg => reg.registration_id != registrationId);
+                                    
+                                    // Update the UI with new registration counts and list
+                                    processRegistrations();
+                                    displayRegistrations();
+                                }
+                            );
+                        })
+                        .catch(error => {
+                            console.error('Error cancelling registration:', error);
+                            showError(error.message);
+                        })
+                        .finally(() => {
+                            // Hide loading indicator
+                            loadingState.classList.add('hidden');
+                        });
+                    },
+                    () => {
+                        // User cancelled the confirmation dialog
+                        console.log('Cancellation aborted by the student.');
+                    }
+                );
+            }
+            
+            // Modal utility functions
+            function showConfirmModal(title, message, onConfirm, onCancel) {
+                // First, check if the modal element exists
+                let modal = document.getElementById('confirm-modal');
+                
+                // If it doesn't exist, create it dynamically
+                if (!modal) {
+                    // Create the modal elements
+                    modal = document.createElement('div');
+                    modal.id = 'confirm-modal';
+                    modal.className = 'fixed inset-0 flex items-center justify-center z-50 hidden';
+                    
+                    const modalHTML = `
+                        <div class="absolute inset-0 bg-black opacity-30" id="confirm-modal-backdrop"></div>
+                        <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+                            <div class="p-6">
+                                <div class="flex items-center justify-center mb-4">
+                                    <div class="bg-yellow-100 dark:bg-yellow-900/30 rounded-full p-3">
+                                        <svg class="w-8 h-8 text-yellow-500 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-lg font-bold text-center mb-2" id="confirm-modal-title">Confirm Action</h3>
+                                <p class="text-center text-gray-600 dark:text-gray-300 mb-6" id="confirm-modal-message">Are you sure you want to perform this action?</p>
+                                <div class="flex justify-center space-x-4">
+                                    <button id="confirm-modal-cancel" class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg px-6 py-2 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                        Cancel
+                                    </button>
+                                    <button id="confirm-modal-confirm" class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition">
+                                        Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    modal.innerHTML = modalHTML;
+                    document.body.appendChild(modal);
+                }
+                
+                // Get modal elements
+                const titleEl = document.getElementById('confirm-modal-title');
+                const messageEl = document.getElementById('confirm-modal-message');
+                const confirmBtn = document.getElementById('confirm-modal-confirm');
+                const cancelBtn = document.getElementById('confirm-modal-cancel');
+                const backdrop = document.getElementById('confirm-modal-backdrop');
+                
+                // Set modal content
+                titleEl.textContent = title || 'Confirm Action';
+                messageEl.textContent = message || 'Are you sure you want to perform this action?';
+                
+                // Show the modal
+                modal.classList.remove('hidden');
+                
+                // Clean up previous event listeners if any
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                const newCancelBtn = cancelBtn.cloneNode(true);
+                const newBackdrop = backdrop.cloneNode(true);
+                
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+                backdrop.parentNode.replaceChild(newBackdrop, backdrop);
+                
+                // Function to close the modal
+                const closeModal = () => {
+                    modal.classList.add('hidden');
+                };
+                
+                // Setup event listeners
+                newConfirmBtn.addEventListener('click', () => {
+                    closeModal();
+                    if (onConfirm && typeof onConfirm === 'function') {
+                        onConfirm();
+                    }
+                });
+                
+                newCancelBtn.addEventListener('click', () => {
+                    closeModal();
+                    if (onCancel && typeof onCancel === 'function') {
+                        onCancel();
+                    }
+                });
+                
+                newBackdrop.addEventListener('click', () => {
+                    closeModal();
+                    if (onCancel && typeof onCancel === 'function') {
+                        onCancel();
+                    }
+                });
+            }
+            
+            // Add the Success Modal function after the showConfirmModal function
+            function showSuccessModal(title, message, onClose) {
+                // First, check if the modal element exists
+                let modal = document.getElementById('success-modal');
+                
+                // If it doesn't exist, create it dynamically
+                if (!modal) {
+                    // Create the modal elements
+                    modal = document.createElement('div');
+                    modal.id = 'success-modal';
+                    modal.className = 'fixed inset-0 flex items-center justify-center z-50 hidden';
+                    
+                    const modalHTML = `
+                        <div class="absolute inset-0 bg-black opacity-30" id="success-modal-backdrop"></div>
+                        <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+                            <div class="p-6">
+                                <div class="flex items-center justify-center mb-4">
+                                    <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
+                                        <svg class="w-8 h-8 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 class="text-lg font-bold text-center mb-2" id="success-modal-title">Success</h3>
+                                <p class="text-center text-gray-600 dark:text-gray-300 mb-6" id="success-modal-message">Action completed successfully.</p>
+                                <div class="flex justify-center">
+                                    <button id="success-modal-close" class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition">
+                                        OK
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    modal.innerHTML = modalHTML;
+                    document.body.appendChild(modal);
+                }
+                
+                // Get modal elements
+                const titleEl = document.getElementById('success-modal-title');
+                const messageEl = document.getElementById('success-modal-message');
+                const closeBtn = document.getElementById('success-modal-close');
+                const backdrop = document.getElementById('success-modal-backdrop');
+                
+                // Set modal content
+                titleEl.textContent = title || 'Success';
+                messageEl.textContent = message || 'Action completed successfully.';
+                
+                // Show the modal
+                modal.classList.remove('hidden');
+                
+                // Clean up previous event listeners if any
+                const newCloseBtn = closeBtn.cloneNode(true);
+                const newBackdrop = backdrop.cloneNode(true);
+                
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                backdrop.parentNode.replaceChild(newBackdrop, backdrop);
+                
+                // Function to close the modal
+                const closeModal = () => {
+                    modal.classList.add('hidden');
+                    if (onClose && typeof onClose === 'function') {
+                        onClose();
+                    }
+                };
+                
+                // Setup event listeners
+                newCloseBtn.addEventListener('click', closeModal);
+                newBackdrop.addEventListener('click', closeModal);
+            }
+
+            
+        });
+    </script>
+        <script>
+      // Ensure DOM is fully loaded before loading the AI assistant
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a short moment to ensure all other DOM operations are complete
+        setTimeout(function () {
+          // Create and add the script element
+          const script = document.createElement("script");
+          script.src = "../js/ai-assistant.js";
+          document.body.appendChild(script);
+        }, 500);
+      });
+    </script>
+    <script src="../js/models.js"></script>
+</body>
+</html>

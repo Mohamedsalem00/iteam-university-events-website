@@ -1,0 +1,53 @@
+:root {
+    --dashboard-primary: #0077b6;
+    --dashboard-primary-hover: #0369a1;
+    
+    --theme-primary: #0077b6;
+    --theme-secondary: #0369a1;
+
+    --dashboard-bg: #f8f9fa;
+    --dashboard-card-bg: #ffffff;
+    --dashboard-text: #343a40;
+    --dashboard-text-secondary: #6c757d;
+    --dashboard-border: #e9ecef;
+    --dashboard-success: #28a745;
+    --dashboard-danger: #dc3545;
+    --dashboard-warning: #ffc107;
+    --dashboard-info: #17a2b8;
+    --dashboard-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --dashboard-shadow-hover: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --dashboard-radius: 0.5rem;
+
+    /* AI Assistant color variables */
+    --primary-50: #eff6ff;
+    --primary-100: #dbeafe;
+    --primary-200: #bfdbfe;
+    --primary-300: #93c5fd;
+    --primary-400: #60a5fa;
+    --primary-500: #3b82f6;
+    --primary-600: #2563eb;
+    --primary-700: #1d4ed8;
+    --primary-800: #1e40af;
+    --primary-900: #1e3a8a;
+    --primary-950: #172554;
+}
+
+:root.dark {
+    --dashboard-primary: #3498db;
+    --dashboard-primary-hover: #2980b9;
+
+    --theme-primary: #3498db;
+    --theme-secondary: #2980b9;
+
+    --dashboard-bg: #121212;
+    --dashboard-card-bg: #1e1e1e;
+    --dashboard-text: #e0e0e0;
+    --dashboard-text-secondary: #b0b0b0;
+    --dashboard-border: #3a3a3a;
+    --dashboard-success: #4caf50;
+    --dashboard-danger: #f44336;
+    --dashboard-warning: #ffeb3b;
+    --dashboard-info: #2196f3;
+    --dashboard-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --dashboard-shadow-hover: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+}

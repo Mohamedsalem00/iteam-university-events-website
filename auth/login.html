@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+</script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+     <script src="../frontend/js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../frontend/js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../frontend/css/styles.css">
+    <link rel="icon" href="../frontend/assets/images/favicon.svg" type="image/svg+xml">
+    <title>Login - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+    
+    <!-- Login Section -->
+    <section class="pt-16 pb-12">
+        <div class="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 mt-10">
+            <div class="mb-6 text-center">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Sign in to access your account</p>
+            </div>
+            
+            <div id="login-alert" class="mb-4 p-3 rounded text-sm hidden"></div>
+            
+            <!-- Account Type Selector -->
+            <div class="mb-6">
+                <div class="flex">
+                    <button id="student-tab" class="w-1/2 py-2 text-center border-b-2 border-theme-primary text-theme-primary font-medium">
+                        Student
+                    </button>
+                    <button id="organization-tab" class="w-1/2 py-2 text-center border-b-2 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400">
+                        Organization
+                    </button>
+                </div>
+            </div>
+            
+            <form id="login-form">
+                <!-- Common fields for both account types -->
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Email Address</label>
+                    <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Password</label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white pr-10" required>
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center">
+                        <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-theme-primary focus:ring-theme-primary border-gray-300 rounded">
+                        <label for="remember" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                            Remember me
+                        </label>
+                    </div>
+                    
+                    <div class="text-sm">
+                        <a href="#" class="text-theme-primary hover:text-theme-secondary">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="action" value="login">
+                <input type="hidden" id="account_type" name="account_type" value="student">
+                
+                <div class="mb-6">
+                    <button type="submit" id="login-btn" class="w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Don't have an account? 
+                    <a href="signup.html" class="text-theme-primary hover:text-theme-secondary">
+                        Sign up
+                    </a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="../frontend/js/config.js"></script>
+    <!-- <script src="../js/main.js"></script> -->
+    <!-- <script src="../js/components.js"></script> -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const studentTab = document.getElementById('student-tab');
+        const organizationTab = document.getElementById('organization-tab');
+        const userTypeInput = document.getElementById('account_type');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        
+        // Set default account type
+        let currentUserType = 'student'; // Default to student
+        
+        // Toggle between student and organization
+        studentTab.addEventListener('click', () => {
+            studentTab.classList.remove('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            studentTab.classList.add('border-theme-primary', 'text-theme-primary', 'font-medium');
+            
+            organizationTab.classList.remove('border-theme-primary', 'text-theme-primary', 'font-medium');
+            organizationTab.classList.add('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            
+            userTypeInput.value = 'student';
+            currentUserType = 'student';
+            
+            // Update placeholders and labels as needed
+            emailInput.placeholder = 'Student Email Address';
+        });
+        
+        organizationTab.addEventListener('click', () => {
+            organizationTab.classList.remove('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            organizationTab.classList.add('border-theme-primary', 'text-theme-primary', 'font-medium');
+            
+            studentTab.classList.remove('border-theme-primary', 'text-theme-primary', 'font-medium');
+            studentTab.classList.add('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            
+            userTypeInput.value = 'organization';
+            currentUserType = 'organization';
+            
+            // Update placeholders and labels as needed
+            emailInput.placeholder = 'Organization Email Address';
+        });
+        
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Update the eye icon
+            const eyeIcon = togglePasswordBtn.querySelector('svg');
+            if (type === 'text') {
+                eyeIcon.innerHTML = `
+                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
+                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                `;
+            } else {
+                eyeIcon.innerHTML = `
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                `;
+            }
+        });
+        
+        // Check if student is already logged in
+        fetch('../backend/api/auth/auth.php?check=1')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.student) {
+                    // Get user type from the response
+                    const userType = data.student.type || 'student';
+                    
+                    // Determine redirect based on user type
+                    let redirectUrl;
+                    if (userType === 'organization') {
+                        redirectUrl = CONFIG.ORGANIZATION_DASHBOARD_PATH;
+                        console.log('Already logged in as organization, redirecting to dashboard');
+                    } else {
+                        // For students, redirect to student index page
+                        redirectUrl = CONFIG.STUDENT_PATH + '/index.html';
+                        console.log('Already logged in as student, redirecting to student index');
+                    }
+                    
+                    // Redirect to the appropriate page
+                    window.location.href = redirectUrl;
+                }
+            })
+            .catch(error => console.error('Auth check error:', error));
+            
+        // Form submission
+        const form = document.getElementById('login-form');
+        const loginBtn = document.getElementById('login-btn');
+        const loginAlert = document.getElementById('login-alert');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide previous alerts
+            loginAlert.classList.add('hidden');
+            
+            // Show loading state
+            loginBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Signing in...';
+            loginBtn.disabled = true;
+            
+            // Submit form
+            const formData = new FormData(form);
+            
+            fetch('../backend/api/auth/auth.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                // First check if the response is valid
+                if (!response.ok) {
+                    throw new Error('Server responded with status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update the login success handler in your script to store the student ID
+
+if (data.success) {
+    // Successful login
+    loginAlert.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'border-red-200');
+    loginAlert.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-200');
+    loginAlert.innerHTML = 'Login successful! Redirecting...';
+    
+    // Store basic user info in localStorage for quick access
+    localStorage.setItem('userType', data.student.type);
+    localStorage.setItem('userName', data.student.name);
+    localStorage.setItem('userEmail', data.student.email);
+    localStorage.setItem('studentId', data.student.id); // Store the actual student ID
+    localStorage.setItem('accountId', data.student.account_id); // Still store account ID if needed elsewhere
+    
+    // Get user type for redirection
+    const userType = data.student.type;
+    let redirectUrl;
+    
+    // Check if there's a saved redirect URL
+    const savedRedirect = localStorage.getItem('redirectAfterLogin');
+    if (savedRedirect) {
+        localStorage.removeItem('redirectAfterLogin'); // Clear the saved URL
+        
+        // Verify the redirect URL is within our site
+        if ((userType === 'student' && savedRedirect.includes('/student/')) || 
+            (userType === 'organization' && savedRedirect.includes('/organization/'))) {
+            redirectUrl = savedRedirect;
+        }
+    }
+    
+    // If no valid saved redirect, use default based on user type
+    if (!redirectUrl) {
+        if (userType === 'student') {
+            redirectUrl = CONFIG.INDEX_PATH;
+        } else if (userType === 'organization') {
+            redirectUrl = CONFIG.ORGANIZATION_DASHBOARD_PATH;
+        } else {
+            // Default fallback
+            redirectUrl = CONFIG.INDEX_PATH;
+        }
+    }
+    
+    // Perform redirection
+    setTimeout(() => {
+        window.location.href = redirectUrl;
+        console.log('Redirecting to:', redirectUrl);
+    }, 1000);
+} else {
+                    // Failed login
+                    loginBtn.innerHTML = 'Sign In';
+                    loginBtn.disabled = false;
+                    
+                    loginAlert.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'border-green-200');
+                    loginAlert.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+                    loginAlert.innerHTML = data.message || 'Invalid email or password.';
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                
+                // Reset button
+                loginBtn.innerHTML = 'Sign In';
+                loginBtn.disabled = false;
+                
+                // Show detailed error
+                loginAlert.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'border-green-200');
+                loginAlert.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+                loginAlert.innerHTML = 'Error: ' + error.message;
+
+                // Add debug info for troubleshooting
+                console.log('Form data being submitted:');
+                for (let pair of formData.entries()) {
+                    console.log(pair[0] + ': ' + pair[1]); 
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+              950: '#172554',
+            }
+          },
+          animation: {
+            'spin-slow': 'spin 3s linear infinite',
+            'bounce-slow': 'bounce 2s infinite',
+            'fade-in': 'fadeIn 0.3s ease-out',
+            'fade-out': 'fadeOut 0.3s ease-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'slide-down': 'slideDown 0.3s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            fadeOut: {
+              '0%': { opacity: '1' },
+              '100%': { opacity: '0' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(0)', opacity: '1' },
+              '100%': { transform: 'translateY(20px)', opacity: '0' },
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <title>AI Event Assistant</title>
+  <!-- Detect system dark mode preference and apply it immediately to prevent flash -->
+  <script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+  <style>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    /* Auto-resize textarea */
+    .auto-resize {
+      min-height: 40px;
+      resize: none;
+      overflow: hidden;
+      max-height: 150px;
+    }
+    
+    /* Custom animation for chat bubble */
+    @keyframes bubbleIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-bubble {
+      animation: bubbleIn 0.3s ease-out forwards;
+    }
+    
+    /* Pulsating effect for button */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    .animate-pulse-ring {
+      animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+    }
+
+
+/* Subtle pattern background */
+.bg-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Message bubble styles */
+.animate-bubble {
+  animation: bubbleIn 0.3s ease-out forwards;
+  transform-origin: left bottom;
+}
+
+/* Improved floating button */
+#assistantBtn {
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5);
+  transition: all 0.3s ease;
+}
+
+#assistantBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.6);
+}
+
+/* Custom scrollbar for browsers that support it */
+#chatContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chatContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chatContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 20px;
+}
+
+/* Message typing indicator */
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}
+
+.typing-indicator span {
+  animation: blink 1.4s infinite both;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body class="h-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
+  
+  <!-- Floating Button with Tooltip -->
+  <div class="fixed bottom-6 right-6 z-50 group">
+    <!-- Tooltip -->
+    <div class="absolute bottom-full right-0 mb-2 w-auto p-2 bg-black text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-300">
+      Open Event Assistant
+    </div>
+    
+    <!-- Button -->
+    <button id="assistantBtn" aria-label="Open AI assistant" 
+      class="bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white p-3.5 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-900">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Chat Modal -->
+  <div id="assistantModal" class="fixed inset-0 z-40 hidden">
+    <!-- Overlay for mobile -->
+    <div class="md:hidden absolute inset-0 bg-black bg-opacity-50" id="modalOverlay"></div>
+    
+    <!-- Modal Container - desktop: floating box, mobile: bottom sheet -->
+<div id="modalContainer" class="absolute flex flex-col overflow-hidden 
+  md:w-96 md:h-[500px] md:max-h-[80vh] md:bottom-20 md:right-6 md:left-auto md:rounded-xl
+  w-full h-[85vh] bottom-0 left-0 right-0 rounded-t-xl
+  bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700
+  transition-all duration-300 ease-in-out animate-slide-up">
+  
+
+<div id="modalHeader" class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-800 dark:to-primary-900 text-white">
+
+    <div class="md:hidden absolute left-1/2 -translate-x-1/2 top-1.5 w-10 h-1 bg-white/50 rounded-full"></div>
+    
+    <div class="flex items-center">
+      <div class="bg-white/20 p-1.5 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polygon points="10 8 16 12 10 16 10 8"></polygon>
+        </svg>
+      </div>
+      <h2 class="text-lg font-semibold ml-2">Event Assistant</h2>
+    </div>
+    
+    <div class="flex items-center space-x-2">
+      <!-- Theme toggle -->
+      <button id="themeToggle" class="p-1 rounded-full hover:bg-white/20 transition-colors">
+        <!-- Sun icon for dark mode -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <!-- Moon icon for light mode -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+      
+      <!-- Close button -->
+      <button id="closeModal" class="p-1 rounded-full hover:bg-white/20 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Improved Chat Messages Container with subtle pattern background -->
+  <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar bg-gray-50 dark:bg-gray-850 dark:bg-opacity-50 bg-pattern">
+    <!-- Welcome Message -->
+    <div class="flex">
+      <div class="flex-shrink-0 mr-3">
+        <div class="h-9 w-9 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="10 8 16 12 10 16 10 8"></polygon>
+          </svg>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-gray-700 p-3 rounded-lg rounded-tl-none max-w-[85%] shadow-sm animate-bubble">
+        <p class="text-sm">Hi there! 👋 I'm your Event Assistant, ready to help you discover campus events. What type of events are you interested in?</p>
+      </div>
+    </div>
+    
+    <!-- Messages will be inserted here dynamically -->
+  </div>
+  
+  <!-- Enhanced Input Area with suggestions -->
+  <div class="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <!-- Quick suggestions -->
+    <div class="mb-2 flex flex-wrap gap-1">
+      <button class="suggestion-btn px-2 py-1 text-xs rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors">Upcoming events</button>
+      <button class="suggestion-btn px-2 py-1 text-xs rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors">How to register</button>
+      <button class="suggestion-btn px-2 py-1 text-xs rounded-full bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-900 transition-colors">This weekend</button>
+    </div>
+    
+    <div class="relative">
+      <textarea id="userInput" rows="1" 
+        placeholder="Ask about events, clubs, or activities..."
+        class="auto-resize w-full pl-3 pr-12 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600 dark:text-white transition-all"></textarea>
+      
+      <button id="sendButton" class="absolute right-2 bottom-2 p-1.5 rounded-full bg-primary-600 hover:bg-primary-700 dark:bg-primary-700 dark:hover:bg-primary-800 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <!-- Loading spinner (hidden by default) -->
+        <svg id="loadingSpinner" class="hidden h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        
+        <!-- Send icon -->
+        <svg id="sendIcon" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">Press Enter to send, Shift+Enter for new line</p>
+  </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // DOM Elements
+      const assistantBtn = document.getElementById('assistantBtn');
+      const assistantModal = document.getElementById('assistantModal');
+      const modalContainer = document.getElementById('modalContainer');
+      const modalHeader = document.getElementById('modalHeader');
+      const modalOverlay = document.getElementById('modalOverlay');
+      const closeModal = document.getElementById('closeModal');
+      const themeToggle = document.getElementById('themeToggle');
+      const userInput = document.getElementById('userInput');
+      const sendButton = document.getElementById('sendButton');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+      const sendIcon = document.getElementById('sendIcon');
+      const chatContainer = document.getElementById('chatContainer');
+      const suggestionButtons = document.querySelectorAll('.suggestion-btn');
+      
+      // Add click event handlers to suggestion buttons
+      suggestionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Set the input value to the button text
+          userInput.value = this.textContent;
+          
+          // Immediately send the message
+          sendMessage();
+        });
+      });
+      
+      // Utility function to escape HTML
+      function escapeHTML(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      // Format message text (convert URLs to links, preserve formatting)
+      function formatMessageText(text) {
+        // Remove the card function since we're not using it anymore
+        
+        // Escape HTML for content
+        let formattedText = escapeHTML(text);
+        
+        // Convert markdown-style links [text](url) to HTML links
+        formattedText = formattedText.replace(
+          /\[([^\]]+)\]\(([^)]+)\)/g, 
+          '<a href="$2" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300">$1</a>'
+        );
+        
+        // Convert URLs to clickable links
+        formattedText = formattedText.replace(
+          /(https?:\/\/[^\s]+)/g, 
+          '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300">$1</a>'
+        );
+        
+        // Preserve line breaks
+        formattedText = formattedText.replace(/\n/g, '<br>');
+        
+        // Bold text between asterisks
+        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        return formattedText;
+      }
+      
+      
+      
+    
+
+      // Toggle modal visibility
+      function toggleAssistant() {
+        if (assistantModal.classList.contains('hidden')) {
+          assistantModal.classList.remove('hidden');
+          // On mobile, slide up from bottom; on desktop, slide in from right
+          if (window.innerWidth < 768) {
+            modalContainer.classList.add('animate-slide-up');
+            modalContainer.classList.remove('animate-slide-down');
+          } else {
+            modalContainer.classList.add('animate-fade-in');
+            modalContainer.classList.remove('animate-fade-out');
+            // Reset position to default
+            modalContainer.style.right = '';
+            modalContainer.style.bottom = '';
+          }
+          // Focus the input field
+          setTimeout(() => userInput.focus(), 300);
+        } else {
+          closeAssistant();
+        }
+      }
+      
+      // Close the assistant modal with animation
+      function closeAssistant() {
+        if (window.innerWidth < 768) {
+          modalContainer.classList.remove('animate-slide-up');
+          modalContainer.classList.add('animate-slide-down');
+        } else {
+          modalContainer.classList.remove('animate-fade-in');
+          modalContainer.classList.add('animate-fade-out');
+        }
+        
+        // Wait for animation to complete before hiding
+        setTimeout(() => {
+          assistantModal.classList.add('hidden');
+        }, 280);
+      }
+      
+      // Auto-resize textarea
+      function autoResizeTextarea() {
+        userInput.style.height = 'auto';
+        userInput.style.height = (userInput.scrollHeight) + 'px';
+      }
+      
+      // Toggle dark/light theme
+      function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.theme = 'light';
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.theme = 'dark';
+        }
+      }
+      
+      // Send message to AI
+      function sendMessage() {
+        const messageText = userInput.value.trim();
+        if (!messageText) return;
+        
+        // Disable input and button during request
+        userInput.disabled = true;
+        sendButton.disabled = true;
+        loadingSpinner.classList.remove('hidden');
+        sendIcon.classList.add('hidden');
+        
+        // Add student message to chat
+        addChatMessage(messageText, 'student');
+        
+        // Clear input
+        userInput.value = '';
+        userInput.style.height = 'auto';
+        
+        // Scroll to bottom
+        scrollToBottom();
+        
+        // Send to backend
+        fetch('ai_assist.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: messageText })
+        })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(data => {
+          // Get response content
+          const aiResponse = data.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response.";
+          
+          // Add AI response to chat
+          addChatMessage(aiResponse, 'ai');
+        })
+        .catch(err => {
+          addChatMessage(`Error: ${err.message}. Please try again later.`, 'error');
+        })
+        .finally(() => {
+          // Re-enable input and button
+          userInput.disabled = false;
+          sendButton.disabled = false;
+          loadingSpinner.classList.add('hidden');
+          sendIcon.classList.remove('hidden');
+          userInput.focus();
+        });
+      }
+      
+      // Add message to chat
+      function addChatMessage(text, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex ' + (type === 'student' ? 'justify-end' : '');
+        
+        let htmlContent = '';
+        
+        if (type === 'student') {
+          // student message (right aligned)
+          htmlContent = `
+            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-lg rounded-tr-none max-w-[85%] shadow-sm animate-bubble">
+              <p class="text-sm text-gray-800 dark:text-gray-100">${escapeHTML(text)}</p>
+            </div>
+            <div class="flex-shrink-0 ml-3">
+              <div class="h-9 w-9 rounded-full bg-primary-500 dark:bg-primary-700 flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+            </div>
+          `;
+        } else if (type === 'ai' || type === 'error') {
+          // AI or error message (left aligned)
+          const bgColor = type === 'error' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-white dark:bg-gray-700';
+          const iconColor = type === 'error' ? 'bg-red-200 dark:bg-red-900 text-red-700 dark:text-red-300' : 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300';
+          const iconSvg = type === 'error' 
+            ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>';
+            
+          htmlContent = `
+            <div class="flex-shrink-0 mr-3">
+              <div class="h-9 w-9 rounded-full ${iconColor} flex items-center justify-center">
+                ${iconSvg}
+              </div>
+            </div>
+            <div class="${bgColor} p-3 rounded-lg rounded-tl-none max-w-[85%] shadow-sm animate-bubble">
+              <p class="text-sm">${formatMessageText(text)}</p>
+            </div>
+          `;
+        }
+        
+        messageDiv.innerHTML = htmlContent;
+        chatContainer.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        scrollToBottom();
+      }
+
+      // Scroll chat to bottom
+      function scrollToBottom() {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      // Event listeners
+      assistantBtn.addEventListener('click', toggleAssistant);
+      closeModal.addEventListener('click', closeAssistant);
+      modalOverlay?.addEventListener('click', closeAssistant);
+      themeToggle.addEventListener('click', toggleTheme);
+      
+      // Input handling
+      userInput.addEventListener('input', autoResizeTextarea);
+      userInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      sendButton.addEventListener('click', sendMessage);
+    });
+  </script>
+</body>
+</html>

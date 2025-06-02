@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../frontend/js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../frontend/js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../frontend/css/styles.css">
+    <link rel="icon" href="../frontend/assets/images/favicon.svg" type="image/svg+xml">
+    <title>Register - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+
+
+    <!-- Registration Section -->
+    <section class="pt-16 pb-12">
+        <div class="max-w-lg mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden p-6 mt-10">
+            <div class="mb-6 text-center">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Create an Account</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-2">Join our event management platform</p>
+            </div>
+            
+            <div id="register-alert" class="mb-4 p-3 rounded text-sm hidden"></div>
+            
+            <!-- Account Type Selector -->
+            <div class="mb-6">
+                <div class="flex">
+                    <button id="student-tab" class="w-1/2 py-2 text-center border-b-2 border-theme-primary text-theme-primary font-medium">
+                        Student
+                    </button>
+                    <button id="organization-tab" class="w-1/2 py-2 text-center border-b-2 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400">
+                        Organization
+                    </button>
+                </div>
+            </div>
+            
+            <form id="register-form">
+                <!-- Common fields for both account types -->
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Email Address <span class="text-red-500">*</span></label>
+                    <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white pr-10" required>
+                        <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="password-hint" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Password must be at least 8 characters with uppercase, lowercase, and numbers.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="confirm_password" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Confirm Password <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input type="password" id="confirm_password" name="confirm_password" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white pr-10" required>
+                    </div>
+                </div>
+                
+                <!-- Student specific fields -->
+                <div id="student-fields">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="first_name" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">First Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="first_name" name="first_name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Last Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="last_name" name="last_name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Organization specific fields -->
+                <div id="organization-fields" class="hidden">
+                    <div class="mb-4">
+                        <label for="org_name" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Organization Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="org_name" name="org_name" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="description" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2">Description</label>
+                        <textarea id="description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary dark:bg-gray-700 dark:text-white"></textarea>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex items-center">
+                        <input id="terms" name="terms" type="checkbox" class="h-4 w-4 text-theme-primary focus:ring-theme-primary border-gray-300 rounded" required>
+                        <label for="terms" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                            I agree to the <a href="#" class="text-theme-primary hover:text-theme-secondary">Terms of Service</a> and <a href="#" class="text-theme-primary hover:text-theme-secondary">Privacy Policy</a>
+                        </label>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="user_type" id="user_type" value="user">
+                
+                <div class="mb-6">
+                    <button type="submit" id="register-btn" class="w-full bg-theme-primary text-white py-2 px-4 rounded-md hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Already have an account? 
+                    <a href="login.html" class="text-theme-primary hover:text-theme-secondary">
+                        Sign in
+                    </a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const studentTab = document.getElementById('student-tab');
+        const organizationTab = document.getElementById('organization-tab');
+        const userTypeInput = document.getElementById('user_type');
+        const studentFields = document.getElementById('student-fields');
+        const organizationFields = document.getElementById('organization-fields');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const togglePasswordBtn = document.getElementById('toggle-password');
+        
+        // Set default account type
+        let currentUserType = 'user'; // Default to student
+        
+        // Toggle between student and organization
+        studentTab.addEventListener('click', () => {
+            studentTab.classList.remove('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            studentTab.classList.add('border-theme-primary', 'text-theme-primary', 'font-medium');
+            
+            organizationTab.classList.remove('border-theme-primary', 'text-theme-primary', 'font-medium');
+            organizationTab.classList.add('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            
+            studentFields.classList.remove('hidden');
+            organizationFields.classList.add('hidden');
+            
+            userTypeInput.value = 'user';
+            currentUserType = 'user';
+            
+            // Update form requirements
+            document.getElementById('first_name').required = true;
+            document.getElementById('last_name').required = true;
+            document.getElementById('org_name').required = false;
+            
+            // Update placeholders and labels as needed
+            emailInput.placeholder = 'Student Email Address';
+        });
+        
+        organizationTab.addEventListener('click', () => {
+            organizationTab.classList.remove('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            organizationTab.classList.add('border-theme-primary', 'text-theme-primary', 'font-medium');
+            
+            studentTab.classList.remove('border-theme-primary', 'text-theme-primary', 'font-medium');
+            studentTab.classList.add('border-gray-200', 'dark:border-gray-700', 'text-gray-500', 'dark:text-gray-400');
+            
+            studentFields.classList.add('hidden');
+            organizationFields.classList.remove('hidden');
+            
+            userTypeInput.value = 'organization';
+            currentUserType = 'organization';
+            
+            // Update form requirements
+            document.getElementById('first_name').required = false;
+            document.getElementById('last_name').required = false;
+            document.getElementById('org_name').required = true;
+            
+            // Update placeholders and labels as needed
+            emailInput.placeholder = 'Organization Email Address';
+        });
+        
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            confirmPasswordInput.setAttribute('type', type);
+            
+            // Update the eye icon
+            const eyeIcon = togglePasswordBtn.querySelector('svg');
+            if (type === 'text') {
+                eyeIcon.innerHTML = `
+                    <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
+                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                `;
+            } else {
+                eyeIcon.innerHTML = `
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                `;
+            }
+        });
+        
+        // Check if user is already logged in
+        fetch('./backend/api/auth/auth.php?check=1')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.student) {
+                    // User already logged in, redirect to appropriate dashboard
+                    window.location.href = data.student.dashboard_url || 'index.html';
+                }
+            })
+            .catch(error => console.error('Auth check error:', error));
+            
+        // Form validation
+        const passwordValidation = () => {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            // Minimum 8 characters, at least one uppercase letter, one lowercase letter, and one number
+            const validPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+            const isValid = validPattern.test(password);
+            
+            if (!isValid) {
+                passwordInput.classList.add('border-red-500');
+                document.getElementById('password-hint').classList.add('text-red-500');
+                document.getElementById('password-hint').classList.remove('text-gray-500', 'dark:text-gray-400');
+            } else {
+                passwordInput.classList.remove('border-red-500');
+                document.getElementById('password-hint').classList.remove('text-red-500');
+                document.getElementById('password-hint').classList.add('text-gray-500', 'dark:text-gray-400');
+            }
+            
+            // Check password matching
+            if (password && confirmPassword && password !== confirmPassword) {
+                confirmPasswordInput.classList.add('border-red-500');
+            } else {
+                confirmPasswordInput.classList.remove('border-red-500');
+            }
+            
+            return isValid && (!confirmPassword || password === confirmPassword);
+        };
+        
+        passwordInput.addEventListener('input', passwordValidation);
+        confirmPasswordInput.addEventListener('input', passwordValidation);
+            
+        // Form submission
+        const form = document.getElementById('register-form');
+        const registerBtn = document.getElementById('register-btn');
+        const registerAlert = document.getElementById('register-alert');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Hide previous alerts
+            registerAlert.classList.add('hidden');
+            
+            // Validate password
+            if (!passwordValidation()) {
+                registerAlert.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'border-green-200');
+                registerAlert.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+                registerAlert.innerHTML = 'Please check your password requirements and ensure passwords match.';
+                return;
+            }
+            
+            // Show loading state
+            registerBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Creating Account...';
+            registerBtn.disabled = true;
+            
+            // Submit form
+            const formData = new FormData(form);
+            
+            fetch('./backend/api/auth/singup.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server responded with status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Successful registration
+                    registerAlert.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'border-red-200');
+                    registerAlert.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-200');
+                    registerAlert.innerHTML = 'Registration successful! Redirecting to login page...';
+                    
+                    // Redirect to login page
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    // Failed registration
+                    registerBtn.innerHTML = 'Create Account';
+                    registerBtn.disabled = false;
+                    
+                    registerAlert.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'border-green-200');
+                    registerAlert.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+                    
+                    if (data.errors) {
+                        // Show specific field errors
+                        let errorMessages = '<ul class="list-disc pl-5">';
+                        for (const field in data.errors) {
+                            errorMessages += `<li>${data.errors[field]}</li>`;
+                        }
+                        errorMessages += '</ul>';
+                        registerAlert.innerHTML = errorMessages;
+                    } else {
+                        registerAlert.innerHTML = data.message || 'An error occurred during registration. Please try again.';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Registration error:', error);
+                
+                // Reset button
+                registerBtn.innerHTML = 'Create Account';
+                registerBtn.disabled = false;
+                
+                // Show error
+                registerAlert.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'border-green-200');
+                registerAlert.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-200');
+                registerAlert.innerHTML = 'Error: ' + error.message;
+            });
+        });
+    });
+    </script>
+</body>
+</html>

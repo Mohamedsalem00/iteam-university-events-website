@@ -1,0 +1,209 @@
+<style>
+    /* Initially hide all role-specific links until JS confirms they should be visible */
+    .student-nav-link,
+    .mobile-student-link,
+    .student-only {
+        display: none !important;
+    }
+    
+    /* These classes will be added by JS after checking auth */
+    body.is-student .student-nav-link,
+    body.is-student .mobile-student-link,
+    body.is-student .student-only {
+        display: block !important;
+    }
+    
+    /* For flex items */
+    .nav-link.student-nav-link {
+        display: none !important;
+    }
+    
+    body.is-student .nav-link.student-nav-link {
+        display: flex !important;
+    }
+</style>
+
+<nav class="fixed top-0 w-full z-50 bg-white dark:bg-dashboard-card-bg shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex justify-between items-center">
+        <!-- Logo/Brand -->
+        <a href="/iteam-university-website/" class="flex items-center">
+            <span class="text-xl font-bold ml-2">iTeam University</span>
+        </a>
+        
+        <!-- Main Navigation - Desktop -->
+        <div class="hidden md:flex items-center space-x-6">
+            <a href="/iteam-university-website/" class="nav-link hover:text-theme-primary transition">Home</a>
+            <a href="events.html" class="nav-link hover:text-theme-primary transition">Events</a>
+            <a href="job-offers.html" class="nav-link hover:text-theme-primary transition">Job Offers</a>
+            <!-- Student-only links -->
+            <a href="calendar.html" class="nav-link student-nav-link hidden hover:text-theme-primary transition">Calendar</a>
+            <a href="my-registrations.html" class="nav-link student-nav-link hidden hover:text-theme-primary transition">My Registrations</a>
+            <a href="my-applications.html" class="nav-link student-nav-link hidden hover:text-theme-primary transition">My Applications</a>
+        </div>
+        
+        <!-- Right Side - Auth, Notifications, Profile & Dark Mode Toggle -->
+        <div class="flex items-center space-x-2">
+            <!-- Guest Links (shown when not logged in) -->
+            <div class="flex items-center space-x-2" id="guest-links">
+                <a href="login.html" class="py-2 px-3 text-theme-primary hover:underline">Log In</a>
+                <a href="signup.html" class="ml-2 bg-theme-primary text-white py-2 px-4 rounded-lg hover:bg-theme-primary-hover transition">Sign Up</a>
+            </div>
+            
+            <!-- Student Links (shown when logged in) -->
+            <div class="flex items-center hidden" id="student-links">
+                <!-- Notifications Dropdown -->
+                <div class="relative">
+                    <button id="notification-toggle" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none">
+                        <div class="relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-dashboard-danger"></span>
+                        </div>
+                    </button>
+                    
+                    <!-- Notifications Dropdown Content -->
+                    <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-dashboard-card-bg rounded-md shadow-lg z-20 overflow-hidden">
+                        <div class="p-4 border-b border-dashboard-border dark:border-gray-600 flex justify-between items-center">
+                            <h3 class="font-semibold">Notifications</h3>
+                            <a href="#" class="text-xs text-theme-primary hover:underline">Mark all as read</a>
+                        </div>
+                        <div class="max-h-64 overflow-y-auto">
+                            <!-- Notification Item -->
+                            <a href="#" class="block p-4 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-dashboard-border dark:border-gray-600">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <div class="h-8 w-8 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-theme-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">Your registration for Tech Summit has been confirmed</p>
+                                        <p class="text-xs text-dashboard-text-secondary mt-1">10 minutes ago</p>
+                                    </div>
+                                </div>
+                            </a>
+                            
+                            <!-- Additional notification items -->
+                            <a href="#" class="block p-4 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-dashboard-border dark:border-gray-600">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <div class="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium">New event added: AI Workshop</p>
+                                        <p class="text-xs text-dashboard-text-secondary mt-1">1 hour ago</p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="p-2 text-center border-t border-dashboard-border dark:border-gray-600">
+                            <a href="#" class="text-sm text-theme-primary hover:underline">View all notifications</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Dropdown -->
+                <div class="relative">
+                    <button id="profile-toggle" class="flex items-center focus:outline-none ml-2">
+                        <div class="h-8 w-8 rounded-full bg-theme-primary text-white flex items-center justify-center">
+                            <span class="text-sm font-medium">JS</span>
+                        </div>
+                    </button>
+                    
+                    <!-- Profile Dropdown Content -->
+                    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-dashboard-card-bg rounded-md shadow-lg z-20">
+                        <div class="p-3 border-b border-dashboard-border dark:border-gray-600">
+                            <p class="font-medium student-name">-</p>
+                            <p class="text-sm text-dashboard-text-secondary student-email">-</p>
+                            <span class="student-type-badge mt-1 inline-block text-xs px-2 py-0.5 rounded-full">Student</span>
+                        </div>
+                        <div class="py-1">
+                            <a href="profile.html" class="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Profile</a>
+                            <a href="my-registrations.html" class="student-only block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">My Registrations</a>
+                            <a href="settings.html" class="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700">Settings</a>
+                            <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-dashboard-danger hover:bg-gray-50 dark:hover:bg-gray-700">Log out</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dark Mode Toggle -->
+            <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" viewBox="0 0 20 20" fill="currentColor">
+                    <!-- Sun icon -->
+                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" viewBox="0 0 20 20" fill="currentColor">
+                    <!-- Moon icon -->
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                </svg>
+            </button>
+            
+            <!-- Mobile Menu Button -->
+            <button id="menu-toggle" class="md:hidden p-2 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-dashboard-card-bg shadow-md">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+            <a href="/iteam-university-website/" class="mobile-nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-theme-primary transition">Home</a>
+            <a href="events.html" class="mobile-nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-theme-primary transition">Events</a>
+            <a href="job-offers.html" class="mobile-nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-theme-primary transition">Job Offers</a>
+            <!-- Student-only mobile links -->
+            <a href="calendar.html" class="mobile-nav-link mobile-student-link hidden block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-theme-primary transition">Calendar</a>
+            <a href="my-registrations.html" class="mobile-nav-link mobile-student-link hidden block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-theme-primary transition">My Registrations</a>
+            <a href="my-applications.html" class="mobile-nav-link mobile-student-link hidden block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-theme-primary transition">My Applications</a>
+        </div>
+        <!-- Mobile Guest Links -->
+        <div id="mobile-guest-links" class="px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+            <div class="flex flex-col space-y-3">
+                <a href="login.html" class="px-3 py-2 text-center text-theme-primary border border-theme-primary rounded-lg hover:bg-theme-primary hover:text-white transition">Log In</a>
+                <a href="signup.html" class="px-3 py-2 text-center bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition">Sign Up</a>
+            </div>
+        </div>
+        <!-- Mobile student Links -->
+        <div id="mobile-student-links" class="hidden px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+            <a href="profile.html" class="block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700">Profile</a>
+            <a href="#" class="block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700">Notifications</a>
+            <a href="#" id="mobile-logout-btn" class="block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-700 text-dashboard-danger">Log out</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Confirm Modal HTML -->
+<div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+    <div id="confirm-modal-backdrop" class="absolute inset-0 bg-black opacity-30"></div>
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+        <div class="p-6">
+            <div class="flex items-center justify-center mb-4">
+                <div class="bg-yellow-100 dark:bg-yellow-900/30 rounded-full p-3">
+                    <svg class="w-8 h-8 text-yellow-500 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" id="confirm-modal-title">Confirm Action</h3>
+            <p class="text-center text-gray-600 dark:text-gray-300 mb-6" id="confirm-modal-message">Are you sure you want to perform this action?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-modal-cancel" class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg px-6 py-2 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    Cancel
+                </button>
+                <button id="confirm-modal-confirm" class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

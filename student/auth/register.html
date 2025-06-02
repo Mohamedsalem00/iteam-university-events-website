@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account - iTeam University</title>
+    <base href="http://localhost/iteam-university-website/frontend/" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+      .account-type-selector {
+        display: flex;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border-color, #ddd);
+      }
+      
+      .account-type-option {
+        flex: 1;
+        position: relative;
+      }
+      
+      .account-type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .account-type-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+      }
+      
+      .account-type-option input[type="radio"]:checked + label {
+        background-color: var(--primary-color, #4285f4);
+        color: #fff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      
+      .account-type-option i {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .validation-error {
+        color: #d9534f;
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        min-height: 1em; /* Prevent layout shifts */
+      }
+      
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      
+      .password-strength {
+        height: 5px;
+        background-color: #eee;
+        margin-top: 0.5rem;
+        border-radius: 3px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .password-strength-meter {
+        height: 100%;
+        width: 0;
+        transition: width 0.3s ease, background-color 0.3s ease;
+      }
+      
+      .password-strength-label {
+        font-size: 0.75rem;
+        text-align: right;
+        margin-top: 0.2rem;
+      }
+
+      .slide-in {
+        animation: slideIn 0.3s ease-in-out;
+      }
+
+      @keyframes slideIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .alert {
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+      }
+
+      .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+
+      .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+
+      .alert i {
+        margin-right: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+
+    <main>
+      <section class="auth-section">
+        <div class="container">
+          <div class="auth-container">
+            <div class="auth-logo">
+              <img src="assets/images/logo.png" alt="iTeam University Logo" class="logo-img">
+            </div>
+            
+            <div class="auth-card">
+              <div class="auth-header">
+                <h2>Create Account</h2>
+                <p class="auth-subtitle">Join our academic community</p>
+              </div>
+              
+              <div id="form-alert" class="alert" style="display: none;"></div>
+              
+              <form id="registration-form" class="validation-form" novalidate>
+                <!-- student Type Selection -->
+                <div class="form-group">
+                  <label class="form-label">I am registering as:</label>
+                  <div class="account-type-selector">
+                    <div class="account-type-option">
+                      <input type="radio" id="student-type-student" name="account_type" value="student" checked>
+                      <label for="student-type-student">
+                        <i class="fas fa-student"></i>
+                        <span>Individual</span>
+                        <small>Students, faculty, alumni</small>
+                      </label>
+                    </div>
+                    <div class="account-type-option">
+                      <input type="radio" id="student-type-org" name="account_type" value="organization">
+                      <label for="student-type-org">
+                        <i class="fas fa-building"></i>
+                        <span>Organization</span>
+                        <small>Companies, associations</small>
+                      </label>
+                    </div>
+                  </div>
+                  <div id="student-type-error" class="validation-error"></div>
+                </div>
+                
+                <!-- student fields -->
+                <div id="student-fields" class="form-section">
+                  <div class="form-group">
+                    <div class="input-icon-wrap">
+                      <span class="input-icon"><i class="fas fa-student"></i></span>
+                      <input type="text" id="first-name" name="first_name" class="form-control with-icon" placeholder="First Name" data-validation="required" required />
+                    </div>
+                    <div id="first-name-error" class="validation-error"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="input-icon-wrap">
+                      <span class="input-icon"><i class="fas fa-student"></i></span>
+                      <input type="text" id="last-name" name="last_name" class="form-control with-icon" placeholder="Last Name" data-validation="required" required />
+                    </div>
+                    <div id="last-name-error" class="validation-error"></div>
+                  </div>
+                </div>
+                
+                <!-- Organization fields -->
+                <div id="org-fields" class="form-section" style="display: none;">
+                  <div class="form-group">
+                    <div class="input-icon-wrap">
+                      <span class="input-icon"><i class="fas fa-building"></i></span>
+                      <input type="text" id="org-name" name="org_name" class="form-control with-icon" placeholder="Organization Name" data-validation="required" />
+                    </div>
+                    <div id="org-name-error" class="validation-error"></div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <div class="input-icon-wrap">
+                      <span class="input-icon"><i class="fas fa-info-circle"></i></span>
+                      <textarea id="org-description" name="description" class="form-control with-icon" placeholder="Brief description of your organization" rows="2"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Common fields -->
+                <div class="form-group">
+                  <div class="input-icon-wrap">
+                    <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                    <input type="email" id="email" name="email" class="form-control with-icon" placeholder="Email Address" data-validation="email" required />
+                  </div>
+                  <div id="email-error" class="validation-error"></div>
+                </div>
+
+                <div class="form-group">
+                  <div class="input-icon-wrap">
+                    <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="password" name="password" class="form-control with-icon" placeholder="Password" data-validation="password" required />
+                    <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                  <div class="password-strength">
+                    <div id="password-strength-meter" class="password-strength-meter"></div>
+                  </div>
+                  <div id="password-strength-text" class="password-strength-label"></div>
+                  <div id="password-error" class="validation-error"></div>
+                </div>
+
+                <div class="form-group">
+                  <div class="input-icon-wrap">
+                    <span class="input-icon"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="confirm-password" name="confirm_password" class="form-control with-icon" placeholder="Confirm Password" data-validation="confirm-password" required />
+                  </div>
+                  <div id="confirm-password-error" class="validation-error"></div>
+                </div>
+
+                <div class="form-group compact-terms">
+                  <input type="checkbox" id="terms" name="terms" required />
+                  <label for="terms">
+                    I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+                  </label>
+                  <div id="terms-error" class="validation-error"></div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" id="submit-btn" class="btn auth-btn">
+                    Create Account
+                  </button>
+                </div>
+                
+                <div class="social-login compact">
+                  <div class="social-buttons">
+                    <button type="button" class="social-btn google">
+                      <i class="fab fa-google"></i>
+                    </button>
+                    <button type="button" class="social-btn microsoft">
+                      <i class="fab fa-microsoft"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              <div class="auth-footer">
+                <p>Already have an account? <a href="auth/login.html">Sign in</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script src="js/theme-switcher.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        const toggleButtons = document.querySelectorAll('.password-toggle');
+        toggleButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const inputField = this.previousElementSibling.tagName === 'INPUT' ? 
+              this.previousElementSibling : 
+              this.parentElement.querySelector('input');
+              
+            const icon = this.querySelector('i');
+            
+            if (inputField.type === 'password') {
+              inputField.type = 'text';
+              icon.classList.remove('fa-eye');
+              icon.classList.add('fa-eye-slash');
+            } else {
+              inputField.type = 'password';
+              icon.classList.remove('fa-eye-slash');
+              icon.classList.add('fa-eye');
+            }
+          });
+        });
+        
+        // Toggle student/organization fields
+        const userTypeRadios = document.querySelectorAll('input[name="account_type"]');
+        const userFields = document.getElementById('student-fields');
+        const orgFields = document.getElementById('org-fields');
+        const firstNameInput = document.getElementById('first-name');
+        const lastNameInput = document.getElementById('last-name');
+        const orgNameInput = document.getElementById('org-name');
+        
+        userTypeRadios.forEach(radio => {
+          radio.addEventListener('change', function() {
+            const isUser = this.value === 'student';
+            userFields.style.display = isUser ? 'block' : 'none';
+            orgFields.style.display = isUser ? 'none' : 'block';
+            
+            firstNameInput.required = isUser;
+            lastNameInput.required = isUser;
+            orgNameInput.required = !isUser;
+
+            // Clear validation state when switching types
+            [firstNameInput, lastNameInput, orgNameInput].forEach(input => {
+                input.classList.remove('is-valid', 'is-invalid');
+                const errorEl = document.getElementById(`${input.id}-error`);
+                if (errorEl) errorEl.textContent = '';
+            });
+            
+            // Add animation
+            const fieldsToShow = isUser ? userFields : orgFields;
+            fieldsToShow.classList.add('slide-in');
+            setTimeout(() => fieldsToShow.classList.remove('slide-in'), 500);
+          });
+        });
+        // Trigger change on load to set initial required state
+        document.querySelector('input[name="account_type"]:checked').dispatchEvent(new Event('change'));
+
+        // Password strength meter
+        const passwordInput = document.getElementById('password');
+        const passwordStrengthMeter = document.getElementById('password-strength-meter');
+        const passwordStrengthText = document.getElementById('password-strength-text');
+        
+        passwordInput.addEventListener('input', updatePasswordStrength);
+        
+        function updatePasswordStrength() {
+          const password = passwordInput.value;
+          let strength = 0;
+          if (password.length >= 8) strength += 25;
+          if (/[a-z]/.test(password)) strength += 25;
+          if (/[A-Z]/.test(password)) strength += 25;
+          if (/[0-9]/.test(password)) strength += 25;
+          
+          passwordStrengthMeter.style.width = strength + '%';
+          
+          if (strength <= 25) {
+            passwordStrengthMeter.style.backgroundColor = '#ff4d4d';
+            passwordStrengthText.textContent = 'Weak';
+            passwordStrengthText.style.color = '#ff4d4d';
+          } else if (strength <= 50) {
+            passwordStrengthMeter.style.backgroundColor = '#ffa64d';
+            passwordStrengthText.textContent = 'Fair';
+            passwordStrengthText.style.color = '#ffa64d';
+          } else if (strength <= 75) {
+            passwordStrengthMeter.style.backgroundColor = '#99cc33';
+            passwordStrengthText.textContent = 'Good';
+            passwordStrengthText.style.color = '#99cc33';
+          } else {
+            passwordStrengthMeter.style.backgroundColor = '#4CAF50';
+            passwordStrengthText.textContent = 'Strong';
+            passwordStrengthText.style.color = '#4CAF50';
+          }
+        }
+        updatePasswordStrength();
+
+        // Form submission
+        const form = document.getElementById('registration-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const formAlert = document.getElementById('form-alert');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Hide previous alerts
+          formAlert.style.display = 'none';
+          
+          // Reset backend errors
+          document.querySelectorAll('.validation-error').forEach(el => el.textContent = '');
+
+          if (submitBtn.disabled) {
+              console.warn("Submit attempted while form is invalid.");
+              return;
+          }
+          
+          // Show loading state
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+          submitBtn.disabled = true;
+          
+          // Submit form using fetch API
+          const formData = new FormData(form);
+          
+          fetch('../backend/api/register.php', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => {
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw { status: response.status, data: errData };
+                }).catch(() => {
+                    throw { status: response.status, data: { message: `HTTP error! Status: ${response.status}` } };
+                });
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              form.innerHTML = `
+                <div class="success-message" style="text-align: center; padding: 2rem 0;">
+                  <i class="fas fa-check-circle" style="font-size: 3rem; color: #4CAF50; margin-bottom: 1rem;"></i>
+                  <h3>Registration Successful!</h3>
+                  <p>Your account has been created successfully.</p>
+                  <a href="auth/login.html" class="btn auth-btn" style="margin-top: 1rem;">Sign In Now</a>
+                </div>
+              `;
+              formAlert.style.display = 'none'; 
+            } else {
+              submitBtn.innerHTML = 'Create Account';
+              submitBtn.disabled = false;
+              
+              if (data.errors) {
+                Object.keys(data.errors).forEach(key => {
+                  const errorElement = document.getElementById(`${key}-error`);
+                  if (errorElement) {
+                    errorElement.textContent = data.errors[key];
+                    const inputElement = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
+                    if (inputElement) inputElement.classList.add('is-invalid');
+                  }
+                });
+              }
+              
+              formAlert.className = 'alert alert-danger';
+              formAlert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${data.message || 'An error occurred during registration.'}`;
+              formAlert.style.display = 'block';
+              
+              formAlert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          })
+          .catch(error => {
+            console.error('Registration Fetch Error:', error);
+            
+            submitBtn.innerHTML = 'Create Account';
+            submitBtn.disabled = false;
+            
+            formAlert.className = 'alert alert-danger';
+            const message = error?.data?.message || 'An error occurred while connecting to the server. Please try again later.';
+            formAlert.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            formAlert.style.display = 'block';
+            
+            formAlert.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

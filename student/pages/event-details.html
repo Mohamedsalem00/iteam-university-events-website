@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+      // Check for saved dark mode preference and apply it immediately
+      if (localStorage.getItem("darkMode") === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+    <script>
+      // Apply student type immediately to prevent flash
+      (function () {
+        const userType = localStorage.getItem("userType");
+        if (userType) {
+          document.body.classList.add("is-" + userType);
+        }
+      })();
+    </script>
+    <script src="../../frontend/js/config.js"></script>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml" />
+    <title>Event Details - Student Event Platform</title>
+  </head>
+  <body
+    class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text"
+  >
+  <!-- Add these styles in the head section -->
+<style>
+  #image-viewer-modal {
+    transition: opacity 0.3s ease;
+  }
+  
+  #gallery-grid img {
+    transition: transform 0.3s ease;
+  }
+  
+  #gallery-grid img:hover {
+    transform: scale(1.03);
+  }
+  /* Additional styles for image gallery */
+#gallery-grid img {
+  transition: transform 0.3s ease;
+}
+
+#gallery-grid img:hover {
+  transform: scale(1.03);
+}
+
+/* Animation for the image viewer */
+#fullscreen-image {
+  animation: fadeIn 0.3s ease;
+}
+/* Add this to your existing styles section */
+  #image-viewer-modal .absolute.inset-0 {
+    z-index: 0; /* Ensure backdrop is below content */
+  }
+  
+  #image-viewer-modal .h-full.flex {
+    z-index: 1; /* Ensure image container is above backdrop */
+    position: relative;
+  }
+  
+  #fullscreen-image {
+    transition: opacity 0.2s ease;
+    max-height: 80vh !important; 
+    max-width: 95vw !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+  }
+  
+  /* Ensure the container allows proper image sizing */
+  #image-viewer-modal .h-full.flex .max-h-full.max-w-full {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Add this to ensure the container div fills available space */
+  #image-viewer-modal .h-full.flex {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Add a minimum size for images that are too small */
+  #fullscreen-image {
+    min-width: 50vw;
+    min-height: 50vh;
+  }
+  
+  /* Adjust caption container */
+  #image-viewer-modal .mt-2.text-white.text-center {
+    width: 100%;
+    padding: 0 20px;
+  }
+  
+  
+  .absolute.top-4.right-4,
+  .absolute.top-1\/2.left-4,
+  .absolute.top-1\/2.right-4 {
+    z-index: 2; /* Ensure buttons are above everything */
+  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+</style>
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+      <div class="max-w-5xl mx-auto">
+        <a
+          href="events.html"
+          class="inline-flex items-center text-theme-primary mb-6 hover:underline"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Events
+        </a>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="py-16 flex justify-center items-center">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"
+          ></div>
+        </div>
+
+        <!-- Error State -->
+        <div
+          id="error-state"
+          class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 mb-6"
+        >
+          <div class="flex">
+            <svg
+              class="h-5 w-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            <div>
+              <p class="font-medium">Error loading event details</p>
+              <p class="text-sm mt-1" id="error-message">
+                Please try again later.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Details Content - Will be populated dynamically -->
+        <div id="event-details-container" class="hidden">
+          <!-- Content will be loaded here -->
+
+          <!-- Event Gallery Section (Only for Past Events) -->
+          <div id="event-gallery-container" class="mt-12 hidden">
+            <h2 class="text-2xl font-bold mb-6">Event Gallery</h2>
+
+            <!-- Gallery Grid -->
+            <div
+              id="gallery-grid"
+              class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+            >
+              <!-- Gallery images will be loaded here -->
+            </div>
+
+            <!-- Image Viewer Modal -->
+            <div id="image-viewer-modal" class="fixed inset-0 z-50 hidden">
+              <div class="absolute inset-0 bg-black bg-opacity-90 backdrop-blur-sm"></div>
+              <div class="absolute top-4 right-4">
+                <button
+                  id="close-image-viewer"
+                  class="text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="absolute top-1/2 left-4 transform -translate-y-1/2">
+                <button
+                  id="prev-image"
+                  class="text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="absolute top-1/2 right-4 transform -translate-y-1/2">
+                <button
+                  id="next-image"
+                  class="text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="h-full flex items-center justify-center p-4">
+                <div class="flex flex-col items-center justify-center max-h-full max-w-full">
+                  <img
+                    id="fullscreen-image"
+                    src=""
+                    alt=""
+                    class="max-h-[80vh] max-w-[95vw] object-contain"
+                  />
+                  <div class="mt-2 text-white text-center">
+                    <p id="image-caption" class="text-lg"></p>
+                    <p id="image-counter" class="text-sm text-gray-300"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Related Events -->
+          <div id="related-events-container" class="mt-12 hidden">
+            <h2 class="text-2xl font-bold mb-6">You Might Also Like</h2>
+            <div
+              id="related-events-grid"
+              class="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              <!-- Related events will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Elements
+        const loadingState = document.getElementById("loading-state");
+        const errorState = document.getElementById("error-state");
+        const errorMessage = document.getElementById("error-message");
+        const eventDetailsContainer = document.getElementById(
+          "event-details-container"
+        );
+        const relatedEventsContainer = document.getElementById(
+          "related-events-container"
+        );
+        const relatedEventsGrid = document.getElementById(
+          "related-events-grid"
+        );
+
+        // Add the missing fixImagePath function
+        function fixImagePath(imageUrl) {
+          if (!imageUrl) return CONFIG.PLACEHOLDER_EVENT_IMAGE_PATH;
+          
+          // If it's already an absolute URL (starts with http or /), leave it unchanged
+          if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+            return imageUrl;
+          }
+          
+          // If it starts with 'frontend/' or 'assets/', make it absolute from site root
+          if (imageUrl.startsWith('frontend/') || imageUrl.startsWith('assets/')) {
+            return `${CONFIG.BASE_URL}/${imageUrl}`;
+          }
+          
+          // For other relative paths, assume they're relative to student folder
+          return `${CONFIG.STUDENT_PATH}/${imageUrl}`;
+        }
+
+        // State variables
+        let isLoggedIn = false;
+        let userType = "";
+        let eventData = null;
+        let registrationStatus = null;
+
+        // Get event ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get("id");
+
+        if (!eventId) {
+          showError("No event ID provided.");
+          return;
+        }
+
+        // Initialize
+        checkUserAuth();
+        loadEventDetails(eventId);
+
+        // Check student authentication status
+        function checkUserAuth() {
+          userType = localStorage.getItem("userType");
+          isLoggedIn = userType !== null;
+
+          // Verify with server
+          fetch("../api/auth.php?check=1")
+            .then((response) => response.json())
+            .then((data) => {
+              isLoggedIn = data.success;
+              if (data.success && data.student) {
+                userType = data.student.type;
+              }
+            })
+            .catch((error) => console.error("Auth check error:", error));
+        }
+
+        // Load event details from API
+        function loadEventDetails(id) {
+          showLoading();
+
+          fetch(`../api/event-details.php?id=${id}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  `Server responded with status: ${response.status}`
+                );
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (!data.success) {
+                throw new Error(data.message || "Failed to load event details");
+              }
+
+              // Store event data
+              eventData = data.event;
+              registrationStatus = data.registration_status;
+
+              // Update page title
+              document.title = `${eventData.title} - Student Event Platform`;
+
+              // Display event details
+              displayEventDetails(eventData, registrationStatus);
+
+              // Load related events
+              loadRelatedEvents(eventData.event_type, id);
+
+              hideLoading();
+            })
+            .catch((error) => {
+              console.error("Error loading event details:", error);
+              showError(error.message);
+            });
+        }
+
+        // Fix image path handling in the displayEventDetails function
+        function displayEventDetails(event, registrationStatus) {
+          // Format dates
+          const startDate = new Date(event.start_date);
+          const endDate = new Date(event.end_date);
+
+          const formattedDate = new Intl.DateTimeFormat("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }).format(startDate);
+
+          const formattedStartTime = new Intl.DateTimeFormat("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          }).format(startDate);
+
+          const formattedEndTime = new Intl.DateTimeFormat("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          }).format(endDate);
+
+          // Check if event is in the past
+          const now = new Date();
+          const isPastEvent = endDate < now;
+
+          // Check if event is full
+          const isEventFull =
+            event.max_capacity &&
+            event.registration_count >= event.max_capacity;
+
+          // Determine status badge
+          let statusBadgeText, statusBadgeClass;
+
+          if (isPastEvent) {
+            statusBadgeText = "Event Ended";
+            statusBadgeClass = "bg-gray-500";
+          } else if (isEventFull) {
+            statusBadgeText = "Event Full";
+            statusBadgeClass = "bg-dashboard-danger";
+          } else {
+            statusBadgeText = "Registration Open";
+            statusBadgeClass = "bg-dashboard-success";
+          }
+
+          // Determine event type badge
+          let typeText = event.event_type
+            ? event.event_type.charAt(0).toUpperCase() +
+              event.event_type.slice(1)
+            : "Event";
+
+          // Determine action buttons based on status
+          let actionButtons = "";
+
+          if (isLoggedIn && userType === "student") {
+            if (registrationStatus) {
+              // student is already registered
+              switch (registrationStatus) {
+                case "confirmed":
+                  actionButtons = `
+                                    <span class="bg-green-600 text-white py-3 px-8 rounded-xl shadow-md font-medium inline-flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Registered
+                                    </span>
+                                    ${
+                                      !isPastEvent
+                                        ? `
+                                        <button id="cancel-registration-btn" class="bg-dashboard-danger text-white py-3 px-8 rounded-xl shadow-md hover:opacity-90 transition font-medium" data-event-id="${event.event_id}">
+                                            Cancel Registration
+                                        </button>
+                                    `
+                                        : ""
+                                    }
+                                `;
+                  break;
+                case "pending":
+                  actionButtons = `
+                                    <span class="bg-yellow-500 text-white py-3 px-8 rounded-xl shadow-md font-medium inline-flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Pending Approval
+                                    </span>
+                                    ${
+                                      !isPastEvent
+                                        ? `
+                                        <button id="cancel-registration-btn" class="bg-dashboard-danger text-white py-3 px-8 rounded-xl shadow-md hover:opacity-90 transition font-medium" data-event-id="${event.event_id}">
+                                            Cancel Registration
+                                        </button>
+                                    `
+                                        : ""
+                                    }
+                                `;
+                  break;
+                case "cancelled":
+                  actionButtons = `
+                    <span class="bg-gray-500 text-white py-3 px-8 rounded-xl shadow-md font-medium inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Registration Cancelled
+                    </span>
+                `;
+                  break;
+              }
+            } else if (isPastEvent) {
+              // Past event, no registration
+              actionButtons = `
+                            <span class="bg-gray-500 text-white py-3 px-8 rounded-xl shadow-md font-medium inline-flex items-center">
+                                Event Ended
+                            </span>
+                        `;
+            } else if (isEventFull) {
+              // Event is full
+              actionButtons = `
+                            <span class="bg-gray-500 text-white py-3 px-8 rounded-xl shadow-md font-medium inline-flex items-center">
+                                Event Full
+                            </span>
+                        `;
+            } else {
+              // student can register
+              actionButtons = `
+                            <button id="register-btn" class="bg-theme-primary hover:bg-theme-primary-hover text-white py-3 px-8 rounded-xl shadow-md transition font-medium" data-event-id="${event.event_id}">
+                                Register Now
+                            </button>
+                        `;
+            }
+          } else if (!isLoggedIn && !isPastEvent && !isEventFull) {
+            // student is not logged in
+            actionButtons = `
+                        <a href="login.html" class="bg-theme-primary hover:bg-theme-primary-hover text-white py-3 px-8 rounded-xl shadow-md transition font-medium inline-block text-center">
+                            Login to Register
+                        </a>
+                    `;
+          } else if (!isPastEvent && userType !== "student") {
+            // student is logged in but not a student
+            actionButtons = `
+                        <span class="bg-gray-500 text-white py-3 px-8 rounded-xl shadow-md font-medium inline-flex items-center">
+                            Only Students Can Register
+                        </span>
+                    `;
+          }
+
+          // Add calendar and share buttons to action buttons
+          actionButtons += `
+                    <button id="add-to-calendar-btn" class="bg-gray-200 dark:bg-gray-700 hover:opacity-80 py-3 px-8 rounded-xl shadow-md transition font-medium">
+                        Add to Calendar
+                    </button>
+                    <button id="share-event-btn" class="border border-dashboard-border dark:border-dashboard-border hover:bg-gray-50 dark:hover:bg-gray-800 py-3 px-8 rounded-xl transition font-medium flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        Share Event
+                    </button>
+                `;
+
+          // Create event details HTML
+          const eventDetailsHTML = `
+                    <div class="bg-dashboard-card-bg dark:bg-dashboard-card-bg rounded-2xl shadow-md overflow-hidden">
+                        <div class="relative">
+                            <img src="${fixImagePath(event.thumbnail_url || 'frontend/assets/images/gallery/placeholder_event.png')}" 
+                                 alt="${event.title}" class="w-full h-72 object-cover">
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-theme-primary text-white px-3 py-1 rounded-lg text-sm font-medium">
+                                    ${typeText}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                                <h1 class="text-3xl font-bold mb-2 md:mb-0">${
+                                  event.title
+                                }</h1>
+                                <span class="${statusBadgeClass} text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    ${statusBadgeText}
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <!-- Date & Time -->
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg mr-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-theme-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold">Date & Time</h3>
+                                        <p class="text-dashboard-text-secondary">${formattedDate}</p>
+                                        <p class="text-dashboard-text-secondary">${formattedStartTime} - ${formattedEndTime}</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Location -->
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg mr-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-theme-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold">Location</h3>
+                                        <p class="text-dashboard-text-secondary">${
+                                          event.location || "Venue TBA"
+                                        }</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Organizer -->
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg mr-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-theme-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold">Organizer</h3>
+                                        <p class="text-dashboard-text-secondary">${
+                                          event.organizer_name ||
+                                          "Event Organizer"
+                                        }</p>
+                                        ${
+                                          event.organizer_email
+                                            ? `<p class="text-dashboard-text-secondary">Contact: ${event.organizer_email}</p>`
+                                            : ""
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- About Event -->
+                            <div class="mb-8">
+                                <h2 class="text-2xl font-bold mb-4">About This Event</h2>
+                                <div class="mb-4">
+                                    ${
+                                      event.description
+                                        ? event.description.replace(
+                                            /\n/g,
+                                            "<br>"
+                                          )
+                                        : "No description available for this event."
+                                    }
+                                </div>
+                            </div>
+                            
+                            <!-- Capacity Information -->
+                            ${
+                              event.max_capacity
+                                ? `
+                                <div class="mb-8">
+                                    <h3 class="font-semibold mb-2">Registration Capacity</h3>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                        <div class="bg-theme-primary h-2.5 rounded-full" style="width: ${Math.min(
+                                          100,
+                                          (event.registration_count /
+                                            event.max_capacity) *
+                                            100
+                                        )}%"></div>
+                                    </div>
+                                    <p class="text-sm mt-2">${
+                                      event.registration_count
+                                    } / ${event.max_capacity} registrations</p>
+                                </div>
+                            `
+                                : ""
+                            }
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex flex-wrap gap-3">
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+          // Display event details
+          eventDetailsContainer.innerHTML = eventDetailsHTML;
+          eventDetailsContainer.classList.remove("hidden");
+
+          // Add gallery container (this was missing in the original event details HTML)
+          const gallerySection = document.createElement('div');
+          gallerySection.id = 'event-gallery-container';
+          gallerySection.className = 'mt-12 hidden';
+          gallerySection.innerHTML = `
+            <h2 class="text-2xl font-bold mb-6">Event Gallery</h2>
+            
+            <!-- Gallery Grid -->
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <!-- Gallery images will be loaded here -->
+            </div>
+            
+            <!-- Image Viewer Modal -->
+            <div id="image-viewer-modal" class="fixed inset-0 z-50 hidden">
+              <div class="absolute inset-0 bg-black bg-opacity-90 backdrop-blur-sm"></div>
+              <div class="absolute top-4 right-4">
+                <button
+                  id="close-image-viewer"
+                  class="text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="absolute top-1/2 left-4 transform -translate-y-1/2">
+                <button
+                  id="prev-image"
+                  class="text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="absolute top-1/2 right-4 transform -translate-y-1/2">
+                <button
+                  id="next-image"
+                  class="text-white p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+              <div class="h-full flex items-center justify-center p-4">
+                <div class="flex flex-col items-center justify-center max-h-full max-w-full">
+                  <img
+                    id="fullscreen-image"
+                    src=""
+                    alt=""
+                    class="max-h-[80vh] max-w-[95vw] object-contain"
+                  />
+                  <div class="mt-2 text-white text-center">
+                    <p id="image-caption" class="text-lg"></p>
+                    <p id="image-counter" class="text-sm text-gray-300"></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Add the gallery section to the container AFTER the event details HTML has been set
+          eventDetailsContainer.appendChild(gallerySection);
+          
+          // Now check if the elements exist before proceeding to load the gallery
+          console.log("Gallery elements check after append:", {
+              galleryContainer: document.getElementById('event-gallery-container'),
+              galleryGrid: document.getElementById('gallery-grid')
+          });
+          
+          // Add event listeners
+          const registerBtn = document.getElementById("register-btn");
+          if (registerBtn) {
+            registerBtn.addEventListener("click", () =>
+              registerForEvent(event.event_id)
+            );
+          }
+
+          const cancelBtn = document.getElementById("cancel-registration-btn");
+          if (cancelBtn) {
+            cancelBtn.addEventListener("click", () =>
+              cancelRegistration(event.event_id)
+            );
+          }
+
+          const addToCalendarBtn = document.getElementById(
+            "add-to-calendar-btn"
+          );
+          if (addToCalendarBtn) {
+            addToCalendarBtn.addEventListener("click", () =>
+              addToCalendar(event)
+            );
+          }
+
+          const shareEventBtn = document.getElementById("share-event-btn");
+          if (shareEventBtn) {
+            shareEventBtn.addEventListener("click", () => shareEvent(event));
+          }
+
+          // Load event gallery for past events
+          // This is now safe because we've just added the elements to the DOM
+          loadEventGallery(event.event_id, isPastEvent);
+        }
+
+        // Load event gallery for past events
+        function loadEventGallery(eventId, isPastEvent) {
+          if (!isPastEvent) {
+            return; // Only load gallery for past events
+          }
+
+          fetch(`../api/event-gallery.php?event_id=${eventId}`)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (!data.success) {
+                console.log("No gallery images found for this event");
+                return;
+              }
+
+              // Display gallery if images exist
+              if (data.images && data.images.length > 0) {
+                displayEventGallery(data.images);
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading event gallery:", error);
+            });
+        }
+
+        // Update the displayEventGallery function to properly handle image paths
+        function displayEventGallery(images) {
+          const galleryContainer = document.getElementById('event-gallery-container');
+          const galleryGrid = document.getElementById('gallery-grid');
+          
+          // Add error checking to prevent null reference
+          if (!galleryContainer || !galleryGrid) {
+              console.error("Gallery elements not found in DOM. Container:", galleryContainer, "Grid:", galleryGrid);
+              return; // Exit the function if elements don't exist
+          }
+          
+          // Clear existing content
+          galleryGrid.innerHTML = '';
+          
+          // Add each image to the grid
+          images.forEach((image, index) => {
+              // Use the fixImagePath helper function to ensure correct paths
+              const imageUrl = fixImagePath(image.image_url);
+              
+              const imageItem = document.createElement('div');
+              imageItem.className = 'relative overflow-hidden rounded-lg aspect-square cursor-pointer hover:opacity-90 transition';
+              imageItem.innerHTML = `
+                <img 
+                  src="${imageUrl}" 
+                  alt="${image.caption || 'Event photo'}" 
+                  class="w-full h-full object-cover"
+                  data-index="${index}"
+                  data-full-img="${imageUrl}"
+                  data-caption="${image.caption || ''}"
+                >
+              `;
+              
+              // Add click event to open image viewer
+              imageItem.addEventListener('click', () => {
+                  openImageViewer(images, index);
+              });
+              
+              galleryGrid.appendChild(imageItem);
+          });
+          
+          // Show the gallery container
+          galleryContainer.classList.remove('hidden');
+        }
+
+        // Also update the openImageViewer function to use fixImagePath
+        function openImageViewer(images, index) {
+          // Image viewer elements
+          const modal = document.getElementById('image-viewer-modal');
+          const fullscreenImage = document.getElementById('fullscreen-image');
+          const imageCaption = document.getElementById('image-caption');
+          const imageCounter = document.getElementById('image-counter');
+          const prevBtn = document.getElementById('prev-image');
+          const nextBtn = document.getElementById('next-image');
+          const closeBtn = document.getElementById('close-image-viewer');
+          
+          let currentIndex = index;
+          
+          // Function to update the image
+          function updateImage() {
+              const image = images[currentIndex];
+              
+              // Use the fixImagePath helper function
+              const imageUrl = fixImagePath(image.image_url);
+              
+              console.log('Loading image:', imageUrl);
+              
+              // Set image source and wait for it to load
+              fullscreenImage.onload = function() {
+                  // Reset opacity after image loads
+                  fullscreenImage.style.opacity = "1";
+                  
+                  // IMPORTANT: Add this to resize the image appropriately
+                  const imgWidth = this.naturalWidth;
+                  const imgHeight = this.naturalHeight;
+                  const viewportWidth = window.innerWidth * 0.95;
+                  const viewportHeight = window.innerHeight * 0.8;
+                  
+                  // Calculate aspect ratios
+                  const imgRatio = imgWidth / imgHeight;
+                  const screenRatio = viewportWidth / viewportHeight;
+                  
+                  // Determine dimensions based on aspect ratio
+                  if (imgRatio > screenRatio) {
+                    // Image is wider than screen ratio
+                    if (imgWidth > viewportWidth) {
+                      fullscreenImage.style.width = viewportWidth + 'px';
+                      fullscreenImage.style.height = 'auto';
+                    } else {
+                      fullscreenImage.style.width = imgWidth + 'px';
+                      fullscreenImage.style.height = 'auto';
+                    }
+                  } else {
+                    // Image is taller than screen ratio
+                    if (imgHeight > viewportHeight) {
+                      fullscreenImage.style.height = viewportHeight + 'px';
+                      fullscreenImage.style.width = 'auto';
+                    } else {
+                      fullscreenImage.style.height = imgHeight + 'px';
+                      fullscreenImage.style.width = 'auto';
+                    }
+                  }
+                  
+                  // Update metadata
+                  imageCaption.textContent = image.caption || '';
+                  imageCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+                  
+                  // Update button states
+                  prevBtn.disabled = currentIndex === 0;
+                  prevBtn.classList.toggle('opacity-50', currentIndex === 0);
+                  nextBtn.disabled = currentIndex === images.length - 1;
+                  nextBtn.classList.toggle('opacity-50', currentIndex === images.length - 1);
+              };
+              
+              // Set opacity to 0 before changing source
+              fullscreenImage.style.opacity = "0";
+              fullscreenImage.src = imageUrl;
+              fullscreenImage.alt = image.caption || '';
+          }
+          
+          // Initialize with the current image
+          updateImage();
+          
+          // Show the modal
+          modal.classList.remove('hidden');
+          document.body.classList.add('overflow-hidden'); // Prevent scrolling
+          
+          // Add navigation event listeners
+          function handlePrevClick() {
+            if (currentIndex > 0) {
+              currentIndex--;
+              updateImage();
+            }
+          }
+          
+          function handleNextClick() {
+            if (currentIndex < images.length - 1) {
+              currentIndex++;
+              updateImage();
+            }
+          }
+          
+          function closeModal() {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            
+            // Clean up event listeners
+            prevBtn.removeEventListener('click', handlePrevClick);
+            nextBtn.removeEventListener('click', handleNextClick);
+            closeBtn.removeEventListener('click', closeModal);
+            document.removeEventListener('keydown', handleKeydown);
+            modal.removeEventListener('click', handleBackdropClick);
+          }
+          
+          function handleKeydown(e) {
+            if (e.key === 'Escape') {
+              closeModal();
+            } else if (e.key === 'ArrowLeft') {
+              handlePrevClick();
+            } else if (e.key === 'ArrowRight') {
+              handleNextClick();
+            }
+          }
+          
+          function handleBackdropClick(e) {
+            if (e.target === modal) {
+              closeModal();
+            }
+          }
+          
+          prevBtn.addEventListener('click', handlePrevClick);
+          nextBtn.addEventListener('click', handleNextClick);
+          closeBtn.addEventListener('click', closeModal);
+          document.addEventListener('keydown', handleKeydown);
+          modal.addEventListener('click', handleBackdropClick);
+        }
+
+        // Register for an event
+        function registerForEvent(eventId) {
+          const registerBtn = document.getElementById("register-btn");
+          if (registerBtn) {
+            registerBtn.disabled = true;
+            registerBtn.innerHTML = "Registering...";
+          }
+
+          fetch("../api/event-registration.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              event_id: eventId,
+            }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                // Show success modal with appropriate message based on approval requirement
+                const requiresApproval = data.requires_approval;
+                const title = requiresApproval
+                  ? "Registration Pending"
+                  : "Registration Successful";
+                const message =
+                  data.message ||
+                  (requiresApproval
+                    ? "Your registration is pending approval from the administrator."
+                    : "You have successfully registered for this event.");
+
+                showSuccessModal(title, message, () => {
+                  // Reload the page to show updated registration status
+                  location.reload();
+                });
+              } else {
+                // Show error modal
+                showErrorModal(
+                  "Registration Failed",
+                  data.message ||
+                    "Failed to register for event. Please try again."
+                );
+
+                if (registerBtn) {
+                  registerBtn.disabled = false;
+                  registerBtn.innerHTML = "Register Now";
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Registration error:", error);
+              showErrorModal(
+                "Registration Error",
+                "An error occurred during registration. Please try again later."
+              );
+
+              if (registerBtn) {
+                registerBtn.disabled = false;
+                registerBtn.innerHTML = "Register Now";
+              }
+            });
+        }
+
+        // Update cancelRegistration in event-details.html to handle registration ID properly
+
+        function cancelRegistration(eventId) {
+          // Show confirmation modal before proceeding with cancellation
+          showConfirmModal(
+            "Cancel Registration",
+            "Are you sure you want to cancel your registration for this event?",
+            () => {
+              // student confirmed the cancellation
+              const cancelBtn = document.getElementById(
+                "cancel-registration-btn"
+              );
+              if (cancelBtn) {
+                cancelBtn.disabled = true;
+                cancelBtn.innerHTML = "Cancelling...";
+              }
+
+              // Prepare the request payload
+              const payload = {
+                action: "cancel",
+                event_id: eventId,
+              };
+
+              fetch("../api/event-registration.php", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    showSuccessModal(
+                      "Registration Cancelled",
+                      "Your registration has been cancelled successfully.",
+                      () => {
+                        // Reload the page to show updated registration status
+                        location.reload();
+                      }
+                    );
+                  } else {
+                    showErrorModal(
+                      "Cancellation Failed",
+                      data.message ||
+                        "Failed to cancel registration. Please try again."
+                    );
+
+                    if (cancelBtn) {
+                      cancelBtn.disabled = false;
+                      cancelBtn.innerHTML = "Cancel Registration";
+                    }
+                  }
+                })
+                .catch((error) => {
+                  console.error("Cancellation error:", error);
+                  showErrorModal(
+                    "Cancellation Error",
+                    "An error occurred while cancelling your registration. Please try again later."
+                  );
+
+                  if (cancelBtn) {
+                    cancelBtn.disabled = false;
+                    cancelBtn.innerHTML = "Cancel Registration";
+                  }
+                });
+            }
+          );
+        }
+
+        // Add event to calendar
+        function addToCalendar(event) {
+          // Show a modal with calendar options
+          showCalendarOptionsModal(event);
+        }
+
+        // Add this new function to handle calendar selection
+        function showCalendarOptionsModal(event) {
+          // Create the modal if it doesn't exist
+          const modalId = "calendar-options-modal";
+          let modalElement = document.getElementById(modalId);
+
+          if (!modalElement) {
+            modalElement = document.createElement("div");
+            modalElement.id = modalId;
+            modalElement.className =
+              "fixed inset-0 flex items-center justify-center z-50";
+
+            // Replace the buttons section in showCalendarOptionsModal with this updated version
+            modalElement.innerHTML = `
+    <div class="absolute inset-0 bg-black opacity-30" id="calendar-modal-backdrop"></div>
+    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+        <div class="p-6">
+            <div class="flex items-center justify-center mb-4">
+                <div class="bg-blue-100 dark:bg-blue-900/30 rounded-full p-3">
+                    <svg class="w-8 h-8 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-4">Add to Calendar</h3>
+            <div class="grid grid-cols-1 gap-3">
+                <!-- Google Calendar Button with downloaded SVG -->
+                <button id="google-calendar-btn" class="flex items-center justify-center py-3 px-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition">
+                    <img src="../images/google_calendar.svg" alt="Google Calendar" class="w-7 h-7 mr-3">
+                    Add to Google Calendar
+                </button>
+
+                <!-- Outlook Button with downloaded SVG -->
+                <button id="outlook-calendar-btn" class="flex items-center justify-center py-3 px-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition">
+                    <img src="../images/outlook.svg" alt="Microsoft Outlook" class="w-7 h-7 mr-3">
+                    Add to Outlook Calendar
+                </button>
+
+                <!-- iCal Download Button -->
+                <button id="ical-calendar-btn" class="flex items-center justify-center py-3 px-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition">
+                    <svg class="w-7 h-7 mr-3" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <!-- iCal Icon -->
+                        <rect x="2" y="2" width="20" height="20" rx="3" fill="#FF9500"/>
+                        <rect x="6" y="9" width="12" height="2" rx="1" fill="white"/>
+                        <rect x="6" y="13" width="12" height="2" rx="1" fill="white"/>
+                        <rect x="6" y="17" width="12" height="2" rx="1" fill="white"/>
+                        <rect x="6" y="5" width="2" height="2" rx="1" fill="white"/>
+                        <rect x="11" y="5" width="2" height="2" rx="1" fill="white"/>
+                        <rect x="16" y="5" width="2" height="2" rx="1" fill="white"/>
+                    </svg>
+                    Download iCal File (.ics)
+                </button>
+            </div>
+            <div class="mt-6 text-center">
+                <button id="calendar-modal-close" class="text-gray-500 dark:text-gray-400 hover:underline">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+`;
+
+            document.body.appendChild(modalElement);
+          }
+
+          // Show the modal
+          modalElement.classList.remove("hidden");
+
+          // Format dates for calendar
+          const startDate = new Date(event.start_date);
+          const endDate = new Date(event.end_date);
+
+          const formatDate = (date) => {
+            return date.toISOString().replace(/-|:|\.\d+/g, "");
+          };
+
+          // Create URLs for different calendar services
+          const googleUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+            event.title
+          )}&dates=${formatDate(startDate)}/${formatDate(
+            endDate
+          )}&details=${encodeURIComponent(
+            event.description || ""
+          )}&location=${encodeURIComponent(
+            event.location || ""
+          )}&sf=true&output=xml`;
+
+          // Outlook web calendar URL
+          const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(
+            event.title
+          )}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}&body=${encodeURIComponent(
+            event.description || ""
+          )}&location=${encodeURIComponent(
+            event.location || ""
+          )}&path=%2Fcalendar%2Faction%2Fcompose&rru=addevent`;
+
+          // Create iCal file content
+          const iCalContent = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "BEGIN:VEVENT",
+            `DTSTART:${formatDate(startDate)}`,
+            `DTEND:${formatDate(endDate)}`,
+            `SUMMARY:${event.title}`,
+            `DESCRIPTION:${event.description || ""}`,
+            `LOCATION:${event.location || ""}`,
+            "END:VEVENT",
+            "END:VCALENDAR",
+          ].join("\r\n");
+
+          // Add event listeners
+          document
+            .getElementById("google-calendar-btn")
+            .addEventListener("click", () => {
+              window.open(googleUrl, "_blank");
+              modalElement.classList.add("hidden");
+            });
+
+          document
+            .getElementById("outlook-calendar-btn")
+            .addEventListener("click", () => {
+              window.open(outlookUrl, "_blank");
+              modalElement.classList.add("hidden");
+            });
+
+          document
+            .getElementById("ical-calendar-btn")
+            .addEventListener("click", () => {
+              // Create and download .ics file
+              const blob = new Blob([iCalContent], {
+                type: "text/calendar;charset=utf-8",
+              });
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(blob);
+              link.download = `${event.title
+                .replace(/[^a-z0-9]/gi, "-")
+                .toLowerCase()}-event.ics`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              modalElement.classList.add("hidden");
+            });
+
+          // Close modal when clicking backdrop or cancel button
+          document
+            .getElementById("calendar-modal-backdrop")
+            .addEventListener("click", () => {
+              modalElement.classList.add("hidden");
+            });
+
+          document
+            .getElementById("calendar-modal-close")
+            .addEventListener("click", () => {
+              modalElement.classList.add("hidden");
+            });
+        }
+
+        // Share event
+        function shareEvent(event) {
+          if (navigator.share) {
+            navigator
+              .share({
+                title: event.title,
+                text: event.description || "Check out this event!",
+                url: window.location.href,
+              })
+              .catch((err) => {
+                console.error("Share error:", err);
+              });
+          } else {
+            // Fallback for browsers that don't support the Web Share API
+            prompt("Copy this URL to share the event:", window.location.href);
+          }
+        }
+
+        // Load related events
+        function loadRelatedEvents(eventType, currentEventId) {
+          fetch(`../api/events.php?category=${eventType}&per_page=3`)
+            .then((response) => response.json())
+            .then((data) => {
+              // Extract events data, handling potential array wrapper
+              const responseData = Array.isArray(data) ? data[0] : data;
+
+              if (!responseData.success) {
+                console.error(
+                  "Failed to load related events:",
+                  responseData.message
+                );
+                return;
+              }
+
+              // Filter out the current event and limit to 3
+              const relatedEvents = responseData.events
+                .filter((event) => event.event_id != currentEventId)
+                .slice(0, 3);
+
+              // Only display if we found related events
+              if (relatedEvents.length > 0) {
+                displayRelatedEvents(relatedEvents);
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading related events:", error);
+            });
+        }
+
+        // Display related events
+        function displayRelatedEvents(events) {
+          relatedEventsGrid.innerHTML = "";
+
+          events.forEach((event) => {
+            const eventDate = new Date(event.start_date);
+            const formattedDate = new Intl.DateTimeFormat("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }).format(eventDate);
+
+            const eventCard = document.createElement("div");
+            eventCard.className =
+              "bg-dashboard-card-bg dark:bg-dashboard-card-bg rounded-2xl shadow-md overflow-hidden";
+            eventCard.innerHTML = `
+                        <img src="${event.thumbnail_url}" alt="${event.title}" class="w-full h-40 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg mb-1">${event.title}</h3>
+                            <p class="text-dashboard-text-secondary text-sm mb-2">${formattedDate}</p>
+                            <a href="event-details.html?id=${event.event_id}" class="text-theme-primary text-sm hover:underline">View Details</a>
+                        </div>
+                    `;
+
+            relatedEventsGrid.appendChild(eventCard);
+          });
+
+          // Show the container
+          relatedEventsContainer.classList.remove("hidden");
+        }
+
+        // Helper functions for UI states
+        function showLoading() {
+          loadingState.classList.remove("hidden");
+          eventDetailsContainer.classList.add("hidden");
+          errorState.classList.add("hidden");
+        }
+
+        function hideLoading() {
+          loadingState.classList.add("hidden");
+        }
+
+        function showError(message) {
+          errorMessage.textContent =
+            message || "An error occurred while loading event details.";
+          errorState.classList.remove("hidden");
+          loadingState.classList.add("hidden");
+          eventDetailsContainer.classList.add("hidden");
+        }
+      });
+    </script>
+
+    <!-- Success Modal -->
+    <div
+      id="success-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="absolute inset-0 bg-black opacity-30"
+        id="success-modal-backdrop"
+      ></div>
+      <div
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
+              <svg
+                class="w-8 h-8 text-green-500 dark:text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <h3
+            class="text-lg font-bold text-center mb-2"
+            id="success-modal-title"
+          >
+            Success!
+          </h3>
+          <p
+            class="text-center text-gray-600 dark:text-gray-300 mb-6"
+            id="success-modal-message"
+          >
+            Your request was processed successfully.
+          </p>
+          <div class="flex justify-center">
+            <button
+              id="success-modal-ok"
+              class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div
+      id="confirm-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="absolute inset-0 bg-black opacity-30"
+        id="confirm-modal-backdrop"
+      ></div>
+      <div
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-yellow-100 dark:bg-yellow-900/30 rounded-full p-3">
+              <svg
+                class="w-8 h-8 text-yellow-500 dark:text-yellow-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <h3
+            class="text-lg font-bold text-center mb-2"
+            id="confirm-modal-title"
+          >
+            Confirm Action
+          </h3>
+          <p
+            class="text-center text-gray-600 dark:text-gray-300 mb-6"
+            id="confirm-modal-message"
+          >
+            Are you sure you want to perform this action?
+          </p>
+          <div class="flex justify-center space-x-4">
+            <button
+              id="confirm-modal-cancel"
+              class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg px-6 py-2 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            >
+              Cancel
+            </button>
+            <button
+              id="confirm-modal-confirm"
+              class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div
+      id="error-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="absolute inset-0 bg-black opacity-30"
+        id="error-modal-backdrop"
+      ></div>
+      <div
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-red-100 dark:bg-red-900/30 rounded-full p-3">
+              <svg
+                class="w-8 h-8 text-red-500 dark:text-red-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-lg font-bold text-center mb-2" id="error-modal-title">
+            Error
+          </h3>
+          <p
+            class="text-center text-gray-600 dark:text-gray-300 mb-6"
+            id="error-modal-message"
+          >
+            An error occurred while processing your request.
+          </p>
+          <div class="flex justify-center">
+            <button
+              id="error-modal-ok"
+              class="bg-red-600 text-white rounded-lg px-6 py-2 font-medium hover:bg-red-700 transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Ensure DOM is fully loaded before loading the AI assistant
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a short moment to ensure all other DOM operations are complete
+        setTimeout(function () {
+          // Create and add the script element
+          const script = document.createElement("script");
+          script.src = "../js/ai-assistant.js";
+          document.body.appendChild(script);
+        }, 500);
+      });
+    </script>
+    <script src="../js/models.js"></script>
+  </body>
+</html>
