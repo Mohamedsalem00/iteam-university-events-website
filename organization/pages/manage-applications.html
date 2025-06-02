@@ -22,17 +22,17 @@
     </script>
     
     <!-- Auth Guard Script -->
-    <script src="../../js/auth-guard.js"></script>
+    <script src="../js/auth-guard.js"></script>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Common Tailwind configuration -->
-    <script src="../../js/tailwind-config.js"></script>
+    <script src="../js/tailwind-config.js"></script>
     
     <!-- Common CSS variables -->
-    <link rel="stylesheet" href="../../css/styles.css">
-    <link rel="icon" href="../../images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
     <title>Manage Applications - Student Event Platform</title>
 </head>
 <body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
@@ -475,7 +475,7 @@
             function loadApplications() {
                 showLoadingState();
                 
-                fetch('../../api/organization/applications.php')
+                fetch('../api/organization/applications.php')
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -784,7 +784,7 @@ function updateApplicationStatus(applicationId, newStatus) {
     };
     
     // Send update to server
-    fetch('../../api/organization/update-application.php', {
+    fetch('../api/organization/update-application.php', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

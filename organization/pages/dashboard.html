@@ -22,17 +22,17 @@
     </script>
     
     <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
-    <script src="../../js/auth-guard.js"></script>
+    <script src="../js/auth-guard.js"></script>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Common Tailwind configuration -->
-    <script src="../../js/tailwind-config.js"></script>
+    <script src="../js/tailwind-config.js"></script>
     
     <!-- Common CSS variables -->
-    <link rel="stylesheet" href="../../css/styles.css">
-    <link rel="icon" href="../../images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
     <title>Organization Dashboard - Event Platform</title>
 
     <!-- Chart.js for analytics -->
@@ -47,8 +47,8 @@
                 <div class="flex flex-col h-0 flex-1 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
                         <div class="flex items-center flex-shrink-0 px-4">
-                            <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
-                            <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+                           
+                            <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">iTeam University</span>
                         </div>
                         <div class="mt-5 flex-1 px-2 bg-white dark:bg-gray-800 space-y-1">
                             <!-- Navigation Links -->
@@ -416,8 +416,8 @@
             <!-- Mobile sidebar content -->
             <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                 <div class="flex-shrink-0 flex items-center px-4">
-                    <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
-                    <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+                   
+                    <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">iTeam University</span>
                 </div>
                 <nav class="mt-5 px-2 space-y-1">
                     <!-- Navigation Links -->
@@ -525,7 +525,7 @@
             // Mark all notifications as read
             document.getElementById('mark-all-read').addEventListener('click', function() {
                 // API call to mark all as read
-                fetch('../../api/notifications.php?action=mark_all_read', {
+                fetch('api/notifications.php?action=mark_all_read', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -550,7 +550,7 @@
 
             const handleLogout = function() {
                 // API call to logout
-                fetch('../../api/logout.php', {
+                fetch('../api/logout.php', {
                     method: 'POST'
                 })
                 .then(response => response.json())
@@ -570,7 +570,7 @@
 
             // Load organization data and dashboard content
             const loadOrgData = function() {
-                fetch('../../api/organization.php')
+                fetch('../api/organization.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -598,7 +598,7 @@
             // Load all dashboard data
             const loadDashboardData = function(orgId) {
                 // Fetch dashboard stats
-                fetch(`../../api/dashboard.php?organization_id=${orgId}`)
+                fetch(`../api/dashboard.php?organization_id=${orgId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -809,7 +809,7 @@
                         const action = this.getAttribute('data-action');
                         
                         // API call to approve/reject
-                        fetch('../../api/registrations.php', {
+                        fetch('../api/registrations.php', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -837,7 +837,7 @@
             
             // Load notifications
             const loadNotifications = function() {
-                fetch('../../api/notifications.php')
+                fetch('../api/notifications.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -887,7 +887,7 @@
                                 const notifId = this.getAttribute('data-notif-id');
                                 
                                 // API call to mark as read
-                                fetch(`../../api/notifications.php?action=mark_as_read`, {
+                                fetch(`../api/notifications.php?action=mark_as_read`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json'

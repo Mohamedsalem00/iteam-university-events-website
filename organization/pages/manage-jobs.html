@@ -12,17 +12,17 @@
     </script>
     
     <!-- Auth Guard Script -->
-    <script src="../../js/auth-guard.js"></script>
+    <script src="../js/auth-guard.js"></script>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Common Tailwind configuration -->
-    <script src="../../js/tailwind-config.js"></script>
+    <script src="../js/tailwind-config.js"></script>
     
     <!-- Common CSS variables -->
-    <link rel="stylesheet" href="../../css/styles.css">
-    <link rel="icon" href="../../images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
     <title>Manage Job Offers - Student Event Platform</title>
 </head>
 <body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
@@ -248,7 +248,7 @@
             function loadJobOffers() {
                 showLoadingState();
                 
-                fetch('../../api/organization/job-offers.php')
+                fetch('../api/organization/job-offers.php')
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`Server responded with status: ${response.status}`);
@@ -380,7 +380,7 @@
                 
                 // Determine if this is a create or update operation
                 const isUpdate = jobId !== '';
-                const url = '../../api/organization/job-offers.php';
+                const url = '../api/organization/job-offers.php';
                 const method = isUpdate ? 'PUT' : 'POST';
                 
                 // Prepare data
@@ -453,7 +453,7 @@
                 deleteSpinner.classList.remove('hidden');
                 
                 // Send delete request
-                fetch(`../../api/organization/job-offers.php?job_id=${jobToDelete}`, {
+                fetch(`../api/organization/job-offers.php?job_id=${jobToDelete}`, {
                     method: 'DELETE'
                 })
                 .then(response => response.json())

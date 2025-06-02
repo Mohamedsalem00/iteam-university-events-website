@@ -11,7 +11,7 @@
     function getBaseUrl() {
         // Get current path
         const path = window.location.pathname;
-        const projectName = '/student';
+        const projectName = 'iteam-university-website/student';
         
         // Find the position of the project name in the path
         const projectPos = path.indexOf(projectName);
@@ -235,7 +235,7 @@
         // Build login URL based on current path
         const baseUrl = getBaseUrl();
         const relativePath = getRelativePath();
-        const loginUrl = relativePath + 'pages/auth/login.html';
+        const loginUrl = relativePath + 'pages/login.html';
         
         console.log('Redirecting to:', loginUrl);
         

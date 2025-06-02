@@ -188,6 +188,12 @@ function createEvent($conn, $organizationId) {
             exit();
         }
         
+        // Handle optional fields with default values
+        $thumbnail_url = isset($data['thumbnail_url']) && !empty($data['thumbnail_url']) ? 
+                         $data['thumbnail_url'] : NULL;
+        $requires_approval = isset($data['requires_approval']) ? 
+                            (bool)$data['requires_approval'] : false;
+        
         // Insert the new event
         $stmt = $conn->prepare("
             INSERT INTO events (
@@ -205,11 +211,10 @@ function createEvent($conn, $organizationId) {
         $stmt->bindParam(':end_date', $data['end_date']);
         $stmt->bindParam(':location', $data['location']);
         $stmt->bindParam(':event_type', $data['event_type']);
-        $stmt->bindParam(':max_capacity', $data['max_capacity']);
-        $stmt->bindParam(':organizer_id', $organizationId);
-        $stmt->bindParam(':thumbnail_url', $data['thumbnail_url']);
-        $requiresApproval = isset($data['requires_approval']) ? $data['requires_approval'] : false;
-        $stmt->bindParam(':requires_approval', $requiresApproval);
+        $stmt->bindParam(':max_capacity', $data['max_capacity'], PDO::PARAM_INT);
+        $stmt->bindParam(':organizer_id', $organizationId, PDO::PARAM_INT);
+        $stmt->bindParam(':thumbnail_url', $thumbnail_url);
+        $stmt->bindParam(':requires_approval', $requires_approval, PDO::PARAM_BOOL);
         
         $stmt->execute();
         $eventId = $conn->lastInsertId();
@@ -218,6 +223,7 @@ function createEvent($conn, $organizationId) {
         
     } catch (PDOException $e) {
         error_log("Database error in createEvent: " . $e->getMessage());
+        // Return the actual error message to help with debugging
         echo json_encode(['success' => false, 'message' => 'Database error', 'error' => $e->getMessage()]);
     }
 }

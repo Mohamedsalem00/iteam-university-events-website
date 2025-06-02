@@ -22,16 +22,16 @@
     </script>
     
     <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
-    <script src="../../js/auth-guard.js"></script>
+    <script src="../js/auth-guard.js"></script>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Common Tailwind configuration -->
-    <script src="../../js/tailwind-config.js"></script>
+    <script src="../js/tailwind-config.js"></script>
     
     <!-- Common CSS variables -->
-    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="icon" href="../../images/favicon.svg" type="image/svg+xml">
     <title>Manage Registrations - Organization Dashboard</title>
 </head>
@@ -44,8 +44,8 @@
                 <div class="flex flex-col h-0 flex-1 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
                         <div class="flex items-center flex-shrink-0 px-4">
-                            <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
-                            <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+                           
+                            <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">iTeam University</span>
                         </div>
                         <div class="mt-5 flex-1 px-2 bg-white dark:bg-gray-800 space-y-1">
                             <!-- Navigation Links -->
@@ -328,8 +328,8 @@
             <!-- Mobile sidebar content -->
             <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
                 <div class="flex-shrink-0 flex items-center px-4">
-                    <img class="h-8 w-auto" src="../../images/logo.svg" alt="Logo">
-                    <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">Event Hub</span>
+                   
+                    <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">iTeam University</span>
                 </div>
                 <nav class="mt-5 px-2 space-y-1">
                     <!-- Navigation Links -->
@@ -585,7 +585,7 @@
 
         // Load organization data
         const loadOrgData = function() {
-            fetch('../../api/organization.php')
+            fetch('../api/organization.php')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -636,7 +636,7 @@
             `;
 
             // API URL with parameters
-            const url = `../../api/registrations.php?page=${currentPage}&limit=${registrationsPerPage}&event_id=${eventFilter}&status=${statusFilter}&search=${searchQuery}`;
+            const url = `../api/registrations.php?page=${currentPage}&limit=${registrationsPerPage}&event_id=${eventFilter}&status=${statusFilter}&search=${searchQuery}`;
             
             fetch(url)
             .then(response => response.json())
@@ -880,7 +880,7 @@
 
         // Load registration details
         const loadRegistrationDetails = function(registrationId) {
-            fetch(`../../api/registrations.php?registration_id=${registrationId}`)
+            fetch(`../api/registrations.php?registration_id=${registrationId}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.registration) {
@@ -938,7 +938,7 @@
 
         // Handle registration status changes (approve, reject, etc.)
         const handleRegistrationAction = function(registrationId, action) {
-            fetch('../../api/registrations.php', {
+            fetch('../api/registrations.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -973,7 +973,7 @@
 
         // Delete registration
         const deleteRegistration = function(registrationId) {
-            fetch(`../../api/registrations.php?registration_id=${registrationId}`, {
+            fetch(`../api/registrations.php?registration_id=${registrationId}`, {
                 method: 'DELETE'
             })
             .then(response => response.json())
@@ -1110,7 +1110,7 @@
         // Export registrations to CSV
         document.getElementById('export-csv').addEventListener('click', function() {
             // Build the API URL with current filters
-            const url = `../../api/registrations.php?page=1&limit=1000&event_id=${eventFilter}&status=${statusFilter}&search=${searchQuery}&format=csv`;
+            const url = `../api/registrations.php?page=1&limit=1000&event_id=${eventFilter}&status=${statusFilter}&search=${searchQuery}&format=csv`;
             
             // Create a temporary link and trigger download
             const link = document.createElement('a');
