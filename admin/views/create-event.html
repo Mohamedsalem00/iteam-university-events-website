@@ -1,111 +1,198 @@
 <section data-auth-required="true" data-roles="admin" class="relative min-h-screen pt-16 bg-white dark:bg-gray-900">
-<!-- Breadcrumbs -->
-<div class="flex items-center text-sm mb-6">
-  <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
-  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
-  <a href="events.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Events</a>
-  <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
-  <span class="text-gray-700 dark:text-gray-300" id="eventFormBreadcrumbTitle">Create New Event</span>
-</div>
+  <!-- Breadcrumbs -->
+  <div class="flex items-center text-sm mb-6">
+    <a href="dashboard.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Home</a>
+    <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+    <a href="events.html" class="text-gray-500 dark:text-gray-400 hover:text-primary nav-link">Events</a>
+    <div class="w-4 h-4 flex items-center justify-center mx-1 text-gray-500 dark:text-gray-400"><i class="ri-arrow-right-s-line"></i></div>
+    <span class="text-gray-700 dark:text-gray-300" id="eventFormBreadcrumbTitle">Create New Event</span>
+  </div>
 
-<!-- Page Header -->
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-  <h1 class="text-2xl font-bold" id="eventFormPageTitle">Create New Event</h1>
-</div>
+  <!-- Page Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold" id="eventFormPageTitle">Create New Event</h1>
+  </div>
 
-<!-- Form Messages -->
-<div id="formMessages" class="mb-4"></div>
+  <!-- Form Messages -->
+  <div id="formMessages" class="mb-4"></div>
 
-<div class="card p-6 md:p-8">
-  <form id="eventForm" enctype="multipart/form-data">
-    <input type="hidden" id="eventId" name="eventId">
-    <input type="hidden" name="action" id="formAction" value="create"> <!-- create or update -->
+  <div class="card p-6 md:p-8 w-full max-w-7xl mx-auto">
+    <form id="eventForm" enctype="multipart/form-data">
+      <input type="hidden" id="eventId" name="eventId">
+      <input type="hidden" name="action" id="formAction" value="create">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-      <div>
-        <label for="eventName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Event Name</label>
-        <input type="text" id="eventName" name="eventName" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-      </div>
-      <div>
-        <label for="eventCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-        <select id="eventCategory" name="eventCategory" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-          <option value="">Select Category</option>
-          <option value="academic">Academic</option>
-          <option value="cultural">Cultural</option>
-          <option value="sports">Sports</option>
-          <option value="career_fair">Career Fair</option>
-          <option value="social_mixer">Social Mixer</option>
-          <option value="workshop">Workshop</option>
-          <option value="seminar">Seminar</option>
-          <option value="conference">Conference</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="mt-5">
-      <label for="eventDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-      <textarea id="eventDescription" name="eventDescription" rows="4" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm"></textarea>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5 mt-5">
-      <div>
-        <label for="eventDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-        <input type="date" id="eventDate" name="eventDate" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-      </div>
-      <div>
-        <label for="eventTime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Time</label>
-        <input type="time" id="eventTime" name="eventTime" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-      </div>
-       <div>
-        <label for="eventDuration" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration (e.g., 2 hours, 30 mins)</label>
-        <input type="text" id="eventDuration" name="eventDuration" placeholder="e.g., 2 hours" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-      </div>
-    </div>
-
-    <div class="mt-5">
-      <label for="eventLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Location / Venue</label>
-      <input type="text" id="eventLocation" name="eventLocation" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-5">
+      <!-- Title & Type -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
         <div>
-            <label for="eventOrganizer" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Organizer (Department/Club)</label>
-            <input type="text" id="eventOrganizer" name="eventOrganizer" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Event Title</label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            required
+            placeholder="Enter event title"
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+            maxlength="100"
+          >
         </div>
         <div>
-            <label for="maxAttendees" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Attendees (0 or empty for unlimited)</label>
-            <input type="number" id="maxAttendees" name="maxAttendees" min="0" placeholder="0" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
+          <label for="event_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Event Type</label>
+          <div class="select-wrapper">
+            <select
+              id="event_type"
+              name="event_type"
+              required
+              class="form-select w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base bg-white dark:bg-gray-800"
+            >
+              <option value="">Select Event Type</option>
+              <option value="workshop">Workshop</option>
+              <option value="conference">Conference</option>
+              <option value="fair">Fair</option>
+              <option value="webinar">Webinar</option>
+            </select>
+          </div>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-5">
-      <div>
-        <label for="eventImageUpload" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Event Image</label>
-        <input type="file" id="eventImageUpload" name="eventImage" accept="image/png, image/jpeg, image/gif" class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 dark:file:bg-gray-700 file:text-primary dark:file:text-primary-300 hover:file:bg-primary-100 dark:hover:file:bg-gray-600">
-        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 2MB. Current image (if any) will be replaced.</p>
-        <img id="currentEventImage" src="#" alt="Current Event Image" class="mt-2 max-h-40 rounded-lg hidden object-cover">
       </div>
-      <div>
-        <label for="eventStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-        <select id="eventStatus" name="eventStatus" required class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm">
-          <option value="upcoming">Upcoming</option>
-          <option value="active">Active</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="postponed">Postponed</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
-      <button type="button" id="cancelFormBtn" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-button hover:bg-gray-50 dark:hover:bg-gray-600">Cancel</button>
-      <button type="submit" id="submitEventBtn" class="px-5 py-2.5 text-sm font-medium text-white bg-primary hover:bg-opacity-90 rounded-button focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-800">
-        Create Event
-      </button>
-    </div>
-  </form>
-</div>
+      <!-- Description -->
+      <div class="mt-6">
+        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="5"
+          required
+          maxlength="1000"
+          placeholder="Describe the event..."
+          class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Dates and Times -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5 mt-6">
+        <div>
+          <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Start Date</label>
+          <input
+            type="date"
+            id="start_date"
+            name="start_date"
+            required
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          >
+        </div>
+        <div>
+          <label for="start_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Start Time</label>
+          <input
+            type="time"
+            id="start_time"
+            name="start_time"
+            required
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          >
+        </div>
+        <div>
+          <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">End Date</label>
+          <input
+            type="date"
+            id="end_date"
+            name="end_date"
+            required
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          >
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5 mt-5">
+        <div>
+          <label for="end_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">End Time</label>
+          <input
+            type="time"
+            id="end_time"
+            name="end_time"
+            required
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          >
+        </div>
+        <div>
+          <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Location</label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            required
+            maxlength="150"
+            placeholder="Event location"
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          >
+        </div>
+        <div>
+          <label for="max_capacity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Maximum Capacity</label>
+          <input
+            type="number"
+            id="max_capacity"
+            name="max_capacity"
+            min="0"
+            placeholder="0 for unlimited"
+            class="form-input w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base"
+          >
+        </div>
+      </div>
+
+      <!-- Organizer and Approval -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-6">
+        <div>
+          <label for="organizer_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Organizer</label>
+          <div class="select-wrapper">
+            <select
+              id="organizer_id"
+              name="organizer_id"
+              class="form-select w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base bg-white dark:bg-gray-800"
+            >
+              <option value="">Select Organizer</option>
+              <!-- This will be dynamically populated -->
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="requires_approval" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Requires Approval</label>
+          <div class="select-wrapper">
+            <select
+              id="requires_approval"
+              name="requires_approval"
+              class="form-select w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-primary focus:border-primary text-base bg-white dark:bg-gray-800"
+            >
+              <option value="0">No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thumbnail -->
+      <div class="mt-6">
+        <label for="thumbnail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Event Thumbnail</label>
+        <input
+          type="file"
+          id="thumbnail"
+          name="thumbnail"
+          accept="image/png, image/jpeg, image/gif"
+          class="form-file-input w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg py-2 px-4"
+        >
+        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF up to 2MB. Current image (if any) will be replaced.</p>
+        <img id="currentThumbnail" src="#" alt="Current Event Thumbnail" class="mt-3 max-h-40 rounded-lg hidden object-cover">
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-8 pt-5 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4">
+        <button type="button" id="cancelFormBtn" class="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          Cancel
+        </button>
+        <button type="submit" id="submitEventBtn" class="px-5 py-2.5 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-gray-900">
+          Create Event
+        </button>
+      </div>
+    </form>
+  </div>
 </section>
 <script>
 (function() {
@@ -118,8 +205,8 @@
     const eventIdInput = document.getElementById('eventId');
     const formActionInput = document.getElementById('formAction');
     const formMessages = document.getElementById('formMessages');
-    const currentEventImage = document.getElementById('currentEventImage');
-    const eventImageUploadInput = document.getElementById('eventImageUpload');
+    const currentThumbnail = document.getElementById('currentThumbnail');
+    const thumbnailUploadInput = document.getElementById('thumbnail');
     const cancelFormBtn = document.getElementById('cancelFormBtn');
 
     let isEditMode = false;
@@ -161,29 +248,32 @@
     }
 
     function populateForm(event) {
-        document.getElementById('eventName').value = event.title || '';
-        document.getElementById('eventCategory').value = event.category || '';
-        document.getElementById('eventDescription').value = event.description || '';
+        document.getElementById('title').value = event.title || '';
+        document.getElementById('event_type').value = event.event_type || '';
+        document.getElementById('description').value = event.description || '';
         
-        if (event.event_date) {
-            const [datePart, timePart] = event.event_date.split(' ');
-            document.getElementById('eventDate').value = datePart || '';
-            if (timePart) {
-                 // Ensure time is in HH:MM format for the input
-                document.getElementById('eventTime').value = timePart.substring(0, 5);
-            }
+        if (event.start_date) {
+            const startDateTime = new Date(event.start_date);
+            document.getElementById('start_date').value = startDateTime.toISOString().split('T')[0];
+            document.getElementById('start_time').value = startDateTime.toTimeString().substring(0, 5);
         }
-        document.getElementById('eventDuration').value = event.duration || '';
-        document.getElementById('eventLocation').value = event.location || '';
-        document.getElementById('eventOrganizer').value = event.organizer || '';
-        document.getElementById('maxAttendees').value = event.max_attendees === null || event.max_attendees === undefined ? '' : event.max_attendees;
-        document.getElementById('eventStatus').value = event.status || 'upcoming';
+        
+        if (event.end_date) {
+            const endDateTime = new Date(event.end_date);
+            document.getElementById('end_date').value = endDateTime.toISOString().split('T')[0];
+            document.getElementById('end_time').value = endDateTime.toTimeString().substring(0, 5);
+        }
+        
+        document.getElementById('location').value = event.location || '';
+        document.getElementById('max_capacity').value = event.max_capacity || '';
+        document.getElementById('organizer_id').value = event.organizer_id || '';
+        document.getElementById('requires_approval').value = event.requires_approval ? '1' : '0';
 
-        if (event.image_url) {
-            currentEventImage.src = `/iteam-university-website/admin/${event.image_url}`; // Assuming image_url is relative to /iteam-university-website/admin/
-            currentEventImage.classList.remove('hidden');
+        if (event.thumbnail_url) {
+            document.getElementById('currentThumbnail').src = `/iteam-university-website/admin/${event.thumbnail_url}`;
+            document.getElementById('currentThumbnail').classList.remove('hidden');
         } else {
-            currentEventImage.classList.add('hidden');
+            document.getElementById('currentThumbnail').classList.add('hidden');
         }
     }
     
@@ -216,14 +306,14 @@
         }
     }
 
-    if (eventImageUploadInput) {
-        eventImageUploadInput.addEventListener('change', function(e) {
+    if (thumbnailUploadInput) {
+        thumbnailUploadInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    currentEventImage.src = event.target.result;
-                    currentEventImage.classList.remove('hidden');
+                    currentThumbnail.src = event.target.result;
+                    currentThumbnail.classList.remove('hidden');
                 }
                 reader.readAsDataURL(file);
             }
@@ -246,14 +336,40 @@
     if (eventForm) {
         eventForm.addEventListener('submit', async function(event) {
             event.preventDefault();
-            formMessages.innerHTML = ''; // Clear previous messages
+            formMessages.innerHTML = '';
+            
+            // Form validation
+            const startDate = document.getElementById('start_date').value;
+            const startTime = document.getElementById('start_time').value;
+            const endDate = document.getElementById('end_date').value;
+            const endTime = document.getElementById('end_time').value;
+            
+            // Create Date objects for comparison
+            const startDateTime = new Date(`${startDate}T${startTime}`);
+            const endDateTime = new Date(`${endDate}T${endTime}`);
+            
+            if (endDateTime <= startDateTime) {
+                displayMessage('error', 'End date/time must be after start date/time');
+                return;
+            }
+            
             const originalButtonText = submitEventBtn.innerHTML;
             submitEventBtn.disabled = true;
             submitEventBtn.innerHTML = `<i class="ri-loader-4-line ri-spin mr-2"></i> ${isEditMode ? 'Saving...' : 'Creating...'}`;
 
+            // Combine date and time fields
             const formData = new FormData(eventForm);
-            // The 'action' (create/update) and 'eventId' (if update) are already in hidden inputs
-
+            
+            // Remove individual date/time fields and add combined datetime fields
+            formData.delete('start_date');
+            formData.delete('start_time');
+            formData.delete('end_date');
+            formData.delete('end_time');
+            
+            formData.append('start_date', `${startDate} ${startTime}:00`);
+            formData.append('end_date', `${endDate} ${endTime}:00`);
+            
+            // Rest of your form submission code...
             let apiUrl = '/iteam-university-website/admin/api/events.php';
             let method = 'POST'; // Always POST, action field in FormData differentiates create/update
 
@@ -295,5 +411,88 @@
             }
         });
     }
+
+    // Add this function to load organizations for the dropdown
+    async function loadOrganizers() {
+        try {
+            const response = await fetch('/iteam-university-website/admin/api/organizations.php');
+            if (!response.ok) throw new Error('Failed to fetch organizations');
+            const data = await response.json();
+            
+            if (data.success && data.organizations) {
+                const organizerSelect = document.getElementById('organizer_id');
+                organizerSelect.innerHTML = '<option value="">Select Organizer</option>';
+                
+                data.organizations.forEach(org => {
+                    const option = document.createElement('option');
+                    option.value = org.organization_id;
+                    option.textContent = org.name;
+                    organizerSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error("Error loading organizers:", error);
+        }
+    }
+
+    // Function to set up custom date-time pickers if needed
+    function enhanceFormControls() {
+        // Add any form control enhancements here
+        
+        // Date validation - ensure end date is not before start date
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        endDateInput.addEventListener('change', function() {
+            if (startDateInput.value && this.value) {
+                if (this.value < startDateInput.value) {
+                    displayMessage('error', 'End date cannot be before start date');
+                    this.value = startDateInput.value;
+                }
+            }
+        });
+        
+        // Enhance select inputs with custom styling
+        const selects = document.querySelectorAll('.form-select');
+        selects.forEach(select => {
+            select.addEventListener('focus', function() {
+                this.parentElement.classList.add('ring-1', 'ring-primary');
+            });
+            
+            select.addEventListener('blur', function() {
+                this.parentElement.classList.remove('ring-1', 'ring-primary');
+            });
+        });
+    }
+
+    // Call this function when document is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrganizers();
+        enhanceFormControls();
+    });
 })();
 </script>
+
+<style>
+.form-input {
+  @apply w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm px-4 py-2.5;
+}
+
+.form-select {
+  @apply w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm px-4 py-2.5 appearance-none;
+}
+
+/* Custom select arrow styling */
+.select-wrapper {
+  @apply relative;
+}
+
+.select-wrapper:after {
+  content: '';
+  @apply absolute right-4 top-1/2 transform -translate-y-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-400 dark:border-t-gray-300 pointer-events-none;
+}
+
+.form-file-input {
+  @apply block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 dark:file:bg-gray-700 file:text-primary dark:file:text-primary-300 hover:file:bg-primary-100 dark:hover:file:bg-gray-600 cursor-pointer;
+}
+</style>

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    
+    <!-- Apply student type immediately to prevent flash -->
+    <script>
+        // Apply student type immediately to prevent flash
+        (function() {
+            const userType = localStorage.getItem('userType');
+            if (userType) {
+                document.body.classList.add('is-' + userType);
+            }
+        })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Account Settings - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
+      data-auth-required="true" 
+      data-roles="student,organization,admin">
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold">Account Settings</h1>
+                <p class="text-dashboard-text-secondary mt-1">Manage your preferences and account settings</p>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="settings-loading" class="flex items-center justify-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-theme-primary"></div>
+            </div>
+            
+            <!-- Error State -->
+            <div id="settings-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline" id="settings-error-message">Unable to load settings.</span>
+                <button id="retry-loading" class="text-theme-primary underline ml-2">Try again</button>
+            </div>
+            
+            <!-- Settings Content -->
+            <div id="settings-content" class="hidden">
+                <!-- Settings Form Wrapper -->
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden mb-8">
+                    <!-- Tabs Navigation -->
+                    <div class="border-b border-dashboard-border dark:border-dashboard-border">
+                        <div class="flex overflow-x-auto">
+                            <button id="tab-general" class="tab-btn px-6 py-4 border-b-2 border-theme-primary text-theme-primary font-medium">
+                                General
+                            </button>
+                            <button id="tab-notifications" class="tab-btn px-6 py-4 border-b-2 border-transparent text-dashboard-text-secondary font-medium hover:text-dashboard-text">
+                                Notifications
+                            </button>
+                            <button id="tab-privacy" class="tab-btn px-6 py-4 border-b-2 border-transparent text-dashboard-text-secondary font-medium hover:text-dashboard-text">
+                                Privacy
+                            </button>
+                            <button id="tab-appearance" class="tab-btn px-6 py-4 border-b-2 border-transparent text-dashboard-text-secondary font-medium hover:text-dashboard-text">
+                                Appearance
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Content -->
+                    <div class="p-6">
+                        <!-- General Settings Tab -->
+                        <div id="content-general" class="tab-content">
+                            <form id="general-settings-form">
+                                <div class="space-y-6">
+                                    <h3 class="text-lg font-medium">General Settings</h3>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <!-- Time Zone Setting -->
+                                        <div>
+                                            <label for="timezone" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Timezone</label>
+                                            <select id="timezone" name="timezone" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                                <option value="UTC">UTC (Coordinated Universal Time)</option>
+                                                <option value="America/New_York">Eastern Time (US & Canada)</option>
+                                                <option value="America/Chicago">Central Time (US & Canada)</option>
+                                                <option value="America/Denver">Mountain Time (US & Canada)</option>
+                                                <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+                                                <option value="Europe/London">London, Edinburgh</option>
+                                                <option value="Europe/Paris">Paris, Berlin, Rome, Madrid</option>
+                                                <option value="Asia/Tokyo">Tokyo, Seoul</option>
+                                                <option value="Australia/Sydney">Sydney, Melbourne</option>
+                                            </select>
+                                            <p class="mt-1 text-xs text-dashboard-text-secondary">Events will be displayed in your selected timezone.</p>
+                                        </div>
+                                        
+                                        <!-- Date Format Setting -->
+                                        <div>
+                                            <label for="date-format" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Date Format</label>
+                                            <select id="date-format" name="date_format" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                                <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                                                <option value="DD/MM/YYYY">DD/MM/YYYY (Europe/UK)</option>
+                                                <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                                            </select>
+                                            <p class="mt-1 text-xs text-dashboard-text-secondary">Choose how dates will be displayed across the platform.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Language Setting -->
+                                    <div>
+                                        <label for="language" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Language</label>
+                                        <select id="language" name="language" class="w-full max-w-xs rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                            <option value="en">English</option>
+                                            <option value="es">Español</option>
+                                            <option value="fr">Français</option>
+                                            <option value="de">Deutsch</option>
+                                            <option value="zh">中文 (Chinese)</option>
+                                            <option value="ja">日本語 (Japanese)</option>
+                                            <option value="ar">العربية (Arabic)</option>
+                                        </select>
+                                        <p class="mt-1 text-xs text-dashboard-text-secondary">This will change the language used throughout the platform.</p>
+                                    </div>
+
+                                    <!-- Default Calendar System -->
+                                    <div>
+                                        <label for="calendar-system" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Default Calendar System</label>
+                                        <select id="calendar-system" name="calendar_system" class="w-full max-w-xs rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                            <option value="google">Google Calendar</option>
+                                            <option value="outlook">Microsoft Outlook</option>
+                                            <option value="ical">iCal / Apple Calendar</option>
+                                        </select>
+                                        <p class="mt-1 text-xs text-dashboard-text-secondary">Choose your preferred calendar system for event syncing.</p>
+                                    </div>
+                                    
+                                    <div class="pt-4">
+                                        <button type="submit" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition flex items-center">
+                                            <span>Save General Settings</span>
+                                            <span id="general-spinner" class="ml-2 hidden">
+                                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Notifications Settings Tab -->
+                        <div id="content-notifications" class="tab-content hidden">
+                            <form id="notifications-settings-form">
+                                <div class="space-y-6">
+                                    <h3 class="text-lg font-medium">Notification Settings</h3>
+                                    
+                                    <!-- Email Notifications -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Email Notifications</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="notify-event-reminders" class="font-medium">Event Reminders</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Receive email reminders before events you've registered for.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="notify-event-reminders" name="notify_event_reminders" value="1" class="sr-only peer" checked>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="notify-registration-updates" class="font-medium">Registration Updates</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Notifications about your event registration status changes.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="notify-registration-updates" name="notify_registration_updates" value="1" class="sr-only peer" checked>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="notify-event-changes" class="font-medium">Event Changes</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Notifications when event details change for events you're registered for.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="notify-event-changes" name="notify_event_changes" value="1" class="sr-only peer" checked>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="notify-newsletter" class="font-medium">Newsletter & Updates</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Receive updates about platform features and upcoming events.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="notify-newsletter" name="notify_newsletter" value="1" class="sr-only peer">
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Browser Notifications -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Browser Notifications</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="browser-notifications" class="font-medium">Enable Browser Notifications</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Receive notifications in your browser when important updates occur.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="browser-notifications" name="browser_notifications" value="1" class="sr-only peer">
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="test-notification-btn" class="mt-2 text-sm text-theme-primary hover:underline">Test Notification</button>
+                                    </div>
+                                    
+                                    <!-- Reminder Timing -->
+                                    <div>
+                                        <label for="reminder-timing" class="block font-medium mb-1">Event Reminder Timing</label>
+                                        <select id="reminder-timing" name="reminder_timing" class="w-full max-w-xs rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                            <option value="1h">1 hour before</option>
+                                            <option value="3h">3 hours before</option>
+                                            <option value="1d">1 day before</option>
+                                            <option value="2d">2 days before</option>
+                                            <option value="1w">1 week before</option>
+                                        </select>
+                                        <p class="mt-1 text-xs text-dashboard-text-secondary">Choose when you'd like to receive event reminders.</p>
+                                    </div>
+                                    
+                                    <div class="pt-4">
+                                        <button type="submit" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition flex items-center">
+                                            <span>Save Notification Settings</span>
+                                            <span id="notifications-spinner" class="ml-2 hidden">
+                                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Privacy Settings Tab -->
+                        <div id="content-privacy" class="tab-content hidden">
+                            <form id="privacy-settings-form">
+                                <div class="space-y-6">
+                                    <h3 class="text-lg font-medium">Privacy Settings</h3>
+                                    
+                                    <!-- Profile Visibility -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Profile Visibility</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="show-profile" class="font-medium">Show My Profile</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Allow other students to view your profile information.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="show-profile" name="show_profile" value="1" class="sr-only peer" checked>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="show-attendance" class="font-medium">Show Event Attendance</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Allow others to see which events you're registered for.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="show-attendance" name="show_attendance" value="1" class="sr-only peer">
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Data Usage -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Data Usage & Cookies</h4>
+                                        <div class="space-y-3">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="analytics-consent" class="font-medium">Allow Analytics</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Allow anonymized usage data to help improve the platform.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="analytics-consent" name="analytics_consent" value="1" class="sr-only peer" checked>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <label for="personalized-content" class="font-medium">Personalized Content</label>
+                                                    <p class="text-sm text-dashboard-text-secondary">Allow event recommendations based on your interests and activity.</p>
+                                                </div>
+                                                <label class="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" id="personalized-content" name="personalized_content" value="1" class="sr-only peer" checked>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-theme-primary/20 dark:peer-focus:ring-theme-primary/30 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-primary"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Account Actions -->
+                                    <div class="pt-4 border-t border-dashboard-border dark:border-dashboard-border">
+                                        <h4 class="font-medium mb-4">Account Actions</h4>
+                                        <div class="space-y-4">
+                                            <button type="button" id="data-export-btn" class="text-theme-primary hover:text-theme-primary-hover flex items-center">
+                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                                </svg>
+                                                Export My Data
+                                            </button>
+                                            
+                                            <button type="button" id="deactivate-account-btn" class="text-yellow-600 dark:text-yellow-500 hover:text-yellow-700 dark:hover:text-yellow-400 flex items-center">
+                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                </svg>
+                                                Deactivate Account
+                                            </button>
+                                            
+                                            <button type="button" id="delete-account-btn" class="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 flex items-center">
+                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                                Delete My Account
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pt-4">
+                                        <button type="submit" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition flex items-center">
+                                            <span>Save Privacy Settings</span>
+                                            <span id="privacy-spinner" class="ml-2 hidden">
+                                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Appearance Settings Tab -->
+                        <div id="content-appearance" class="tab-content hidden">
+                            <form id="appearance-settings-form">
+                                <div class="space-y-6">
+                                    <h3 class="text-lg font-medium">Appearance Settings</h3>
+                                    
+                                    <!-- Dark Mode Toggle -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Theme</h4>
+                                        <div class="space-y-4">
+                                            <div>
+                                                <div class="flex items-center space-x-4">
+                                                    <label class="flex-1">
+                                                        <input type="radio" name="theme" value="light" class="sr-only peer" id="theme-light">
+                                                        <div class="flex items-center justify-between p-3 border rounded-lg cursor-pointer border-dashboard-border dark:border-dashboard-border peer-checked:border-theme-primary peer-checked:ring-1 peer-checked:ring-theme-primary hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                            <div class="flex items-center">
+                                                                <svg class="w-5 h-5 mr-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                                                                </svg>
+                                                                <span>Light Mode</span>
+                                                            </div>
+                                                            <svg class="w-5 h-5 text-theme-primary opacity-0 peer-checked:opacity-100" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </label>
+                                                    
+                                                    <label class="flex-1">
+                                                        <input type="radio" name="theme" value="dark" class="sr-only peer" id="theme-dark">
+                                                        <div class="flex items-center justify-between p-3 border rounded-lg cursor-pointer border-dashboard-border dark:border-dashboard-border peer-checked:border-theme-primary peer-checked:ring-1 peer-checked:ring-theme-primary hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                            <div class="flex items-center">
+                                                                <svg class="w-5 h-5 mr-3 text-indigo-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                                                                </svg>
+                                                                <span>Dark Mode</span>
+                                                            </div>
+                                                            <svg class="w-5 h-5 text-theme-primary opacity-0 peer-checked:opacity-100" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </label>
+                                                    
+                                                    <label class="flex-1">
+                                                        <input type="radio" name="theme" value="system" class="sr-only peer" id="theme-system" checked>
+                                                        <div class="flex items-center justify-between p-3 border rounded-lg cursor-pointer border-dashboard-border dark:border-dashboard-border peer-checked:border-theme-primary peer-checked:ring-1 peer-checked:ring-theme-primary hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                            <div class="flex items-center">
+                                                                <svg class="w-5 h-5 mr-3 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z" clip-rule="evenodd"></path>
+                                                                </svg>
+                                                                <span>System Default</span>
+                                                            </div>
+                                                            <svg class="w-5 h-5 text-theme-primary opacity-0 peer-checked:opacity-100" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <p class="mt-2 text-xs text-dashboard-text-secondary">Choose your preferred color theme for the application.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Font Size -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Font Size</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <span class="text-xs mr-2">A</span>
+                                                <input type="range" id="font-size" name="font_size" min="1" max="5" value="3" class="w-full max-w-xs h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                                                <span class="text-lg ml-2">A</span>
+                                            </div>
+                                            <p class="text-xs text-dashboard-text-secondary">Adjust the text size throughout the application.</p>
+                                        </div>
+                                        <div class="mt-2 text-sm" id="font-size-preview">
+                                            <p>This is how text will appear at the selected size.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Color Accent -->
+                                    <div>
+                                        <h4 class="font-medium mb-3">Accent Color</h4>
+                                        <div class="flex flex-wrap gap-3">
+                                            <label class="relative">
+                                                <input type="radio" name="accent_color" value="blue" class="sr-only peer" checked>
+                                                <div class="w-8 h-8 bg-blue-500 rounded-full cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-blue-500 dark:peer-checked:ring-offset-gray-800"></div>
+                                            </label>
+                                            <label class="relative">
+                                                <input type="radio" name="accent_color" value="purple" class="sr-only peer">
+                                                <div class="w-8 h-8 bg-purple-500 rounded-full cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-purple-500 dark:peer-checked:ring-offset-gray-800"></div>
+                                            </label>
+                                            <label class="relative">
+                                                <input type="radio" name="accent_color" value="green" class="sr-only peer">
+                                                <div class="w-8 h-8 bg-green-500 rounded-full cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-green-500 dark:peer-checked:ring-offset-gray-800"></div>
+                                            </label>
+                                            <label class="relative">
+                                                <input type="radio" name="accent_color" value="amber" class="sr-only peer">
+                                                <div class="w-8 h-8 bg-amber-500 rounded-full cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-amber-500 dark:peer-checked:ring-offset-gray-800"></div>
+                                            </label>
+                                            <label class="relative">
+                                                <input type="radio" name="accent_color" value="rose" class="sr-only peer">
+                                                <div class="w-8 h-8 bg-rose-500 rounded-full cursor-pointer peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-rose-500 dark:peer-checked:ring-offset-gray-800"></div>
+                                            </label>
+                                        </div>
+                                        <p class="mt-2 text-xs text-dashboard-text-secondary">Select your preferred accent color for buttons and highlights.</p>
+                                    </div>
+                                    
+                                    <div class="pt-4">
+                                        <button type="submit" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition flex items-center">
+                                            <span>Save Appearance Settings</span>
+                                            <span id="appearance-spinner" class="ml-2 hidden">
+                                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Toast -->
+            <div id="success-toast" class="fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg hidden" role="alert">
+                <div class="flex">
+                    <div class="py-1">
+                        <svg class="fill-current h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM6.7 9.29L9 11.6l4.3-4.3 1.4 1.42L9 14.4l-3.7-3.7 1.4-1.42z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-bold">Success!</p>
+                        <p class="text-sm" id="success-message">Your settings have been saved successfully.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Your existing scripts -->
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    
+    <!-- Add the settings script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const settingsContent = document.getElementById('settings-content');
+            const settingsLoading = document.getElementById('settings-loading');
+            const settingsError = document.getElementById('settings-error');
+            const retryLoading = document.getElementById('retry-loading');
+            const errorMessage = document.getElementById('settings-error-message');
+            const successToast = document.getElementById('success-toast');
+            const successMessage = document.getElementById('success-message');
+            
+            // Tab elements
+            const tabGeneral = document.getElementById('tab-general');
+            const tabNotifications = document.getElementById('tab-notifications');
+            const tabPrivacy = document.getElementById('tab-privacy');
+            const tabAppearance = document.getElementById('tab-appearance');
+            const allTabs = [tabGeneral, tabNotifications, tabPrivacy, tabAppearance];
+            
+            // Tab content elements
+            const contentGeneral = document.getElementById('content-general');
+            const contentNotifications = document.getElementById('content-notifications');
+            const contentPrivacy = document.getElementById('content-privacy');
+            const contentAppearance = document.getElementById('content-appearance');
+            const allContents = [contentGeneral, contentNotifications, contentPrivacy, contentAppearance];
+            
+            // Form elements
+            const generalForm = document.getElementById('general-settings-form');
+            const notificationsForm = document.getElementById('notifications-settings-form');
+            const privacyForm = document.getElementById('privacy-settings-form');
+            const appearanceForm = document.getElementById('appearance-settings-form');
+            
+            // Special action buttons
+            const testNotificationBtn = document.getElementById('test-notification-btn');
+            const dataExportBtn = document.getElementById('data-export-btn');
+            const deactivateAccountBtn = document.getElementById('deactivate-account-btn');
+            const deleteAccountBtn = document.getElementById('delete-account-btn');
+            
+            // Theme toggle elements
+            const themeLight = document.getElementById('theme-light');
+            const themeDark = document.getElementById('theme-dark');
+            const themeSystem = document.getElementById('theme-system');
+            
+            // Font size elements
+            const fontSizeRange = document.getElementById('font-size');
+            const fontSizePreview = document.getElementById('font-size-preview');
+            
+            // Initialize
+            loadSettings();
+            setupEventListeners();
+            
+            // Function to load student settings
+            function loadSettings() {
+                // Show loading state
+                settingsLoading.classList.remove('hidden');
+                settingsContent.classList.add('hidden');
+                settingsError.classList.add('hidden');
+                
+                // Set a timeout to prevent infinite loading
+                const loadingTimeout = setTimeout(() => {
+                    if (settingsLoading.classList.contains('hidden') === false) {
+                        // Still loading after 10 seconds, show error
+                        settingsLoading.classList.add('hidden');
+                        settingsError.classList.remove('hidden');
+                        errorMessage.textContent = 'Request timed out. The server is taking too long to respond.';
+                        console.error('Settings loading timed out');
+                    }
+                }, 10000);
+                
+                // Fetch settings from API - Replace with real API when available
+                // For demo, we'll simulate an API call with setTimeout
+                setTimeout(() => {
+                    clearTimeout(loadingTimeout);
+                    
+                    // Simulate successful API response with demo data
+                    const settings = {
+                        general: {
+                            timezone: 'America/New_York',
+                            date_format: 'MM/DD/YYYY',
+                            language: 'en',
+                            calendar_system: 'google'
+                        },
+                        notifications: {
+                            notify_event_reminders: true,
+                            notify_registration_updates: true,
+                            notify_event_changes: true,
+                            notify_newsletter: false,
+                            browser_notifications: false,
+                            reminder_timing: '1d'
+                        },
+                        privacy: {
+                            show_profile: true,
+                            show_attendance: false,
+                            analytics_consent: true,
+                            personalized_content: true
+                        },
+                        appearance: {
+                            theme: localStorage.getItem('darkMode') === 'dark' ? 'dark' : 
+                                   localStorage.getItem('darkMode') === 'light' ? 'light' : 
+                                   'system',
+                            font_size: 3,
+                            accent_color: 'blue'
+                        }
+                    };
+                    
+                    // Update form values with settings
+                    populateForms(settings);
+                    
+                    // Hide loading, show content
+                    settingsLoading.classList.add('hidden');
+                    settingsContent.classList.remove('hidden');
+                }, 1000); // Simulating 1-second API call
+            }
+            
+            // Function to populate forms with student settings
+            function populateForms(settings) {
+                // General Settings
+                document.getElementById('timezone').value = settings.general.timezone;
+                document.getElementById('date-format').value = settings.general.date_format;
+                document.getElementById('language').value = settings.general.language;
+                document.getElementById('calendar-system').value = settings.general.calendar_system;
+                
+                // Notification Settings
+                document.getElementById('notify-event-reminders').checked = settings.notifications.notify_event_reminders;
+                document.getElementById('notify-registration-updates').checked = settings.notifications.notify_registration_updates;
+                document.getElementById('notify-event-changes').checked = settings.notifications.notify_event_changes;
+                document.getElementById('notify-newsletter').checked = settings.notifications.notify_newsletter;
+                document.getElementById('browser-notifications').checked = settings.notifications.browser_notifications;
+                document.getElementById('reminder-timing').value = settings.notifications.reminder_timing;
+                
+                // Privacy Settings
+                document.getElementById('show-profile').checked = settings.privacy.show_profile;
+                document.getElementById('show-attendance').checked = settings.privacy.show_attendance;
+                document.getElementById('analytics-consent').checked = settings.privacy.analytics_consent;
+                document.getElementById('personalized-content').checked = settings.privacy.personalized_content;
+                
+                // Appearance Settings
+                if (settings.appearance.theme === 'light') {
+                    themeLight.checked = true;
+                } else if (settings.appearance.theme === 'dark') {
+                    themeDark.checked = true;
+                } else {
+                    themeSystem.checked = true;
+                }
+                
+                fontSizeRange.value = settings.appearance.font_size;
+                updateFontSizePreview(settings.appearance.font_size);
+                
+                document.querySelector(`input[name="accent_color"][value="${settings.appearance.accent_color}"]`).checked = true;
+            }
+            
+            // Function to set up event listeners
+            function setupEventListeners() {
+                // Tab switching
+                tabGeneral.addEventListener('click', () => setActiveTab('general'));
+                tabNotifications.addEventListener('click', () => setActiveTab('notifications'));
+                tabPrivacy.addEventListener('click', () => setActiveTab('privacy'));
+                tabAppearance.addEventListener('click', () => setActiveTab('appearance'));
+                
+                // Form submissions
+                generalForm.addEventListener('submit', handleFormSubmit);
+                notificationsForm.addEventListener('submit', handleFormSubmit);
+                privacyForm.addEventListener('submit', handleFormSubmit);
+                appearanceForm.addEventListener('submit', handleFormSubmit);
+                
+                // Special actions
+                testNotificationBtn.addEventListener('click', testNotification);
+                dataExportBtn.addEventListener('click', exportUserData);
+                deactivateAccountBtn.addEventListener('click', deactivateAccount);
+                deleteAccountBtn.addEventListener('click', deleteAccount);
+                
+                // Retry loading
+                retryLoading.addEventListener('click', loadSettings);
+                
+                // Theme changes
+                themeLight.addEventListener('change', updateTheme);
+                themeDark.addEventListener('change', updateTheme);
+                themeSystem.addEventListener('change', updateTheme);
+                
+                // Font size changes
+                fontSizeRange.addEventListener('input', () => updateFontSizePreview(fontSizeRange.value));
+            }
+            
+            // Function to set active tab
+            function setActiveTab(tab) {
+                // Remove active class from all tabs and hide all content
+                allTabs.forEach(t => {
+                    t.classList.remove('border-theme-primary', 'text-theme-primary');
+                    t.classList.add('border-transparent', 'text-dashboard-text-secondary');
+                });
+                
+                allContents.forEach(c => {
+                    c.classList.add('hidden');
+                });
+                
+                // Set active tab and show content
+                if (tab === 'general') {
+                    tabGeneral.classList.add('border-theme-primary', 'text-theme-primary');
+                    tabGeneral.classList.remove('border-transparent', 'text-dashboard-text-secondary');
+                    contentGeneral.classList.remove('hidden');
+                } else if (tab === 'notifications') {
+                    tabNotifications.classList.add('border-theme-primary', 'text-theme-primary');
+                    tabNotifications.classList.remove('border-transparent', 'text-dashboard-text-secondary');
+                    contentNotifications.classList.remove('hidden');
+                } else if (tab === 'privacy') {
+                    tabPrivacy.classList.add('border-theme-primary', 'text-theme-primary');
+                    tabPrivacy.classList.remove('border-transparent', 'text-dashboard-text-secondary');
+                    contentPrivacy.classList.remove('hidden');
+                } else if (tab === 'appearance') {
+                    tabAppearance.classList.add('border-theme-primary', 'text-theme-primary');
+                    tabAppearance.classList.remove('border-transparent', 'text-dashboard-text-secondary');
+                    contentAppearance.classList.remove('hidden');
+                }
+            }
+            
+            // Handle form submissions
+            function handleFormSubmit(event) {
+                event.preventDefault();
+                
+                const form = event.target;
+                const formData = new FormData(form);
+                const settings = {};
+                
+                // Convert FormData to object
+                for (const [key, value] of formData.entries()) {
+                    settings[key] = value;
+                }
+                
+                // Determine form type
+                let formType = '';
+                if (form === generalForm) {
+                    formType = 'general';
+                } else if (form === notificationsForm) {
+                    formType = 'notifications';
+                } else if (form === privacyForm) {
+                    formType = 'privacy';
+                } else if (form === appearanceForm) {
+                    formType = 'appearance';
+                }
+                
+                // Show spinner
+                const spinner = document.getElementById(`${formType}-spinner`);
+                spinner.classList.remove('hidden');
+                
+                // Simulate API call
+                setTimeout(() => {
+                    spinner.classList.add('hidden');
+                    
+                    // Apply appearance settings immediately if it's the appearance form
+                    if (formType === 'appearance') {
+                        applyAppearanceSettings(settings);
+                    }
+                    
+                    // Show success message
+                    showSuccess(`Your ${formType} settings have been saved successfully.`);
+                }, 800);
+            }
+            
+            // Show success toast
+            function showSuccess(message) {
+                successMessage.textContent = message;
+                successToast.classList.remove('hidden');
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    successToast.classList.add('hidden');
+                }, 3000);
+            }
+            
+            // Test notification
+            function testNotification() {
+                if ('Notification' in window) {
+                    if (Notification.permission === 'granted') {
+                        // Create and show notification
+                        const notification = new Notification('Test Notification', {
+                            body: 'This is a test notification from Student Event Platform.',
+                            icon: '../images/favicon.svg'
+                        });
+                    } else if (Notification.permission !== 'denied') {
+                        Notification.requestPermission().then(permission => {
+                            if (permission === 'granted') {
+                                const notification = new Notification('Test Notification', {
+                                    body: 'This is a test notification from Student Event Platform.',
+                                    icon: '../images/favicon.svg'
+                                });
+                            }
+                        });
+                    } else {
+                        alert('Notification permission is denied. Please enable notifications in your browser settings.');
+                    }
+                } else {
+                    alert('Your browser does not support desktop notifications.');
+                }
+            }
+            
+            // Export student data
+            function exportUserData() {
+                // Simulate preparing data export
+                const exportBtn = dataExportBtn;
+                const originalText = exportBtn.innerHTML;
+                
+                exportBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Preparing Export...
+                `;
+                
+                setTimeout(() => {
+                    // Create dummy data
+                    const userData = {
+                        profile: {
+                            name: "Student student",
+                            email: "student@example.com",
+                            joined: "2023-01-15"
+                        },
+                        events: [
+                            { id: 1, name: "Campus Hackathon", date: "2023-06-15" },
+                            { id: 2, name: "Career Fair", date: "2023-07-22" }
+                        ],
+                        settings: {
+                            notifications: true,
+                            theme: "light",
+                            language: "en"
+                        }
+                    };
+                    
+                    // Create Blob and download link
+                    const dataStr = JSON.stringify(userData, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(dataBlob);
+                    
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'my-event-platform-data.json';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Reset button
+                    exportBtn.innerHTML = originalText;
+                    showSuccess('Your data has been exported successfully.');
+                }, 1500);
+            }
+            
+            // Deactivate account
+            function deactivateAccount() {
+                if (confirm("Are you sure you want to deactivate your account? You can reactivate it later by logging in again.")) {
+                    alert("Account deactivation feature will be implemented in the future.");
+                }
+            }
+            
+            // Delete account
+            function deleteAccount() {
+                if (confirm("WARNING: This action cannot be undone. Are you absolutely sure you want to permanently delete your account and all associated data?")) {
+                    if (prompt("Type 'DELETE' to confirm account deletion") === 'DELETE') {
+                        alert("Account deletion feature will be implemented in the future.");
+                    }
+                }
+            }
+            
+            // Update theme based on student selection
+            function updateTheme() {
+                if (themeLight.checked) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'light');
+                } else if (themeDark.checked) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('darkMode', 'dark');
+                } else {
+                    // System preference
+                    localStorage.removeItem('darkMode');
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                }
+            }
+            
+            // Update font size preview
+            function updateFontSizePreview(size) {
+                const sizes = {
+                    '1': '0.75rem',  // text-xs
+                    '2': '0.875rem', // text-sm
+                    '3': '1rem',     // text-base
+                    '4': '1.125rem', // text-lg
+                    '5': '1.25rem',  // text-xl
+                };
+                
+                fontSizePreview.style.fontSize = sizes[size] || sizes['3'];
+            }
+            
+            // Apply appearance settings
+            function applyAppearanceSettings(settings) {
+                // Update theme
+                if (settings.theme === 'light') {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'light');
+                } else if (settings.theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('darkMode', 'dark');
+                } else {
+                    // System preference
+                    localStorage.removeItem('darkMode');
+                    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
+                }
+                
+                // Update font size
+                updateFontSizePreview(settings.font_size);
+                
+                // Update accent color
+                const accentColor = settings.accent_color || 'blue';
+                document.documentElement.style.setProperty('--theme-accent-color', `var(--${accentColor}-500)`);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Events - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+   <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Search and Filter Bar -->
+            <div class="bg-dashboard-card-bg dark:bg-dashboard-card-bg rounded-2xl p-4 shadow-md mb-8">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Search -->
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <input type="text" id="search-input" placeholder="Search events..." 
+                                class="w-full py-2 px-4 pr-10 rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            <div class="absolute right-3 top-2.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-2">
+                        <select id="category-filter" class="py-2 px-4 rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            <option value="">All Categories</option>
+                            <option value="workshop">Workshop</option>
+                            <option value="conference">Conference</option>
+                            <option value="fair">Fair</option>
+                            <option value="webinar">Webinar</option>
+                            <option value="academic">Academic</option>
+                            <option value="social">Social</option>
+                            <option value="sports">Sports</option>
+                            <option value="cultural">Cultural</option>
+                        </select>
+                        <select id="timeframe-filter" class="py-2 px-4 rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="this_week">This Week</option>
+                            <option value="this_month">This Month</option>
+                            <option value="past">Past Events</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <h1 class="text-2xl font-bold mb-6">All Events</h1>
+            
+            <!-- Loading state -->
+            <div id="loading-state" class="py-12 flex justify-center items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
+            </div>
+            
+            <!-- Error state -->
+            <div id="error-state" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <p class="font-medium">Error loading events</p>
+                        <p class="text-sm mt-1" id="error-message">Please try again later.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty state when no events found -->
+            <div id="empty-state" class="hidden text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">No events found</h3>
+                <p class="mt-2 text-dashboard-text-secondary">Try adjusting your search or filters</p>
+            </div>
+            
+            <!-- Events Grid - Will be populated dynamically -->
+            <div id="events-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Events will be loaded here -->
+            </div>
+            
+            <!-- Pagination -->
+            <div id="pagination" class="mt-10 flex justify-center">
+                <!-- Pagination will be updated dynamically -->
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+    <div
+      id="success-modal"
+      class="fixed inset-0 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="absolute inset-0 bg-black opacity-30"
+        id="success-modal-backdrop"
+      ></div>
+      <div
+        class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all"
+      >
+        <div class="p-6">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-green-100 dark:bg-green-900/30 rounded-full p-3">
+              <svg
+                class="w-8 h-8 text-green-500 dark:text-green-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <h3
+            class="text-lg font-bold text-center mb-2"
+            id="success-modal-title"
+          >
+            Success!
+          </h3>
+          <p
+            class="text-center text-gray-600 dark:text-gray-300 mb-6"
+            id="success-modal-message"
+          >
+            Your request was processed successfully.
+          </p>
+          <div class="flex justify-center">
+            <button
+              id="success-modal-ok"
+              class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </main>
+    
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+    <script src="/iteam-university-website/frontend/js/config.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    
+    <!-- Events page script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const searchInput = document.getElementById('search-input');
+            const categoryFilter = document.getElementById('category-filter');
+            const timeframeFilter = document.getElementById('timeframe-filter');
+            const eventsGrid = document.getElementById('events-grid');
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            const emptyState = document.getElementById('empty-state');
+            const pagination = document.getElementById('pagination');
+            
+            // Add the fixImagePath function for proper image URL handling
+            function fixImagePath(imageUrl) {
+                if (!imageUrl) {
+                    // Use placeholder from CONFIG if available, otherwise use a default
+                    return typeof CONFIG !== 'undefined' && CONFIG.PLACEHOLDER_EVENT_IMAGE_PATH ? 
+                        CONFIG.PLACEHOLDER_EVENT_IMAGE_PATH : 
+                        '/iteam-university-website/frontend/assets/images/gallery/placeholder_event.png';
+                }
+                
+                // If it's already an absolute URL (starts with http or /), leave it unchanged
+                if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) {
+                    return imageUrl;
+                }
+                
+                // If it starts with 'frontend/' or 'assets/', make it absolute from site root
+                if (imageUrl.startsWith('frontend/') || imageUrl.startsWith('assets/')) {
+                    return typeof CONFIG !== 'undefined' && CONFIG.BASE_URL ? 
+                        `${CONFIG.BASE_URL}/${imageUrl}` : 
+                        `/iteam-university-website/${imageUrl}`;
+                }
+                
+                // For other relative paths, assume they're relative to student folder
+                return typeof CONFIG !== 'undefined' && CONFIG.STUDENT_PATH ? 
+                    `${CONFIG.STUDENT_PATH}/${imageUrl}` : 
+                    `/iteam-university-website/student/${imageUrl}`;
+            }
+            
+            // State variables
+            let currentPage = 1;
+            let perPage = 6;
+            let totalPages = 1;
+            let searchTerm = '';
+            let selectedCategory = '';
+            let selectedTimeframe = 'upcoming';
+            let isLoggedIn = false;
+            let userType = '';
+            
+            // Get URL parameters for initial filtering
+            function getUrlParameters() {
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                // Check if category parameter exists
+                if(urlParams.has('category')) {
+                    const categoryParam = urlParams.get('category');
+                    if(categoryParam) {
+                        // Set the category filter value
+                        selectedCategory = categoryParam.toLowerCase();
+                        
+                        // Update the select dropdown to match
+                        if(categoryFilter) {
+                            // Find the matching option
+                            const options = Array.from(categoryFilter.options);
+                            const matchingOption = options.find(option => 
+                                option.value.toLowerCase() === selectedCategory.toLowerCase()
+                            );
+                            
+                            // If found, set it as selected
+                            if(matchingOption) {
+                                categoryFilter.value = matchingOption.value;
+                            } else {
+                                console.warn(`Category '${selectedCategory}' not found in filter options`);
+                            }
+                        }
+                    }
+                }
+                
+                // Add more parameters here if needed (search term, timeframe, etc.)
+            }
+            
+            // Call this before initializing the page
+            getUrlParameters();
+            
+            // Initialize
+            checkUserAuth();
+            loadEvents();
+            
+            // Add event listeners
+            searchInput.addEventListener('keyup', debounce(function() {
+                searchTerm = this.value;
+                currentPage = 1; // Reset to first page when search changes
+                loadEvents();
+            }, 500));
+            
+            categoryFilter.addEventListener('change', function() {
+                selectedCategory = this.value;
+                currentPage = 1; // Reset to first page when category changes
+                loadEvents();
+            });
+            
+            timeframeFilter.addEventListener('change', function() {
+                selectedTimeframe = this.value;
+                currentPage = 1; // Reset to first page when timeframe changes
+                loadEvents();
+            });
+            
+            // Check student authentication status
+            function checkUserAuth() {
+                userType = localStorage.getItem('userType');
+                isLoggedIn = userType !== null;
+                
+                // Optional: Verify with server if needed
+                fetch('../api/auth.php?check=1')
+                    .then(response => response.json())
+                    .then(data => {
+                        isLoggedIn = data.success;
+                        if (data.success && data.student) {
+                            userType = data.student.type;
+                        }
+                    })
+                    .catch(error => console.error('Auth check error:', error));
+            }
+            
+            // Load events from API
+            function loadEvents() {
+                showLoadingState();
+                
+                // Fix: Build API URL with parameters using document.location as base
+                const url = new URL('../api/events.php', document.location.href);
+                url.searchParams.append('page', currentPage);
+                url.searchParams.append('per_page', perPage);
+                if (searchTerm) url.searchParams.append('search', searchTerm);
+                if (selectedCategory) url.searchParams.append('category', selectedCategory);
+                url.searchParams.append('timeframe', selectedTimeframe);
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(responseData => {
+                        // Check if the response is an array and extract the first element
+                        const data = Array.isArray(responseData) ? responseData[0] : responseData;
+                        
+                        console.log('API response data:', data); // Debug log
+                        
+                        if (!data || !data.success) {
+                            throw new Error(data ? (data.message || 'Failed to load events') : 'Invalid response format');
+                        }
+                        
+                        // Check if events property exists and is an array
+                        if (!data.events || !Array.isArray(data.events)) {
+                            console.error('API returned invalid events data:', data);
+                            throw new Error('Invalid event data received from server');
+                        }
+                        
+                        // Update pagination data if it exists
+                        if (data.pagination) {
+                            totalPages = data.pagination.total_pages || 1;
+                            currentPage = data.pagination.current_page || 1;
+                            
+                            // Update pagination UI
+                            updatePagination(data.pagination);
+                        } else {
+                            // Reset pagination if not provided
+                            totalPages = 1;
+                            currentPage = 1;
+                            pagination.innerHTML = '';
+                        }
+                        
+                        // Display events
+                        displayEvents(data.events);
+                        
+                        hideLoadingState();
+                    })
+                    .catch(error => {
+                        console.error('Error loading events:', error);
+                        showErrorState(error.message);
+                    });
+            }
+            
+            // Display events in the grid
+            function displayEvents(events) {
+                eventsGrid.innerHTML = '';
+                
+                // Check if events is null, undefined, or empty
+                if (!events || !Array.isArray(events) || events.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+                
+                hideEmptyState();
+                
+                events.forEach(event => {
+                    const eventCard = createEventCard(event);
+                    eventsGrid.appendChild(eventCard);
+                });
+                
+                // Add event listeners to registration buttons
+                const registerButtons = document.querySelectorAll('.register-event-btn');
+                registerButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        if (!isLoggedIn) {
+                            // Save the event ID for redirecting back after login
+                            localStorage.setItem('eventToRegisterAfterLogin', this.dataset.eventId);
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        
+                        if (userType !== 'student') {
+                            alert('Only students can register for events.');
+                            return;
+                        }
+                        
+                        const eventId = this.dataset.eventId;
+                        registerForEvent(eventId);
+                    });
+                });
+            }
+            
+            // Create an event card element
+            function createEventCard(event) {
+                // Format date and time
+                const eventDate = new Date(event.start_date);
+                const formattedDate = new Intl.DateTimeFormat('en-US', { 
+                    month: 'long', 
+                    day: 'numeric',  
+                    year: 'numeric'
+                }).format(eventDate);
+                
+                const formattedTime = new Intl.DateTimeFormat('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                }).format(eventDate);
+                
+                // Determine badge for event timing
+                let timeBadge, timeBadgeClass;
+                const now = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(now.getDate() + 1);
+                
+                // Check if event is in the past
+                const eventEndDate = new Date(event.end_date);
+                const isPastEvent = eventEndDate < now;
+                
+                if (isPastEvent) {
+                    timeBadge = 'Past';
+                    timeBadgeClass = 'bg-gray-500 text-white';
+                } else if (eventDate.toDateString() === now.toDateString()) {
+                    timeBadge = 'Today';
+                    timeBadgeClass = 'bg-dashboard-success text-white';
+                } else if (eventDate.toDateString() === tomorrow.toDateString()) {
+                    timeBadge = 'Tomorrow';
+                    timeBadgeClass = 'bg-dashboard-warning text-dashboard-text';
+                } else {
+                    // Format as month day (e.g., "Jun 15")
+                    timeBadge = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(eventDate);
+                    timeBadgeClass = 'bg-gray-200 dark:bg-gray-600 text-dashboard-text dark:text-white';
+                }
+                
+                // Determine event type badge color
+                let typeBadgeClass;
+                switch(event.event_type) {
+                    case 'workshop':
+                        typeBadgeClass = 'bg-theme-primary';
+                        break;
+                    case 'conference':
+                        typeBadgeClass = 'bg-dashboard-info';
+                        break;
+                    case 'fair':
+                        typeBadgeClass = 'bg-dashboard-danger';
+                        break;
+                    case 'webinar':
+                        typeBadgeClass = 'bg-green-600';
+                        break;
+                    default:
+                        typeBadgeClass = 'bg-purple-600';
+                }
+                
+                // Create card element
+                const card = document.createElement('div');
+                card.className = 'bg-dashboard-card-bg dark:bg-dashboard-card-bg rounded-2xl shadow-md overflow-hidden transform hover:shadow-lg transition';
+                
+                // Prepare registration button/status based on student status and event time
+                let registrationButton;
+                
+                // For past events, show disabled button
+                if (isPastEvent) {
+                    registrationButton = `
+                        <button class="bg-gray-400 text-white rounded-lg px-4 py-1.5 text-sm cursor-not-allowed" disabled>
+                            Event Ended
+                        </button>
+                    `;
+                }
+                // If event is full
+                else if (event.is_full) {
+                    registrationButton = `
+                        <button class="bg-gray-400 text-white rounded-lg px-4 py-1.5 text-sm cursor-not-allowed" disabled>
+                            Event Full
+                        </button>
+                    `;
+                }
+                // For upcoming events where student can register
+                else {
+                    registrationButton = `
+                        <button class="bg-theme-primary hover:bg-theme-primary-hover text-white rounded-lg px-4 py-1.5 text-sm transition register-event-btn" data-event-id="${event.event_id}">
+                            Register
+                        </button>
+                    `;
+                }
+                
+                // If student has already registered
+                if (event.registration_status) {
+                    let statusText, statusClass;
+                    
+                    switch(event.registration_status) {
+                        case 'confirmed':
+                            statusText = 'Registered';
+                            statusClass = 'bg-green-600';
+                            break;
+                        case 'pending':
+                            statusText = 'Pending';
+                            statusClass = 'bg-yellow-500';
+                            break;
+                        case 'cancelled':
+                            statusText = 'Cancelled';
+                            statusClass = 'bg-gray-500';
+                            break;
+                        default:
+                            statusText = 'Registered';
+                            statusClass = 'bg-green-600';
+                    }
+                    
+                    registrationButton = `
+                        <span class="${statusClass} text-white rounded-lg px-4 py-1.5 text-sm">
+                            ${statusText}
+                        </span>
+                    `;
+                }
+                
+                // Fix: Handle null description
+                const description = event.description || "No description available";
+                const truncatedDescription = description.length > 100 ? 
+                    description.substring(0, 100) + '...' : 
+                    description;
+                
+                // HTML for the card - fix the thumbnail URL using fixImagePath
+                card.innerHTML = `
+                    <div class="relative">
+                        <img src="${fixImagePath(event.thumbnail_url)}" alt="${event.title || 'Event'}" class="w-full h-48 object-cover">
+                        <div class="absolute bottom-0 left-0 ${typeBadgeClass} text-white px-3 py-1 m-3 rounded-lg text-sm font-medium">
+                            ${event.event_type ? (event.event_type.charAt(0).toUpperCase() + event.event_type.slice(1)) : 'Event'}
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <h2 class="text-xl font-bold">${event.title || 'Untitled Event'}</h2>
+                            <span class="${timeBadgeClass} text-xs px-2 py-1 rounded-full">
+                                ${timeBadge}
+                            </span>
+                        </div>
+                        <p class="text-dashboard-text-secondary text-sm mb-2">${formattedDate} • ${formattedTime}</p>
+                        <p class="text-sm mb-4">${truncatedDescription}</p>
+                        <div class="flex justify-between items-center event-actions">
+                            <a href="event-details.html?id=${event.event_id}" class="text-theme-primary hover:underline">View Details</a>
+                            ${isLoggedIn ? 
+                                registrationButton : 
+                                (isPastEvent ? 
+                                    '<span class="text-gray-500 text-sm">Event ended</span>' : 
+                                    '<a href="login.html" class="login-to-register px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition">Login to Register</a>')
+                            }
+                        </div>
+                    </div>
+                `;
+                
+                return card;
+            }
+            
+            // Register for an event
+            function registerForEvent(eventId) {
+                // Show registration in progress
+                const registerButton = document.querySelector(`.register-event-btn[data-event-id="${eventId}"]`);
+                if (registerButton) {
+                    registerButton.disabled = true;
+                    registerButton.innerHTML = 'Registering...';
+                }
+                
+                fetch('../api/event-registration.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        event_id: eventId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Registration successful
+                        if (registerButton) {
+                            const statusText = data.status === 'pending' ? 'Pending' : 'Registered';
+                            const statusColor = data.status === 'pending' ? 'bg-yellow-500' : 'bg-green-600';
+                            
+                            registerButton.outerHTML = `
+                                <span class="${statusColor} text-white rounded-lg px-4 py-1.5 text-sm">
+                                    ${statusText}
+                                </span>
+                            `;
+                        }
+                        // Show appropriate success message based on approval requirement
+                       showSuccessModal(
+                      "Registration Cancelled",
+                      "Your registration has been cancelled successfully.",
+                      () => {
+                        // Reload the page to show updated registration status
+                        location.reload();
+                      }
+                    );
+                    } else {
+                        // Registration failed
+                        if (registerButton) {
+                            registerButton.disabled = false;
+                            registerButton.innerHTML = 'Register';
+                        }
+                        // Show error message
+                        alert(data.message || 'Failed to register for event. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Registration error:', error);
+                    // Reset button
+                    if (registerButton) {
+                        registerButton.disabled = false;
+                        registerButton.innerHTML = 'Register';
+                    }
+                    // Show error message
+                    alert('An error occurred during registration. Please try again later.');
+                });
+            }
+            
+            // Update pagination UI
+            function updatePagination(paginationData) {
+                pagination.innerHTML = '';
+                
+                // Only show pagination if we have more than 1 page
+                if (paginationData.total_pages <= 1) {
+                    return;
+                }
+                
+                const nav = document.createElement('nav');
+                nav.className = 'flex items-center space-x-2';
+                
+                // Previous button
+                const prevButton = document.createElement('a');
+                prevButton.href = '#';
+                prevButton.className = `px-3 py-1 rounded-lg ${paginationData.has_prev ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : 'bg-gray-200 dark:bg-gray-700'} text-dashboard-text dark:text-white`;
+                prevButton.textContent = 'Previous';
+                if (paginationData.has_prev) {
+                    prevButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage--;
+                        loadEvents();
+                    });
+                } else {
+                    prevButton.style.opacity = '0.5';
+                    prevButton.style.cursor = 'not-allowed';
+                }
+                nav.appendChild(prevButton);
+                
+                // Page numbers
+                const maxPages = Math.min(5, paginationData.total_pages);
+                let startPage = Math.max(1, paginationData.current_page - Math.floor(maxPages / 2));
+                let endPage = Math.min(paginationData.total_pages, startPage + maxPages - 1);
+                
+                // Adjust startPage if we're near the end
+                if (endPage - startPage + 1 < maxPages) {
+                    startPage = Math.max(1, endPage - maxPages + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageLink = document.createElement('a');
+                    pageLink.href = '#';
+                    pageLink.className = i === paginationData.current_page 
+                        ? 'px-3 py-1 rounded-lg bg-theme-primary text-white' 
+                        : 'px-3 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700';
+                    pageLink.textContent = i;
+                    pageLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage = i;
+                        loadEvents();
+                    });
+                    nav.appendChild(pageLink);
+                }
+                
+                // Next button
+                const nextButton = document.createElement('a');
+                nextButton.href = '#';
+                nextButton.className = `px-3 py-1 rounded-lg ${paginationData.has_next ? 'hover:bg-gray-200 dark:hover:bg-gray-700' : 'bg-gray-200 dark:bg-gray-700'} text-dashboard-text dark:text-white`;
+                nextButton.textContent = 'Next';
+                if (paginationData.has_next) {
+                    nextButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentPage++;
+                        loadEvents();
+                    });
+                } else {
+                    nextButton.style.opacity = '0.5';
+                    nextButton.style.cursor = 'not-allowed';
+                }
+                nav.appendChild(nextButton);
+                
+                pagination.appendChild(nav);
+            }
+            
+            // Helper functions for handling UI states
+            function showLoadingState() {
+                loadingState.classList.remove('hidden');
+                eventsGrid.classList.add('hidden');
+                errorState.classList.add('hidden');
+                emptyState.classList.add('hidden');
+            }
+            
+            function hideLoadingState() {
+                loadingState.classList.add('hidden');
+                eventsGrid.classList.remove('hidden');
+            }
+            
+            function showErrorState(message) {
+                errorMessage.textContent = message || 'An error occurred while loading events.';
+                errorState.classList.remove('hidden');
+                loadingState.classList.add('hidden');
+                eventsGrid.classList.add('hidden');
+                emptyState.classList.add('hidden');
+            }
+            
+            function showEmptyState() {
+                emptyState.classList.remove('hidden');
+                eventsGrid.classList.add('hidden');
+            }
+            
+            function hideEmptyState() {
+                emptyState.classList.add('hidden');
+                eventsGrid.classList.remove('hidden');
+            }
+            
+            // Debounce function to limit API calls during search typing
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(this, args);
+                    }, wait);
+                };
+            }
+        });
+    </script>
+        <script>
+      // Ensure DOM is fully loaded before loading the AI assistant
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a short moment to ensure all other DOM operations are complete
+        setTimeout(function () {
+          // Create and add the script element
+          const script = document.createElement("script");
+          script.src = "../js/ai-assistant.js";
+          document.body.appendChild(script);
+        }, 500);
+      });
+    </script>
+    <script src="../js/models.js"></script>
+</body>
+</html>

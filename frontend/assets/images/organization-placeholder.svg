@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- Background -->
+  <rect width="200" height="200" fill="#f0f0f0" />
+  
+  <!-- Building Icon -->
+  <g transform="translate(50, 40)">
+    <!-- Building Base -->
+    <rect x="0" y="20" width="100" height="100" fill="#d1d5db" />
+    
+    <!-- Building Top -->
+    <polygon points="0,20 50,0 100,20" fill="#9ca3af" />
+    
+    <!-- Windows -->
+    <rect x="15" y="40" width="20" height="20" fill="#f9fafb" />
+    <rect x="65" y="40" width="20" height="20" fill="#f9fafb" />
+    <rect x="15" y="70" width="20" height="20" fill="#f9fafb" />
+    <rect x="65" y="70" width="20" height="20" fill="#f9fafb" />
+    
+    <!-- Door -->
+    <rect x="40" y="80" width="20" height="40" fill="#6b7280" />
+  </g>
+  
+
+</svg>

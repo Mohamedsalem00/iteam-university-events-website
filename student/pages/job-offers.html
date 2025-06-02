@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    <style>
+    /* Line clamp utilities */
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Job Offers - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Page Title with Stats -->
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold">Job Offers</h1>
+                    <p class="text-dashboard-text-secondary mt-1">Find and apply for opportunities that match your skills</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center">
+                        <input type="text" id="search-input" placeholder="Search jobs..." 
+                            class="py-2 px-4 rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                    </div>
+                    <a href="my-applications.html" class="bg-theme-primary text-white rounded-lg px-4 py-2 font-medium hover:bg-theme-primary-hover transition flex items-center justify-center sm:justify-start">
+                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        My Applications
+                </a>
+                </div>
+            </div>
+            
+            <!-- Loading state -->
+            <div id="loading-state" class="py-12 flex justify-center items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
+            </div>
+            
+            <!-- Error state -->
+            <div id="error-state" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <p class="font-medium">Error loading job offers</p>
+                        <p class="text-sm mt-1" id="error-message">Please try again later.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty state when no jobs found -->
+            <div id="empty-state" class="hidden text-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4M12 4v16" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">No job offers found</h3>
+                <p class="mt-2 text-dashboard-text-secondary">Try adjusting your search criteria</p>
+            </div>
+            
+            <!-- Job Offers Grid -->
+            <div id="job-offers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Jobs will be loaded here -->
+            </div>
+        </div>
+    </main>
+    
+    
+    
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    <script src="../js/models.js"></script>
+   
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const searchInput = document.getElementById('search-input');
+            const jobOffersGrid = document.getElementById('job-offers-grid');
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Application elements
+            const applicationForm = document.getElementById('application-form');
+            const jobIdInput = document.getElementById('job-id-input');
+            const coverLetter = document.getElementById('cover-letter');
+            const resumeUpload = document.getElementById('resume-upload');
+            const selectedFile = document.getElementById('selected-file');
+            const applyButton = document.getElementById('apply-button');
+            const applyText = document.getElementById('apply-text');
+            const applySpinner = document.getElementById('apply-spinner');
+            const applicationStatus = document.getElementById('application-status');
+            const applicationMessage = document.getElementById('application-message');
+            
+            // State variables
+            let jobOffers = [];
+            let filteredJobs = [];
+            let searchTerm = '';
+            let userType = localStorage.getItem('userType') || '';
+            let isLoggedIn = !!localStorage.getItem('userType');
+            let myApplications = []; // Will store IDs of jobs user has applied to
+            
+            // Initialize
+            loadJobOffers();
+            if (userType === 'student') {
+                loadUserApplications();
+            }
+            
+            // Show appropriate UI elements based on user type
+            document.querySelectorAll('.student-only').forEach(el => {
+                if (userType === 'student') {
+                    el.classList.remove('hidden');
+                }
+            });
+            
+            // Add event listeners
+            searchInput.addEventListener('keyup', debounce(function() {
+                searchTerm = this.value.toLowerCase();
+                filterJobs();
+            }, 300));
+            
+            resumeUpload.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    selectedFile.textContent = this.files[0].name;
+                } else {
+                    selectedFile.textContent = 'No file selected';
+                }
+            });
+            
+            applyButton.addEventListener('click', submitApplication);
+            
+            // Share buttons
+            [jobModalShare, guestShareBtn, orgShareBtn].forEach(btn => {
+                if (btn) {
+                    btn.addEventListener('click', shareJob);
+                }
+            });
+            
+            // State management functions
+            function showLoadingState() {
+                if (loadingState) loadingState.classList.remove('hidden');
+                if (errorState) errorState.classList.add('hidden');
+                if (emptyState) emptyState.classList.add('hidden');
+                if (jobOffersGrid) jobOffersGrid.classList.add('hidden');
+            }
+
+            function hideLoadingState() {
+                if (loadingState) loadingState.classList.add('hidden');
+            }
+
+            function showErrorState(message) {
+                if (errorState) {
+                    errorState.classList.remove('hidden');
+                    if (errorMessage) errorMessage.textContent = message;
+                }
+            }
+
+            function showEmptyState() {
+                if (emptyState) emptyState.classList.remove('hidden');
+                if (jobOffersGrid) jobOffersGrid.classList.add('hidden');
+            }
+
+            function hideEmptyState() {
+                if (emptyState) emptyState.classList.add('hidden');
+                if (jobOffersGrid) jobOffersGrid.classList.remove('hidden');
+            }
+
+            // Debounce function for search input
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        func.apply(context, args);
+                    }, wait);
+                };
+            }
+
+            // Share job function
+            function shareJob() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: jobTitleModal.textContent,
+                        text: `Check out this job: ${jobTitleModal.textContent} at ${jobOrgName.textContent}`,
+                        url: window.location.href
+                    })
+                    .catch(error => console.error('Error sharing:', error));
+                } else {
+                    // Fallback for browsers that don't support the Web Share API
+                    const shareUrl = window.location.href;
+                    prompt('Copy this link to share:', shareUrl);
+                }
+            }
+            
+            // Load job offers from API
+            function loadJobOffers() {
+                console.log('Loading job offers...');
+                showLoadingState();
+                
+                fetch('../api/job-offers.php')
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("API response:", data); // Debug the response
+                        
+                        // Better error handling
+                        if (!data.success) {
+                            throw new Error(data.message || 'Failed to load job offers');
+                        }
+                        
+                        // Make sure job_offers exists in the response
+                        if (!data.job_offers || !Array.isArray(data.job_offers)) {
+                            throw new Error('Invalid job offers data received');
+                        }
+                        
+                        jobOffers = data.job_offers;
+                        filteredJobs = [...jobOffers];
+                        
+                        displayJobOffers(filteredJobs);
+                        hideLoadingState();
+                        
+                        // Add this code to show the job offers grid after loading is complete
+                        if (jobOffersGrid) {
+                            jobOffersGrid.classList.remove('hidden');
+                        }
+                        
+                        if (jobOffers.length === 0) {
+                            showEmptyState();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading job offers:', error);
+                        showErrorState(error.message || 'Failed to load job offers. Please try again later.');
+                        hideLoadingState(); // Make sure to hide the loading state even on error
+                    });
+            }
+            
+            // Load user's applications
+            function loadUserApplications() {
+    if (userType !== 'student') return;
+    
+    fetch('../api/job-applications.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Make sure we're storing integers
+                myApplications = data.applications.map(app => parseInt(app.job_offer_id));
+                console.log('Loaded applications:', myApplications);
+                
+                // Refresh the display to show the Applied badges
+                if (filteredJobs.length > 0) {
+                    displayJobOffers(filteredJobs);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading user applications:', error);
+        });
+}
+            
+            // Filter jobs based on search term
+            function filterJobs() {
+                if (!searchTerm.trim()) {
+                    filteredJobs = [...jobOffers];
+                } else {
+                    filteredJobs = jobOffers.filter(job => 
+                        job.title.toLowerCase().includes(searchTerm) ||
+                        job.description.toLowerCase().includes(searchTerm) ||
+                        job.organization_name.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                displayJobOffers(filteredJobs);
+            }
+            
+            // Display job offers in the grid
+            function displayJobOffers(jobs) {
+                jobOffersGrid.innerHTML = '';
+                
+                if (jobs.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+                
+                hideEmptyState();
+                
+                jobs.forEach(job => {
+                    const jobCard = createJobCard(job);
+                    jobOffersGrid.appendChild(jobCard);
+                });
+                
+                // No need for click event listeners as we now use direct links
+            }
+            
+            // Replace the createJobCard function with this enhanced version
+            function createJobCard(job) {
+                // Format posted date
+                const postedDate = new Date(job.posted_date);
+                const formattedDate = new Intl.DateTimeFormat('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',  
+                    year: 'numeric'
+                }).format(postedDate);
+                
+                // Calculate days ago
+                const daysAgo = Math.floor((new Date() - postedDate) / (1000 * 60 * 60 * 24));
+                const timeAgo = daysAgo === 0 ? 'Today' : 
+                                daysAgo === 1 ? 'Yesterday' : 
+                                `${daysAgo} days ago`;
+                
+                // Truncate description
+                const truncatedDescription = job.description.length > 140 ? 
+                    job.description.substring(0, 140) + '...' : 
+                    job.description;
+                
+                // Create card element
+                const card = document.createElement('div');
+                card.className = 'bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden transition hover:shadow-xl border border-transparent hover:border-gray-200 dark:hover:border-gray-700';
+                
+                // Set organization initials for logo fallback
+                const orgName = job.organization_name || 'Organization';
+                const initials = orgName.split(' ')
+                    .map(word => word[0])
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase();
+                
+                // Generate a consistent color based on organization name
+                const stringToColor = (str) => {
+                    let hash = 0;
+                    for (let i = 0; i < str.length; i++) {
+                        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                    }
+                    let color = '#';
+                    for (let i = 0; i < 3; i++) {
+                        const value = (hash >> (i * 8)) & 0xFF;
+                        color += ('00' + value.toString(16)).substr(-2);
+                    }
+                    return color;
+                };
+                
+                const logoColor = stringToColor(orgName);
+                
+                // Check if user has applied - make sure job_offer_id is correctly parsed as integer
+                // The issue might be that job.job_offer_id is a string while myApplications contains integers
+                const jobId = parseInt(job.job_offer_id);
+                const hasApplied = myApplications.includes(jobId);
+                
+                // Debug logs to check values
+                console.log(`Job ID: ${job.job_offer_id}, Type: ${typeof job.job_offer_id}`);
+                console.log(`Parsed Job ID: ${jobId}, Type: ${typeof jobId}`);
+                console.log(`My applications: ${JSON.stringify(myApplications)}`);
+                console.log(`Has applied: ${hasApplied}`);
+                
+                card.innerHTML = `
+                    <div class="p-6 relative">
+                        ${hasApplied ? `
+                            <div class="absolute top-0 right-0 mt-4 mr-4">
+                                <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded dark:bg-green-900 dark:text-green-300">
+                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Applied
+                                </span>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0 ${!job.organization_logo ? 'bg-opacity-20' : ''}" style="${!job.organization_logo ? `background-color: ${logoColor}20; color: ${logoColor};` : ''}">
+                                ${job.organization_logo ? 
+                                    `<img src="${job.organization_logo}" class="w-full h-full object-cover" alt="${job.organization_name}">` :
+                                    `<div class="text-lg font-bold">${initials}</div>`
+                                }
+                            </div>
+                            <div class="ml-3">
+                                <h2 class="text-xl font-bold line-clamp-1">${job.title}</h2>
+                                <p class="text-dashboard-text-secondary text-sm">${job.organization_name}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-sm line-clamp-3">${truncatedDescription}</p>
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${job.location ? `
+                                <span class="inline-flex items-center text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    ${job.location}
+                                </span>
+                            ` : ''}
+                            
+                            ${job.job_type ? `
+                                <span class="inline-flex items-center text-xs bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                    </svg>
+                                    ${job.job_type}
+                                </span>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-xs text-dashboard-text-secondary flex items-center">
+                                <svg class="w-4 h-4 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="font-medium">${timeAgo}</span> · ${formattedDate}
+                            </span>
+                            <a href="job-details.html?id=${job.job_offer_id}" class="bg-theme-primary text-white rounded-lg px-4 py-1.5 text-sm hover:bg-theme-primary-hover transition">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                return card;
+            }
+            
+            // Submit job application with improved feedback
+            function submitApplication(e) {
+                e.preventDefault();
+                
+                if (!isLoggedIn || userType !== 'student') {
+                    showErrorModal('Authentication Required', 'You must be logged in as a student to apply for jobs.');
+                    return;
+                }
+                
+                // Validate form
+                if (!applicationForm.checkValidity()) {
+                    applicationForm.reportValidity();
+                    return;
+                }
+                
+                // Show loading state
+                applyButton.disabled = true;
+                applyText.classList.add('hidden');
+                applySpinner.classList.remove('hidden');
+                
+                // Disable form fields
+                const formControls = applicationForm.querySelectorAll('input, textarea');
+                formControls.forEach(control => {
+                    control.disabled = true;
+                });
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('job_id', jobIdInput.value);
+                formData.append('cover_letter', coverLetter.value);
+                if (resumeUpload.files[0]) {
+                    formData.append('resume', resumeUpload.files[0]);
+                }
+                
+                // Send request
+                fetch('../api/job-applications.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset button state
+                    applyButton.disabled = false;
+                    formControls.forEach(control => {
+                        control.disabled = false;
+                    });
+                    applyText.classList.remove('hidden');
+                    applySpinner.classList.add('hidden');
+                    
+                    if (data.success) {
+                        // Update applications list
+                        myApplications.push(parseInt(jobIdInput.value));
+                        
+                        // Update UI for success
+                        updateStatusDisplay('green', 'Success!', 'Your application has been submitted. You can track its status in <a href="my-applications.html" class="underline font-bold">My Applications</a>.');
+                        
+                        // Disable form
+                        applyButton.disabled = true;
+                        applyButton.classList.add('opacity-50', 'cursor-not-allowed');
+                        applicationForm.classList.add('opacity-50', 'pointer-events-none');
+                        
+                        // Refresh job offers to show "Applied" badge
+                        displayJobOffers(filteredJobs);
+                        
+                        // Show success message
+                        showSuccessModal('Application Submitted', 'Your application has been submitted successfully! You can track its status in "My Applications".');
+                    } else {
+                        // Show error with specific feedback
+                        updateStatusDisplay('red', 'Error:', data.message || 'There was an error submitting your application. Please try again.');
+                        
+                        // Show error modal
+                        showErrorModal('Error Submitting Application', data.message || 'There was an error submitting your application. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting application:', error);
+                    
+                    // Reset button state
+                    applyButton.disabled = false;
+                    formControls.forEach(control => {
+                        control.disabled = false;
+                    });
+                    applyText.classList.remove('hidden');
+                    applySpinner.classList.add('hidden');
+                    
+                    // Show error in the form and modal
+                    updateStatusDisplay('red', 'Error:', 'Network error. Please check your connection and try again.');
+                    
+                    showErrorModal('Connection Error', 'There was a problem connecting to the server. Please check your internet connection and try again.');
+                });
+            }
+            
+            // Helper function to update status display
+            function updateStatusDisplay(color, title, message) {
+                applicationStatus.classList.remove('hidden');
+                applicationStatus.className = applicationStatus.className.replace(/bg-\w+-50/g, `bg-${color}-50`);
+                applicationStatus.className = applicationStatus.className.replace(/border-\w+-200/g, `border-${color}-200`);
+                applicationStatus.className = applicationStatus.className.replace(/text-\w+-800/g, `text-${color}-800`);
+                applicationStatus.className = applicationStatus.className.replace(/dark:bg-\w+-900\/20/g, `dark:bg-${color}-900/20`);
+                applicationStatus.className = applicationStatus.className.replace(/dark:border-\w+-800\/30/g, `dark:border-${color}-800/30`);
+                applicationStatus.classList.add(`bg-${color}-50`, `border-${color}-200`, `text-${color}-800`);
+                
+                applicationMessage.innerHTML = `<span class="font-semibold">${title}</span> ${message}`;
+            }
+        });
+    </script>
+        <script>
+      // Ensure DOM is fully loaded before loading the AI assistant
+      document.addEventListener("DOMContentLoaded", function () {
+        // Wait a short moment to ensure all other DOM operations are complete
+        setTimeout(function () {
+          // Create and add the script element
+          const script = document.createElement("script");
+          script.src = "../js/ai-assistant.js";
+          document.body.appendChild(script);
+        }, 500);
+      });
+    </script>
+</body>
+</html>
