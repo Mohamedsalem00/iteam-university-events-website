@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Privacy Policy - Student Event Platform</title>
+    <link rel="shortcut icon" href="../images/favicon.png" type="image/png">
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" data-public-page="true">
+
+
+    <!-- Privacy Policy Content -->
+    <div class="max-w-4xl mx-auto px-4 py-12">
+        <h1 class="text-3xl font-bold text-center mb-8">Privacy Policy</h1>
+        
+        <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow p-8">
+            <div class="prose prose-slate max-w-none dark:prose-invert">
+                <p class="text-sm text-dashboard-text-secondary mb-6">Last Updated: May 28, 2025</p>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">1. Introduction</h2>
+                    <p>Welcome to the Student Event Platform ("we," "our," or "us"). We are committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.</p>
+                    <p>By accessing or using Student Event Platform, you agree to the collection and use of information in accordance with this policy.</p>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">2. Information We Collect</h2>
+                    
+                    <h3 class="font-medium text-lg mb-2">2.1 Personal Information</h3>
+                    <p>We may collect personal information that you provide directly to us, including:</p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li>Name and contact information (email address, phone number)</li>
+                        <li>Academic information (university, department, student ID)</li>
+                        <li>Account credentials</li>
+                        <li>Profile information and preferences</li>
+                        <li>Event registration details</li>
+                    </ul>
+                    
+                    <h3 class="font-medium text-lg mb-2">2.2 Usage Information</h3>
+                    <p>We automatically collect certain information about your device and how you interact with our platform, including:</p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li>IP address and device information</li>
+                        <li>Browser type and operating system</li>
+                        <li>Pages you view and links you click</li>
+                        <li>Time spent on the platform and actions taken</li>
+                    </ul>
+                    
+                    <h3 class="font-medium text-lg mb-2">2.3 Cookies and Similar Technologies</h3>
+                    <p>We use cookies and similar tracking technologies to collect and track information about your browsing activities. You can control cookies through your browser settings.</p>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">3. How We Use Your Information</h2>
+                    <p>We may use the information we collect for various purposes, including:</p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li>Providing, maintaining, and improving our services</li>
+                        <li>Processing event registrations and managing attendance</li>
+                        <li>Sending notifications, updates, and support messages</li>
+                        <li>Personalizing your experience on our platform</li>
+                        <li>Analyzing usage patterns to enhance our platform</li>
+                        <li>Preventing fraudulent activities and ensuring platform security</li>
+                    </ul>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">4. How We Share Your Information</h2>
+                    <p>We may share your information with:</p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li>Event organizers (for registration and attendance purposes)</li>
+                        <li>University administrators (when required for academic purposes)</li>
+                        <li>Service providers who help us operate our platform</li>
+                        <li>Legal authorities when required by law</li>
+                    </ul>
+                    <p>We will not sell your personal information to third parties for marketing purposes.</p>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">5. Data Security</h2>
+                    <p>We implement reasonable security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">6. Your Rights and Choices</h2>
+                    <p>Depending on your location, you may have the following rights regarding your personal information:</p>
+                    <ul class="list-disc pl-6 mb-4">
+                        <li>Access and review your personal information</li>
+                        <li>Update or correct inaccuracies</li>
+                        <li>Delete your personal information</li>
+                        <li>Restrict or object to processing</li>
+                        <li>Data portability</li>
+                        <li>Withdraw consent (where applicable)</li>
+                    </ul>
+                    <p>To exercise these rights, please contact us using the information provided at the end of this policy.</p>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">7. Children's Privacy</h2>
+                    <p>Our platform is not intended for individuals under the age of 16. We do not knowingly collect personal information from children under 16. If you become aware that a child has provided us with personal information, please contact us, and we will take steps to remove such information.</p>
+                </section>
+                
+                <section class="mb-8">
+                    <h2 class="text-xl font-semibold mb-3">8. Changes to This Privacy Policy</h2>
+                    <p>We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will notify you of any material changes by posting the updated policy on our platform with a new "Last Updated" date.</p>
+                </section>
+                
+                <section>
+                    <h2 class="text-xl font-semibold mb-3">9. Contact Us</h2>
+                    <p>If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at:</p>
+                    <p class="mt-2"><strong>Email:</strong> <a href="mailto:privacy@studenteventplatform.com" class="text-theme-primary hover:underline">privacy@studenteventplatform.com</a></p>
+                    <p><strong>Address:</strong> Student Event Platform, University Campus, Main Street, City, State, ZIP</p>
+                </section>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>

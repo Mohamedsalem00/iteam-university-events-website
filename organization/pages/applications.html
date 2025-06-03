@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+     <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply user type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Applications - Organization Dashboard</title>
+
+    <!-- Date picker library - Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg-dark dark:text-dashboard-text-dark min-h-screen">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar / Navigation -->
+        <aside class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64">
+                <!-- Sidebar component -->
+                <div class="flex flex-col h-0 flex-1 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div class="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                        <div class="flex items-center flex-shrink-0 px-4">
+                            <span class="ml-2 text-xl font-semibold text-gray-900 dark:text-white">iTeam University</span>
+                        </div>
+                        <div class="mt-5 flex-1 px-2 bg-white dark:bg-gray-800 space-y-1">
+                            <!-- Navigation Links -->
+                            <a href="dashboard.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Dashboard
+                            </a>
+                            <a href="events.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Events
+                            </a>
+                            <a href="registrations.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Registrations
+                            </a>
+                            <a href="job-offers.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                Job Offers
+                            </a>
+                            
+                            <a href="applications.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-theme-primary text-white">
+                                <svg class="mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Applications
+                            </a>
+                            <a href="analytics.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                                Analytics
+                            </a>
+                            <a href="profile.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Profile
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex-shrink-0 w-full group block">
+                            <div class="flex items-center">
+                                <div>
+                                    <div id="org-avatar" class="inline-block h-9 w-9 rounded-full bg-theme-primary text-white text-center leading-9">
+                                        O
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <p id="org-name" class="text-sm font-medium text-gray-700 dark:text-white">
+                                        Organization Name
+                                    </p>
+                                    <button id="logout-btn" class="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-theme-primary dark:hover:text-theme-primary">
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main content area -->
+        <div class="flex flex-col w-0 flex-1 overflow-hidden">
+            <!-- Top navigation -->
+            <div class="relative z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 shadow">
+                <button id="sidebar-toggle" class="px-4 border-r border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-300 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 focus:text-gray-600 dark:focus:text-gray-400 md:hidden">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+                <div class="flex-1 px-4 flex justify-between">
+                    <div class="flex-1 flex">
+                        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white self-center">Manage Applications</h1>
+                    </div>
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- Dark mode toggle -->
+                        <button id="dark-mode-toggle" class="p-1 rounded-full text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800 focus:ring-theme-primary">
+                            <!-- Sun icon for dark mode (shown in dark mode) -->
+                            <svg id="sun-icon" class="h-6 w-6 hidden dark:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <!-- Moon icon for light mode (shown in light mode) -->
+                            <svg id="moon-icon" class="h-6 w-6 block dark:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
+
+                        <!-- Notification dropdown -->
+                        <div class="ml-3 relative">
+                            <button id="notification-btn" class="p-1 rounded-full text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-800 focus:ring-theme-primary">
+                                <span class="sr-only">View notifications</span>
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                <span id="notification-badge" class="hidden absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">0</span>
+                            </button>
+                            <!-- Notification dropdown menu -->
+                            <div id="notification-dropdown" class="hidden origin-top-right absolute right-0 mt-2 w-96 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5">
+                                <div class="py-1" role="none">
+                                    <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="text-sm font-medium text-gray-900 dark:text-white">Notifications</h3>
+                                            <button id="mark-all-read" class="text-xs text-theme-primary hover:text-theme-primary-hover">
+                                                Mark all as read
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="notification-list" class="max-h-60 overflow-y-auto">
+                                        <!-- Notifications will be inserted here dynamically -->
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 p-4 text-center">Loading notifications...</p>
+                                    </div>
+                                    <div class="border-t border-gray-200 dark:border-gray-700">
+                                        <a href="#" class="block w-full px-4 py-2 text-sm text-center text-theme-primary hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            View all notifications
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <main class="flex-1 relative overflow-y-auto focus:outline-none p-6">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Page header -->
+                    <div class="pb-5 border-b border-gray-200 dark:border-gray-700 sm:flex sm:items-center sm:justify-between">
+                        <h1 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl">
+                            Job Applications
+                        </h1>
+                        <div class="mt-3 sm:mt-0 sm:ml-4">
+                            <a href="../api/applications.php?export=csv" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-theme-primary hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Export CSV
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="mt-6 mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <!-- Total Applications -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                Total Applications
+                                            </dt>
+                                            <dd id="stat-total-applications" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                --
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pending Applications -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                Pending
+                                            </dt>
+                                            <dd id="stat-pending-applications" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                --
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reviewed Applications -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                Reviewed
+                                            </dt>
+                                            <dd id="stat-reviewed-applications" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                --
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accepted Applications -->
+                        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
+                            <div class="p-5">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                                        <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+                                                Accepted
+                                            </dt>
+                                            <dd id="stat-accepted-applications" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                --
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="mb-6 bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg p-4">
+                        <div class="flex flex-col sm:flex-row gap-4 items-center">
+                            <div class="w-full sm:w-1/3">
+                                <label for="filter-job" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Job Position</label>
+                                <select id="filter-job" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-theme-primary focus:border-theme-primary sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="all">All Positions</option>
+                                    <!-- Job options will be loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="w-full sm:w-1/3">
+                                <label for="filter-status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                                <select id="filter-status" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-theme-primary focus:border-theme-primary sm:text-sm rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="reviewed">Reviewed</option>
+                                    <option value="shortlisted">Shortlisted</option>
+                                    <option value="accepted">Accepted</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                            <div class="w-full sm:w-1/3 flex items-end">
+                                <button id="filter-apply" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-theme-primary hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                                    <svg class="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                    Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Applications list -->
+                    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Applicant
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Job Position
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Applied Date
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applications-table-body" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    <!-- Loading placeholder -->
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            <svg class="mx-auto h-8 w-8 animate-spin text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <p class="mt-2">Loading applications...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6 flex items-center justify-between">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <button id="pagination-prev-mobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    Previous
+                                </button>
+                                <button id="pagination-next-mobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                    Next
+                                </button>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                                        Showing <span id="pagination-start">1</span> to <span id="pagination-end">10</span> of <span id="pagination-total">--</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <button id="pagination-prev" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                            <span class="sr-only">Previous</span>
+                                            <!-- Heroicon name: solid/chevron-left -->
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        <div id="pagination-pages" class="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 inline-flex items-center">
+                                            <!-- Page numbers will be inserted here dynamically -->
+                                        </div>
+                                        <button id="pagination-next" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                            <span class="sr-only">Next</span>
+                                            <!-- Heroicon name: solid/chevron-right -->
+                                            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile sidebar menu (hidden by default) -->
+    <div id="mobile-sidebar" class="fixed inset-0 flex z-40 md:hidden hidden" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true"></div>
+        <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800">
+            <div class="absolute top-0 right-0 -mr-12 pt-2">
+                <button id="close-sidebar" class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                    <span class="sr-only">Close sidebar</span>
+                    <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                <div class="flex-shrink-0 flex items-center px-4">
+                    <span class="text-xl font-semibold text-gray-900 dark:text-white">iTeam University</span>
+                </div>
+                <nav class="mt-5 px-2 space-y-1">
+                    <!-- Navigation Links (mobile) - same as desktop -->
+                    <a href="dashboard.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="events.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Events
+                    </a>
+                    <a href="registrations.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Registrations
+                    </a>
+                    <a href="job-offers.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Job Offers
+                    </a>
+                    <a href="applications.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md bg-theme-primary text-white">
+                        <svg class="mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Applications
+                    </a>
+                    <a href="analytics.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Analytics
+                    </a>
+                    <a href="profile.html" class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Profile
+                    </a>
+                </nav>
+            </div>
+            <div class="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex-shrink-0 w-full group block">
+                    <div class="flex items-center">
+                        <div class="h-9 w-9 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-lg font-medium text-white mobile-org-avatar">
+                            <!-- Will be filled dynamically -->
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mobile-org-name">
+                                <!-- Will be filled dynamically -->
+                            </p>
+                            <button class="mobile-logout-btn text-xs font-medium text-theme-primary hover:text-theme-primary-hover">
+                                Sign out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Sidebar placeholder (to prevent shifts) -->
+        <div class="flex-shrink-0 w-14" aria-hidden="true"></div>
+    </div>
+
+    <!-- Application Detail Modal -->
+    <div id="application-modal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="application-modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            
+            <!-- Center modal -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full sm:p-6">
+                <div>
+                    <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                        <h3 id="application-modal-title" class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                            Application Details
+                        </h3>
+                        <div id="application-job-title" class="mt-1 text-sm text-theme-primary">
+                            <!-- Job title will be filled here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="bg-white dark:bg-gray-800">
+                        <div class="flex items-center mb-6">
+                            <div class="mr-4">
+                                <div id="applicant-avatar" class="h-12 w-12 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-lg font-medium text-white">
+                                    <!-- Initials will be filled dynamically -->
+                                </div>
+                            </div>
+                            <div>
+                                <h4 id="applicant-name" class="text-md font-medium text-gray-900 dark:text-white">
+                                    <!-- Applicant name will be filled here -->
+                                </h4>
+                                <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                    <span id="applicant-email"></span>
+                                    <span class="mx-2">•</span>
+                                    <span id="application-date"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <!-- Application Status -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Status
+                                </label>
+                                <select id="application-status" class="mt-1 block w-full py-2 px-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-theme-primary focus:border-theme-primary sm:text-sm text-gray-900 dark:text-white">
+                                    <option value="pending">Pending Review</option>
+                                    <option value="reviewed">Reviewed</option>
+                                    <option value="interviewed">Interviewed</option>
+                                    <option value="hired">Hired</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+
+                            <!-- Applicant cover letter -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Cover Letter
+                                </label>
+                                <div id="cover-letter" class="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 h-40 overflow-y-auto">
+                                    <!-- Cover letter content will be filled here -->
+                                </div>
+                            </div>
+
+                            <!-- Resume -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Resume
+                                </label>
+                                <div class="mt-1 flex items-center">
+                                    <button id="view-resume" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-theme-primary hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                                        <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        View Resume
+                                    </button>
+                                    <a id="download-resume" class="ml-3 inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary">
+                                        <svg class="-ml-0.5 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                        </svg>
+                                        Download Resume
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Notes section -->
+                            <div>
+                                <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    Recruiter Notes
+                                </label>
+                                <div class="mt-1">
+                                    <textarea id="notes" rows="3" class="shadow-sm focus:ring-theme-primary focus:border-theme-primary block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" placeholder="Add private notes about this candidate..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal Actions -->
+                <div class="mt-6 sm:mt-8 sm:flex sm:justify-between">
+                    <div class="sm:flex">
+                        <button id="email-applicant" class="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary sm:w-auto sm:text-sm">
+                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            Email Candidate
+                        </button>
+                    </div>
+                    <div class="mt-3 sm:mt-0 sm:flex sm:flex-row-reverse">
+                        <button type="button" id="save-application" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-theme-primary text-base font-medium text-white hover:bg-theme-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary sm:ml-3 sm:w-auto sm:text-sm">
+                            Save Changes
+                        </button>
+                        <button type="button" id="close-application" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-theme-primary sm:mt-0 sm:w-auto sm:text-sm">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Alert Toast -->
+    <div id="alert-toast" class="fixed bottom-0 right-0 m-6 w-96 hidden">
+        <div class="p-4 rounded-md shadow-lg">
+            <div id="success-alert" class="hidden flex items-center p-4 mb-4 text-green-800 border-t-4 border-green-300 bg-green-50 dark:text-green-400 dark:bg-gray-800 dark:border-green-800" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <div class="ml-3 text-sm font-medium" id="success-message">
+                    Changes saved successfully.
+                </div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700" data-dismiss-target="#success-alert" aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+            <div id="error-alert" class="hidden flex items-center p-4 mb-4 text-red-800 border-t-4 border-red-300 bg-red-50 dark:text-red-400 dark:bg-gray-800 dark:border-red-800" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                <div class="ml-3 text-sm font-medium" id="error-message">
+                    Something went wrong.
+                </div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" data-dismiss-target="#error-alert" aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Variables for pagination
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentFilters = {
+            job_id: 'all',
+            status: 'all',
+            search: ''
+        };
+
+        // Initialize the application page
+        initApplicationsPage();
+
+        // Initialize the page with data from API
+        function initApplicationsPage() {
+            // Load applications from API
+            fetchApplications();
+
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        // Fetch applications from the API
+        function fetchApplications() {
+            // Show loading indicator
+            document.getElementById('applications-table-body').innerHTML = `
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <svg class="mx-auto h-8 w-8 animate-spin text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="mt-2">Loading applications...</p>
+                    </td>
+                </tr>
+            `;
+
+            // Build query parameters
+            const queryParams = new URLSearchParams({
+                page: currentPage,
+                limit: 10,
+                job_id: currentFilters.job_id,
+                status: currentFilters.status,
+                search: currentFilters.search
+            });
+
+            // Fetch applications from API
+            fetch(`../api/applications.php?${queryParams.toString()}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        displayApplications(data.applications);
+                        updatePagination(data.pagination);
+                        updateStats(data.stats);
+                        populateJobsDropdown(data.jobs);
+                    } else {
+                        showAlert('error', data.message || 'Failed to load applications');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching applications:', error);
+                    showAlert('error', 'Failed to load applications. Please try again later.');
+                    // Show error state in table
+                    document.getElementById('applications-table-body').innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-sm text-red-500">
+                                <p>Failed to load applications. Please try again later.</p>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        // Display applications in the table
+        function displayApplications(applications) {
+            const tableBody = document.getElementById('applications-table-body');
+            
+            // Clear table
+            tableBody.innerHTML = '';
+            
+            if (applications.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                            No applications found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Add applications to table
+            applications.forEach(app => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 dark:hover:bg-gray-700';
+                
+                // Format the application date
+                const appDate = new Date(app.application_date || app.created_at);
+                const formattedDate = appDate.toLocaleDateString();
+                
+                // Create initials for avatar if no image
+                const initials = `${app.first_name.charAt(0)}${app.last_name.charAt(0)}`;
+                
+                // Create the status badge
+                const statusBadge = getStatusBadgeHTML(app.status);
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                ${app.profile_image_url ? 
+                                    `<img class="h-10 w-10 rounded-full" src="${app.profile_image_url}" alt="${app.first_name}'s profile picture">` : 
+                                    `<div class="h-10 w-10 rounded-full bg-theme-primary flex items-center justify-center text-white">${initials}</div>`
+                                }
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                    ${app.first_name} ${app.last_name}
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    ${app.email}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 dark:text-white">${app.job_title}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${formattedDate}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${statusBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button data-application-id="${app.application_id}" class="view-application text-theme-primary hover:text-theme-primary-hover">
+                            View
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-application').forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.getAttribute('data-application-id');
+                    openApplicationModal(applicationId);
+                });
+            });
+        }
+
+        // Get HTML for status badge based on status
+        function getStatusBadgeHTML(status) {
+            let colorClass = '';
+            let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            switch (status) {
+                case 'pending':
+                    colorClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+                    break;
+                case 'reviewed':
+                    colorClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+                    break;
+                case 'shortlisted':
+                    colorClass = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+                    break;
+                case 'accepted':
+                    colorClass = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+                    break;
+                case 'rejected':
+                    colorClass = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                    break;
+                default:
+                    colorClass = 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+            }
+            
+            return `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClass}">
+                        ${statusText}
+                    </span>`;
+        }
+
+        // Update pagination controls
+        function updatePagination(pagination) {
+            const { total, page, limit, total_pages } = pagination;
+            
+            // Update pagination text
+            const start = ((page - 1) * limit) + 1;
+            const end = Math.min(page * limit, total);
+            
+            document.getElementById('pagination-start').textContent = start;
+            document.getElementById('pagination-end').textContent = end;
+            document.getElementById('pagination-total').textContent = total;
+            
+            // Update current page and total pages
+            currentPage = page;
+            totalPages = total_pages;
+            
+            // Generate page numbers
+            const pagesContainer = document.getElementById('pagination-pages');
+            pagesContainer.innerHTML = '';
+            
+            // Create page buttons
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(total_pages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = `relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                    ${i === page ? 
+                        'bg-theme-primary text-white border-theme-primary' : 
+                        'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600'}`;
+                pageButton.textContent = i;
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    fetchApplications();
+                });
+                pagesContainer.appendChild(pageButton);
+            }
+            
+            // Update previous and next buttons
+            const prevButton = document.getElementById('pagination-prev');
+            const nextButton = document.getElementById('pagination-next');
+            const prevMobileButton = document.getElementById('pagination-prev-mobile');
+            const nextMobileButton = document.getElementById('pagination-next-mobile');
+            
+            prevButton.disabled = page <= 1;
+            prevButton.classList.toggle('opacity-50', page <= 1);
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchApplications();
+                }
+            });
+            
+            nextButton.disabled = page >= total_pages;
+            nextButton.classList.toggle('opacity-50', page >= total_pages);
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchApplications();
+                }
+            });
+            
+            // Update mobile buttons
+            prevMobileButton.disabled = page <= 1;
+            prevMobileButton.classList.toggle('opacity-50', page <= 1);
+            prevMobileButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchApplications();
+                }
+            });
+            
+            nextMobileButton.disabled = page >= total_pages;
+            nextMobileButton.classList.toggle('opacity-50', page >= total_pages);
+            nextMobileButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchApplications();
+                }
+            });
+        }
+
+        // Update stats display
+        function updateStats(stats) {
+            document.getElementById('stat-total-applications').textContent = stats.total_applications || 0;
+            document.getElementById('stat-pending-applications').textContent = stats.pending_applications || 0;
+            document.getElementById('stat-reviewed-applications').textContent = stats.reviewed_applications || 0;
+            document.getElementById('stat-accepted-applications').textContent = stats.accepted_applications || 0;
+        }
+
+        // Populate jobs dropdown
+        function populateJobsDropdown(jobs) {
+            const dropdown = document.getElementById('filter-job');
+            
+            // Keep the first "All Positions" option
+            dropdown.innerHTML = '<option value="all">All Positions</option>';
+            
+            // Add job options
+            jobs.forEach(job => {
+                const option = document.createElement('option');
+                option.value = job.job_offer_id;
+                option.textContent = job.title;
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Open application modal with details
+        function openApplicationModal(applicationId) {
+            fetch(`../api/applications.php?application_id=${applicationId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const app = data.application;
+                        
+                        // Populate modal with application data
+                        document.getElementById('application-modal-title').textContent = 'Application Details';
+                        document.getElementById('application-job-title').textContent = app.job_title;
+                        
+                        // Applicant details
+                        document.getElementById('applicant-name').textContent = `${app.first_name} ${app.last_name}`;
+                        document.getElementById('applicant-email').textContent = app.email;
+                        
+                        // Format date
+                        const appDate = new Date(app.application_date || app.created_at);
+                        document.getElementById('application-date').textContent = `Applied on ${appDate.toLocaleDateString()}`;
+                        
+                        // Set avatar
+                        const avatarDiv = document.getElementById('applicant-avatar');
+                        if (app.profile_image_url) {
+                            avatarDiv.innerHTML = `<img class="h-12 w-12 rounded-full" src="${app.profile_image_url}" alt="${app.first_name}'s profile picture">`;
+                        } else {
+                            const initials = `${app.first_name.charAt(0)}${app.last_name.charAt(0)}`;
+                            avatarDiv.innerHTML = initials;
+                        }
+                        
+                        // Set application status
+                        document.getElementById('application-status').value = app.status;
+                        
+                        // Set cover letter
+                        document.getElementById('cover-letter').textContent = app.cover_letter || 'No cover letter provided.';
+                        
+                        // Set resume links
+                        const resumeUrl = app.resume_url;
+                        if (resumeUrl) {
+                            document.getElementById('view-resume').onclick = function() {
+                                window.open(resumeUrl, '_blank');
+                            };
+                            document.getElementById('download-resume').href = resumeUrl;
+                            document.getElementById('download-resume').download = resumeUrl.split('/').pop();
+                        } else {
+                            document.getElementById('view-resume').disabled = true;
+                            document.getElementById('download-resume').classList.add('opacity-50', 'pointer-events-none');
+                        }
+                        
+                        // Set notes
+                        document.getElementById('notes').value = app.notes || '';
+                        
+                        // Setup email button
+                        document.getElementById('email-applicant').onclick = function() {
+                            window.location.href = `mailto:${app.email}?subject=Regarding your application for ${app.job_title}`;
+                        };
+                        
+                        // Setup save button
+                        document.getElementById('save-application').onclick = function() {
+                            updateApplication(app.application_id);
+                        };
+                        
+                        // Show the modal
+                        document.getElementById('application-modal').classList.remove('hidden');
+                    } else {
+                        showAlert('error', data.message || 'Failed to load application details');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching application details:', error);
+                    showAlert('error', 'Failed to load application details. Please try again later.');
+                });
+        }
+
+        // Update application status and notes
+        function updateApplication(applicationId) {
+            const status = document.getElementById('application-status').value;
+            const notes = document.getElementById('notes').value;
+            
+            fetch('../api/applications.php', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    status: status,
+                    notes: notes
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close the modal
+                    document.getElementById('application-modal').classList.add('hidden');
+                    
+                    // Show success message
+                    showAlert('success', 'Application updated successfully');
+                    
+                    // Refresh applications list
+                    fetchApplications();
+                } else {
+                    showAlert('error', data.message || 'Failed to update application');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating application:', error);
+                showAlert('error', 'Failed to update application. Please try again later.');
+            });
+        }
+
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Filter job change
+            document.getElementById('filter-job').addEventListener('change', function() {
+                currentFilters.job_id = this.value;
+            });
+            
+            // Filter status change
+            document.getElementById('filter-status').addEventListener('change', function() {
+                currentFilters.status = this.value;
+            });
+            
+            // Apply filters button
+            document.getElementById('filter-apply').addEventListener('click', function() {
+                currentPage = 1; // Reset to first page when filtering
+                fetchApplications();
+            });
+            
+            // Search input
+            document.getElementById('search-applications').addEventListener('input', function() {
+                currentFilters.search = this.value;
+                // Debounce search
+                clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    currentPage = 1; // Reset to first page when searching
+                    fetchApplications();
+                }, 500);
+            });
+            
+            // Close modal button
+            document.getElementById('close-application').addEventListener('click', function() {
+                document.getElementById('application-modal').classList.add('hidden');
+            });
+        }
+
+        // Show alert function
+        function showAlert(type, message) {
+            const alertToast = document.getElementById('alert-toast');
+            const successAlert = document.getElementById('success-alert');
+            const errorAlert = document.getElementById('error-alert');
+            
+            if (type === 'success') {
+                successAlert.classList.remove('hidden');
+                document.getElementById('success-message').textContent = message;
+                errorAlert.classList.add('hidden');
+            } else {
+                errorAlert.classList.remove('hidden');
+                document.getElementById('error-message').textContent = message;
+                successAlert.classList.add('hidden');
+            }
+            
+            alertToast.classList.remove('hidden');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                alertToast.classList.add('hidden');
+            }, 3000);
+        }
+    });
+    </script>
+</body>
+</html>

@@ -17,6 +17,56 @@ if (!isset($_SESSION['student_id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
+// Handle withdraw action via GET with action parameter
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'withdraw') {
+    $applicationId = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    $studentId = isset($_SESSION['student_id']) ? $_SESSION['student_id'] : 0;
+    
+    if (!$applicationId || !$studentId) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Missing required information. Please ensure you\'re logged in as a student.'
+        ]);
+        exit;
+    }
+    
+    try {
+        // Verify the application belongs to the student
+        $checkQuery = "SELECT application_id FROM job_applications 
+                       WHERE application_id = :application_id AND student_id = :student_id";
+        $checkStmt = $conn->prepare($checkQuery);
+        $checkStmt->bindParam(':application_id', $applicationId, PDO::PARAM_INT);
+        $checkStmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+        $checkStmt->execute();
+        
+        if ($checkStmt->rowCount() === 0) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'You do not have permission to withdraw this application.'
+            ]);
+            exit;
+        }
+        
+        // Delete the application
+        $deleteQuery = "DELETE FROM job_applications WHERE application_id = :application_id";
+        $deleteStmt = $conn->prepare($deleteQuery);
+        $deleteStmt->bindParam(':application_id', $applicationId, PDO::PARAM_INT);
+        $deleteStmt->execute();
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Application withdrawn successfully.'
+        ]);
+    } catch (PDOException $e) {
+        error_log("Error withdrawing application: " . $e->getMessage());
+        echo json_encode([
+            'success' => false,
+            'message' => 'Database error occurred. Please try again later.'
+        ]);
+    }
+    exit;
+}
+
 // Handle different actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Submit new application
@@ -96,7 +146,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Create directory if it doesn't exist
-        $uploadDir = '../uploads/resumes/';
+        $rootDir = $_SERVER['DOCUMENT_ROOT']; // This gives the physical path to your web root
+        $uploadDir = $rootDir . '/iteam-university-website/frontend/uploads/resumes/';
+        
+        // Make sure parent directories exist
+        if (!file_exists(dirname($uploadDir))) {
+            if (!mkdir(dirname($uploadDir), 0755, true)) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Failed to create parent upload directory. Please contact support.'
+                ]);
+                exit;
+            }
+        }
+        
+        // Create the resumes folder if needed
         if (!file_exists($uploadDir)) {
             if (!mkdir($uploadDir, 0755, true)) {
                 echo json_encode([
@@ -122,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Store relative path in database
-        $resumePath = 'uploads/resumes/' . $filename;
+        $resumePath = '/iteam-university-website/frontend/uploads/resumes/' . $filename;
     } else {
         // Handle various upload errors
         if (isset($_FILES['resume'])) {

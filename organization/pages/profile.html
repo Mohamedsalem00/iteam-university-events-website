@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Student Event Platform</title>
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply student type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script - MOVED TO HEAD TO LOAD EARLY -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="../css/output.css" rel="stylesheet">
+    <link rel="shortcut icon" href="../images/favicon.png" type="image/png">
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
+      data-auth-required="true" 
+      data-roles="organization">
+    
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+    
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 py-12">
+        <h1 class="text-3xl font-bold mb-8">My Profile</h1>
+        
+        <!-- Profile content with loading state -->
+        <div id="profile-loading" class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-theme-primary"></div>
+        </div>
+        
+        <div id="profile-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline" id="error-message">Something went wrong loading your profile.</span>
+            <button id="retry-profile" class="underline ml-2">Try again</button>
+        </div>
+        
+        <!-- Profile Form -->
+        <form id="profile-form" enctype="multipart/form-data" method="post">
+            <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md overflow-hidden">
+                
+                <!-- Profile Header with Avatar -->
+                <div class="bg-theme-primary text-white p-6">
+                    <div class="flex flex-col md:flex-row items-center gap-6">
+                        <div class="relative">
+                            <div id="profile-picture-container" class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden border-4 border-white">
+                                <img id="current-profile-pic" class="w-full h-full object-cover hidden" alt="Profile Picture">
+                                <div id="profile-initials" class="text-4xl font-bold"></div>
+                            </div>
+                            <label for="profile-picture-upload" class="absolute bottom-0 right-0 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md cursor-pointer">
+                                <svg class="w-5 h-5 text-theme-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </label>
+                            <input id="profile-picture-upload" type="file" accept="image/*" class="hidden">
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold" id="profile-title">Loading profile...</h2>
+                            <p class="text-white/80" id="profile-email"></p>
+                            <div class="mt-2">
+                                <span class="bg-white/20 px-3 py-1 rounded-full text-sm" id="profile-type"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Form Fields -->
+                <div class="p-6">
+                    <div class="mb-6" id="student-form-fields">
+                        <h3 class="text-lg font-semibold mb-4">Personal Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="first-name" class="block text-sm font-medium text-dashboard-text-secondary mb-1">First Name</label>
+                                <input type="text" id="first-name" name="first_name" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            </div>
+                            <div>
+                                <label for="last-name" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Last Name</label>
+                                <input type="text" id="last-name" name="last_name" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            </div>
+                            <div>
+                                <label for="student-email" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Email Address</label>
+                                <input type="email" id="student-email" name="email" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold mb-4">Change Password</h3>
+                        <p class="text-dashboard-text-secondary mb-4">Leave these fields blank if you don't want to change your password.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="current-password" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Current Password</label>
+                                <input type="password" id="current-password" name="current_password" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            </div>
+                            <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="new-password" class="block text-sm font-medium text-dashboard-text-secondary mb-1">New Password</label>
+                                    <input type="password" id="new-password" name="new_password" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                </div>
+                                <div>
+                                    <label for="confirm-password" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Confirm New Password</label>
+                                    <input type="password" id="confirm-password" name="confirm_password" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-dashboard-border dark:border-dashboard-border flex justify-end">
+                    <button type="button" id="cancel-btn" class="px-4 py-2 border border-dashboard-border dark:border-dashboard-border rounded-lg mr-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition">Cancel</button>
+                    <button type="submit" id="save-profile-btn" class="px-4 py-2 bg-theme-primary text-white rounded-lg hover:bg-theme-primary-hover transition flex items-center">
+                        <span>Save Changes</span>
+                        <span id="save-spinner" class="ml-2 hidden">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Success Alert -->
+        <div id="success-alert" class="hidden fixed bottom-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg" role="alert">
+            <div class="flex">
+                <div class="py-1">
+                    <svg class="fill-current h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM6.7 9.29L9 11.6l4.3-4.3 1.4 1.42L9 14.4l-3.7-3.7 1.4-1.42z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold">Success!</p>
+                    <p class="text-sm" id="success-message">Your profile has been updated successfully.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Templates -->
+        <!-- Alert Modal -->
+        <div id="alert-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div id="alert-modal-backdrop" class="absolute inset-0 bg-black opacity-30"></div>
+            <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+                <div class="p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <div id="alert-modal-icon" class="bg-theme-primary/20 dark:bg-theme-primary/30 rounded-full p-3">
+                            <svg id="alert-modal-svg" class="w-8 h-8 text-theme-primary dark:text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-center mb-2" id="alert-modal-title">Alert</h3>
+                    <p class="text-center text-gray-600 dark:text-gray-300 mb-6" id="alert-modal-message">Alert message goes here.</p>
+                    <div class="flex justify-center">
+                        <button id="alert-modal-ok" class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirm Modal -->
+        <div id="confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div id="confirm-modal-backdrop" class="absolute inset-0 bg-black opacity-30"></div>
+            <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+                <div class="p-6">
+                    <div class="flex items-center justify-center mb-4">
+                        <div class="bg-yellow-100 dark:bg-yellow-900/30 rounded-full p-3">
+                            <svg class="w-8 h-8 text-yellow-500 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-center mb-2" id="confirm-modal-title">Confirm Action</h3>
+                    <p class="text-center text-gray-600 dark:text-gray-300 mb-6" id="confirm-modal-message">Are you sure you want to perform this action?</p>
+                    <div class="flex justify-center space-x-4">
+                        <button id="confirm-modal-cancel" class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg px-6 py-2 font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                            Cancel
+                        </button>
+                        <button id="confirm-modal-confirm" class="bg-theme-primary text-white rounded-lg px-6 py-2 font-medium hover:bg-theme-primary-hover transition">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+    
+    <!-- Your existing scripts -->
+    <script src="../js/main.js"></script>
+    <script src="../js/components.js"></script>
+    
+    <!-- Profile page specific script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const profileForm = document.getElementById('profile-form');
+            const profileLoading = document.getElementById('profile-loading');
+            const profileError = document.getElementById('profile-error');
+            const errorMessage = document.getElementById('error-message');
+            const retryButton = document.getElementById('retry-profile');
+            
+            const profileTitle = document.getElementById('profile-title');
+            const profileEmail = document.getElementById('profile-email');
+            const profileType = document.getElementById('profile-type');
+            const profileInitials = document.getElementById('profile-initials');
+            const currentProfilePic = document.getElementById('current-profile-pic');
+            
+            const studentFormFields = document.getElementById('student-form-fields');
+            
+            const firstNameInput = document.getElementById('first-name');
+            const lastNameInput = document.getElementById('last-name');
+            const studentEmailInput = document.getElementById('student-email');
+            
+            const currentPasswordInput = document.getElementById('current-password');
+            const newPasswordInput = document.getElementById('new-password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            
+            const profilePictureUpload = document.getElementById('profile-picture-upload');
+            const saveProfileBtn = document.getElementById('save-profile-btn');
+            const saveSpinner = document.getElementById('save-spinner');
+            const successAlert = document.getElementById('success-alert');
+            const successMessage = document.getElementById('success-message');
+            
+            let profileData = null;
+            let newProfilePicture = null;
+            
+            // Load profile data
+            function loadProfile() {
+                // Show loading state
+                profileLoading.classList.remove('hidden');
+                profileForm.classList.add('hidden');
+                profileError.classList.add('hidden');
+                
+                // Set a timeout to prevent infinite loading
+                const loadingTimeout = setTimeout(() => {
+                    if (profileLoading.classList.contains('hidden') === false) {
+                        // Still loading after 10 seconds, show error
+                        profileLoading.classList.add('hidden');
+                        profileError.classList.remove('hidden');
+                        errorMessage.textContent = 'Request timed out. The server is taking too long to respond.';
+                        console.error('Profile loading timed out');
+                    }
+                }, 10000); // 10 second timeout
+                
+                // Fetch profile data from API
+                fetch('../api/profile.php')
+                    .then(response => {
+                        clearTimeout(loadingTimeout);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || 'Failed to load profile data');
+                        }
+                        
+                        // Store profile data
+                        profileData = data.profile;
+                        
+                        // Update UI based on profile type
+                        updateProfileUI(profileData);
+                        
+                        // Hide loading, show form
+                        profileLoading.classList.add('hidden');
+                        profileForm.classList.remove('hidden');
+                    })
+                    .catch(error => {
+                        clearTimeout(loadingTimeout);
+                        console.error('Error loading profile:', error);
+                        
+                        // Show error state
+                        profileLoading.classList.add('hidden');
+                        profileError.classList.remove('hidden');
+                        errorMessage.textContent = error.message || 'Failed to load profile data';
+                    });
+            }
+            
+            // Update UI based on profile type
+            function updateProfileUI(profile) {
+                // Common fields
+                profileEmail.textContent = profile.email;
+                
+                // Set profile type badge
+                profileType.textContent = 'Student';
+                
+                // Handle profile picture
+                if (profile.profile_picture) {
+                    currentProfilePic.src = profile.profile_picture;
+                    currentProfilePic.classList.remove('hidden');
+                    profileInitials.classList.add('hidden');
+                } else {
+                    // Show initials
+                    currentProfilePic.classList.add('hidden');
+                    profileInitials.classList.remove('hidden');
+                    profileInitials.textContent = profile.initials || 'U';
+                }
+                
+                // Always show student fields - no need to check account type
+                studentFormFields.style.display = 'block';
+                
+                // Set student values
+                firstNameInput.value = profile.first_name || '';
+                lastNameInput.value = profile.last_name || '';
+                studentEmailInput.value = profile.email || '';
+                
+                // Set page title
+                profileTitle.textContent = `${profile.first_name} ${profile.last_name}`;
+                
+                // Reset password fields
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+            }
+            
+            // Handle profile picture upload
+            profilePictureUpload.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        // Preview the new image
+                        currentProfilePic.src = e.target.result;
+                        currentProfilePic.classList.remove('hidden');
+                        profileInitials.classList.add('hidden');
+                        
+                        // Store the new image for upload
+                        newProfilePicture = file;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Handle form submission
+            profileForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Validate form
+                if (newPasswordInput.value !== confirmPasswordInput.value) {
+                    showErrorModal('New password and confirmation do not match');
+                    return;
+                }
+                
+                // Show loading state
+                saveProfileBtn.disabled = true;
+                saveSpinner.classList.remove('hidden');
+                
+                // Prepare form data
+                const formData = new FormData();
+                
+                // Add profile type - always student
+                formData.append('account_type', 'student');
+                
+                // Add profile data for student
+                formData.append('first_name', firstNameInput.value);
+                formData.append('last_name', lastNameInput.value);
+                
+                // Add password change if provided
+                if (currentPasswordInput.value && newPasswordInput.value) {
+                    formData.append('current_password', currentPasswordInput.value);
+                    formData.append('new_password', newPasswordInput.value);
+                }
+                
+                // Add profile picture if changed
+                if (newProfilePicture) {
+                    formData.append('profile_picture', newProfilePicture);
+                }
+                
+                // Send update request
+                fetch('../api/profile.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset form state
+                    saveProfileBtn.disabled = false;
+                    saveSpinner.classList.add('hidden');
+                    
+                    if (data.success) {
+                        // Update localStorage with the new user information
+                        if (data.student) {
+                            localStorage.setItem('userType', data.student.type);
+                            localStorage.setItem('userName', data.student.name || '');
+                        }
+                        
+                        // Show success modal
+                        showSuccessModal(data.message || 'Profile updated successfully');
+                        
+                        // Update profile data and UI
+                        profileData = data.profile;
+                        updateProfileUI(profileData);
+                        
+                        // Reset password fields
+                        currentPasswordInput.value = '';
+                        newPasswordInput.value = '';
+                        confirmPasswordInput.value = '';
+                        
+                        // Reset profile picture state
+                        newProfilePicture = null;
+                    } else {
+                        showErrorModal(data.message || 'Failed to update profile');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating profile:', error);
+                    
+                    // Reset form state
+                    saveProfileBtn.disabled = false;
+                    saveSpinner.classList.add('hidden');
+                    
+                    // Show error
+                    showErrorModal('An error occurred while updating your profile. Please try again.');
+                });
+            });
+            
+            // Handle retry button
+            retryButton.addEventListener('click', loadProfile);
+            
+            // Initial load
+            loadProfile();
+        });
+        
+        // Show a success modal
+        function showSuccessModal(message, onClose) {
+            // Configure the alert modal as success
+            const modal = document.getElementById('alert-modal');
+            const title = document.getElementById('alert-modal-title');
+            const messageEl = document.getElementById('alert-modal-message');
+            const icon = document.getElementById('alert-modal-icon');
+            const svg = document.getElementById('alert-modal-svg');
+            const okBtn = document.getElementById('alert-modal-ok');
+            const backdrop = document.getElementById('alert-modal-backdrop');
+            
+            // Set content
+            title.textContent = 'Success';
+            messageEl.textContent = message;
+            
+            // Set success styling
+            icon.className = 'bg-green-100 dark:bg-green-900/30 rounded-full p-3';
+            svg.className = 'w-8 h-8 text-green-500 dark:text-green-400';
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+            
+            // Clean up previous event listeners if any
+            const newOkBtn = okBtn.cloneNode(true);
+            const newBackdrop = backdrop.cloneNode(true);
+            
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            backdrop.parentNode.replaceChild(newBackdrop, backdrop);
+            
+            // Show the modal with animation
+            modal.classList.remove('hidden');
+            
+            // Setup close function
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                if (onClose && typeof onClose === 'function') {
+                    onClose();
+                }
+            };
+            
+            // Setup event listeners
+            newOkBtn.addEventListener('click', closeModal);
+            
+            // Auto close after 3 seconds
+            setTimeout(closeModal, 3000);
+        }
+        
+        // Show an error modal
+        function showErrorModal(message) {
+            // Configure the alert modal as error
+            const modal = document.getElementById('alert-modal');
+            const title = document.getElementById('alert-modal-title');
+            const messageEl = document.getElementById('alert-modal-message');
+            const icon = document.getElementById('alert-modal-icon');
+            const svg = document.getElementById('alert-modal-svg');
+            const okBtn = document.getElementById('alert-modal-ok');
+            const backdrop = document.getElementById('alert-modal-backdrop');
+            
+            // Set content
+            title.textContent = 'Error';
+            messageEl.textContent = message;
+            
+            // Set error styling
+            icon.className = 'bg-red-100 dark:bg-red-900/30 rounded-full p-3';
+            svg.className = 'w-8 h-8 text-red-500 dark:text-red-400';
+            svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>';
+            
+            // Clean up previous event listeners if any
+            const newOkBtn = okBtn.cloneNode(true);
+            const newBackdrop = backdrop.cloneNode(true);
+            
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            backdrop.parentNode.replaceChild(newBackdrop, backdrop);
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+            
+            // Setup event listeners
+            newOkBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        }
+        
+        // Show a confirmation modal
+        function showConfirmModal(title, message, onConfirm, onCancel) {
+            // Get modal elements
+            const modal = document.getElementById('confirm-modal');
+            const titleEl = document.getElementById('confirm-modal-title');
+            const messageEl = document.getElementById('confirm-modal-message');
+            const confirmBtn = document.getElementById('confirm-modal-confirm');
+            const cancelBtn = document.getElementById('confirm-modal-cancel');
+            const backdrop = document.getElementById('confirm-modal-backdrop');
+            
+            // Set content
+            titleEl.textContent = title || 'Confirm Action';
+            messageEl.textContent = message || 'Are you sure you want to perform this action?';
+            
+            // Clean up previous event listeners if any
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            const newBackdrop = backdrop.cloneNode(true);
+            
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+            backdrop.parentNode.replaceChild(newBackdrop, backdrop);
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+            
+            // Setup event listeners
+            newConfirmBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (onConfirm && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+            });
+            
+            newCancelBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (onCancel && typeof onCancel === 'function') {
+                    onCancel();
+                }
+            });
+            
+            newBackdrop.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (onCancel && typeof onCancel === 'function') {
+                    onCancel();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

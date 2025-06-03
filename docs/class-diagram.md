@@ -3,256 +3,150 @@
 The following diagram illustrates the class structure and relationships between entities in the iTeam University Event Management System.
 
 ```mermaid
-classDiagram
-    class User {
-        +Int user_id
-        +String first_name
-        +String last_name
-        +String email
-        +String password
-        +String profile_picture
-        +DateTime registration_date
-        +Enum statusclassDiagram
-    class User {
-        +Int user_id
-        +String first_name
-        +String last_name
-        +String email
-        +String password
-        +String profile_picture
-        +DateTime registration_date
-        +Enum status
+@startuml
+' Title
+title Event Management - Class Diagram
 
-        +register()
-        +login()
-        +updateProfile()
-        +deleteAccount()
-        +viewNotifications()
-        +registerForEvent()
-    }
+' Styling
+skinparam classAttributeIconSize 0
 
-    class Organization {
-        +Int organization_id
-        +String name
-        +String email
-        +String password
-        +String description
-        +String profile_picture
-        +DateTime registration_date
-        +Enum status
+' Entities
+class students {
+  +student_id : INT
+  +first_name : VARCHAR
+  +last_name : VARCHAR
+  +email : VARCHAR
+  +password : VARCHAR
+  +profile_picture : VARCHAR
+  +registration_date : DATETIME
+  +status : ENUM
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-        +register()
-        +login()
-        +createEvent()
-        +updateEvent()
-        +deleteEvent()
-        +postJobOffer()
-        +updateProfile()
-    }
+class organizations {
+  +organization_id : INT
+  +name : VARCHAR
+  +email : VARCHAR
+  +password : VARCHAR
+  +description : TEXT
+  +profile_picture : VARCHAR
+  +registration_date : DATETIME
+  +status : ENUM
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-    class Admin {
-        +Int admin_id
-        +String username
-        +String email
-        +String password
-        +DateTime created_at
+class admins {
+  +admin_id : INT
+  +username : VARCHAR
+  +email : VARCHAR
+  +password : VARCHAR
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-        +login()
-        +manageUsers()
-        +manageOrganizations()
-        +manageEvents()
-    }
+class accounts {
+  +account_id : INT
+  +account_type : ENUM
+  +reference_id : INT
+  +last_login : DATETIME
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-    class Event {
-        +Int event_id
-        +String title
-        +String description
-        +DateTime start_date
-        +DateTime end_date
-        +String location
-        +Enum event_type
-        +Int max_capacity
-        +Int organizer_id
+class events {
+  +event_id : INT
+  +title : VARCHAR
+  +description : TEXT
+  +start_date : DATETIME
+  +end_date : DATETIME
+  +location : VARCHAR
+  +event_type : ENUM
+  +max_capacity : INT
+  +organizer_id : INT
+  +requires_approval : BOOLEAN
+  +thumbnail_url : VARCHAR
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-        +createEvent()
-        +updateEvent()
-        +deleteEvent()
-        +viewEventDetails()
-    }
+class event_registrations {
+  +registration_id : INT
+  +event_id : INT
+  +student_id : INT
+  +registration_date : DATETIME
+  +status : ENUM
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-    class EventRegistration {
-        +Int registration_id
-        +Int event_id
-        +Int user_id
-        +DateTime registration_date
-        +Enum status
+class event_gallery {
+  +image_id : INT
+  +event_id : INT
+  +image_url : VARCHAR
+  +upload_date : DATETIME
+  +caption : VARCHAR
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-        +registerUser()
-        +cancelRegistration()
-        +confirmRegistration()
-    }
+class notifications {
+  +notification_id : INT
+  +account_id : INT
+  +event_id : INT
+  +notification_type : ENUM
+  +message : VARCHAR
+  +is_read : BOOLEAN
+  +send_date : DATETIME
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-    class EventGallery {
-        +Int image_id
-        +Int event_id
-        +String image_url
-        +DateTime upload_date
-        +String caption
+class job_offers {
+  +job_offer_id : INT
+  +organization_id : INT
+  +title : VARCHAR
+  +description : TEXT
+  +posted_date : DATETIME
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-        +addImage()
-        +deleteImage()
-        +viewGallery()
-    }
+class job_applications {
+  +application_id : INT
+  +job_offer_id : INT
+  +student_id : INT
+  +application_date : DATETIME
+  +cover_letter : TEXT
+  +resume_path : VARCHAR
+  +status : ENUM
+  +notes : TEXT
+  +created_at : DATETIME
+  +updated_at : DATETIME
+}
 
-    class Notification {
-        +Int notification_id
-        +Int user_id
-        +Int event_id
-        +Enum notification_type
-        +String message
-        +DateTime send_date
+' Relationships
+students "1" -- "0..*" event_registrations : registers
+students "1" -- "0..*" job_applications : applies
 
-        +sendNotification()
-        +viewNotification()
-        +deleteNotification()
-    }
+organizations "1" -- "0..*" events : organizes
+organizations "1" -- "0..*" job_offers : posts
 
-    class JobOffer {
-        +Int job_offer_id
-        +Int organization_id
-        +String title
-        +String description
-        +DateTime posted_date
+events "1" -- "0..*" event_registrations : has
+events "1" -- "0..*" event_gallery : contains
+events "1" -- "0..*" notifications : notifies
 
-        +createJobOffer()
-        +updateJobOffer()
-        +deleteJobOffer()
-        +viewJobOffer()
-    }
+event_gallery "0..*" -- "1" events
 
-    Organization "1" --> "0..*" Event : organizes
-    User "1" --> "0..*" EventRegistration : registers
-    User "1" --> "0..*" Notification : receives
-    Event "1" --> "0..*" EventRegistration : has
-    Event "1" --> "0..*" EventGallery : contains
-    Event "1" --> "0..*" Notification : related to
-    Organization "1" --> "0..*" JobOffer : posts
-Diagramme de Classe
+accounts "1" -- "0..*" notifications : receives
 
-        +register()
-        +login()
-        +updateProfile()
-        +deleteAccount()
-        +viewNotifications()
-        +registerForEvent()
-    }
+job_offers "1" -- "0..*" job_applications : receives
 
-    class Organization {
-        +Int organization_id
-        +String name
-        +String email
-        +String password
-        +String description
-        +String profile_picture
-        +DateTime registration_date
-        +Enum status
+@enduml
 
-        +register()
-        +login()
-        +createEvent()
-        +updateEvent()
-        +deleteEvent()
-        +postJobOffer()
-        +updateProfile()
-    }
 
-    class Admin {
-        +Int admin_id
-        +String username
-        +String email
-        +String password
-        +DateTime created_at
 
-        +login()
-        +manageUsers()
-        +manageOrganizations()
-        +manageEvents()
-    }
-
-    class Event {
-        +Int event_id
-        +String title
-        +String description
-        +DateTime start_date
-        +DateTime end_date
-        +String location
-        +Enum event_type
-        +Int max_capacity
-        +Int organizer_id
-
-        +createEvent()
-        +updateEvent()
-        +deleteEvent()
-        +viewEventDetails()
-    }
-
-    class EventRegistration {
-        +Int registration_id
-        +Int event_id
-        +Int user_id
-        +DateTime registration_date
-        +Enum status
-
-        +registerUser()
-        +cancelRegistration()
-        +confirmRegistration()
-    }
-
-    class EventGallery {
-        +Int image_id
-        +Int event_id
-        +String image_url
-        +DateTime upload_date
-        +String caption
-
-        +addImage()
-        +deleteImage()
-        +viewGallery()
-    }
-
-    class Notification {
-        +Int notification_id
-        +Int user_id
-        +Int event_id
-        +Enum notification_type
-        +String message
-        +DateTime send_date
-
-        +sendNotification()
-        +viewNotification()
-        +deleteNotification()
-    }
-
-    class JobOffer {
-        +Int job_offer_id
-        +Int organization_id
-        +String title
-        +String description
-        +DateTime posted_date
-
-        +createJobOffer()
-        +updateJobOffer()
-        +deleteJobOffer()
-        +viewJobOffer()
-    }
-
-    Organization "1" --> "0..*" Event : organizes
-    User "1" --> "0..*" EventRegistration : registers
-    User "1" --> "0..*" Notification : receives
-    Event "1" --> "0..*" EventRegistration : has
-    Event "1" --> "0..*" EventGallery : contains
-    Event "1" --> "0..*" Notification : related to
-    Organization "1" --> "0..*" JobOffer : posts
 ```
 
 ## Diagram Description

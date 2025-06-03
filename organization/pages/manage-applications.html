@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Immediately apply dark mode if saved (prevents flash) -->
+    <script>
+        // Check for saved dark mode preference and apply it immediately
+        if (localStorage.getItem('darkMode') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <script>
+    // Apply user type immediately to prevent flash
+    (function() {
+        const userType = localStorage.getItem('userType');
+        if (userType) {
+            document.body.classList.add('is-' + userType);
+        }
+    })();
+    </script>
+    
+    <!-- Auth Guard Script -->
+    <script src="../js/auth-guard.js"></script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Common Tailwind configuration -->
+    <script src="../js/tailwind-config.js"></script>
+    
+    <!-- Common CSS variables -->
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../images/favicon.svg" type="image/svg+xml">
+    <title>Manage Applications - Student Event Platform</title>
+</head>
+<body class="bg-dashboard-bg text-dashboard-text dark:bg-dashboard-bg dark:text-dashboard-text" 
+      data-public-page="true"
+      data-roles="organization">
+    
+    <!-- Header will be loaded here -->
+    <div id="header-placeholder"></div>
+
+    <main class="pt-20 pb-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold">Manage Applications</h1>
+                    <p class="text-dashboard-text-secondary mt-1">Review and respond to applications for your job offers</p>
+                </div>
+                <a href="manage-jobs.html" class="bg-theme-primary text-white rounded-lg px-4 py-2 font-medium hover:bg-theme-primary-hover transition flex items-center justify-center sm:justify-start">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    Manage Job Offers
+                </a>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm p-4 border border-dashboard-border dark:border-dashboard-border">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-dashboard-text-secondary text-sm">Total</p>
+                            <h3 id="total-count" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                            <svg class="w-6 h-6 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm p-4 border border-dashboard-border dark:border-dashboard-border">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-dashboard-text-secondary text-sm">Pending</p>
+                            <h3 id="pending-count" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-full">
+                            <svg class="w-6 h-6 text-yellow-500 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm p-4 border border-dashboard-border dark:border-dashboard-border">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-dashboard-text-secondary text-sm">Reviewed</p>
+                            <h3 id="reviewed-count" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                            <svg class="w-6 h-6 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm p-4 border border-dashboard-border dark:border-dashboard-border">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-dashboard-text-secondary text-sm">Accepted</p>
+                            <h3 id="accepted-count" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-full">
+                            <svg class="w-6 h-6 text-green-500 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm p-4 border border-dashboard-border dark:border-dashboard-border">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-dashboard-text-secondary text-sm">Rejected</p>
+                            <h3 id="rejected-count" class="text-2xl font-bold">0</h3>
+                        </div>
+                        <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-full">
+                            <svg class="w-6 h-6 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm p-4 mb-6 border border-dashboard-border dark:border-dashboard-border">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div class="flex-1">
+                        <label for="job-filter" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Filter by Job</label>
+                        <select id="job-filter" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            <option value="all">All Job Offers</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label for="status-filter" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Filter by Status</label>
+                        <select id="status-filter" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                            <option value="all">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="reviewed">Reviewed</option>
+                            <option value="shortlisted">Shortlisted</option>
+                            <option value="accepted">Accepted</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label for="search-input" class="block text-sm font-medium text-dashboard-text-secondary mb-1">Search</label>
+                        <input type="text" id="search-input" placeholder="Search applicants..." 
+                            class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading state -->
+            <div id="loading-state" class="py-12 flex justify-center items-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-theme-primary"></div>
+            </div>
+            
+            <!-- Error state -->
+            <div id="error-state" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-800 dark:text-red-300 rounded-lg p-4 mb-6">
+                <div class="flex">
+                    <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <p class="font-medium">Error loading applications</p>
+                        <p class="text-sm mt-1" id="error-message">Please try refreshing the page or check back later.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty state when no applications found -->
+            <div id="empty-state" class="hidden text-center py-12 bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md">
+                <svg class="h-16 w-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                </svg>
+                <h3 class="text-lg font-medium">No applications received yet</h3>
+                <p class="mt-2 text-dashboard-text-secondary">When students apply to your job offers, they will appear here</p>
+                <a href="manage-jobs.html" class="mt-4 inline-flex items-center bg-theme-primary hover:bg-theme-primary-hover text-white px-4 py-2 rounded-lg transition">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Create Job Offer
+                </a>
+            </div>
+            
+            <!-- No results for filter -->
+            <div id="no-results" class="hidden text-center py-8 bg-white dark:bg-dashboard-card-bg rounded-lg shadow-md">
+                <div class="mx-auto w-16 h-16 mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                    <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium">No matching applications</h3>
+                <p class="text-dashboard-text-secondary mt-1">Try adjusting your search criteria or filters</p>
+                <button id="reset-filters" class="mt-3 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-dashboard-text rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                    Reset Filters
+                </button>
+            </div>
+            
+            <!-- Applications list -->
+            <div id="applications-list" class="hidden">
+                <div class="bg-white dark:bg-dashboard-card-bg rounded-lg shadow-sm overflow-hidden border border-dashboard-border dark:border-dashboard-border">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Applicant</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Job Title</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Application Date</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applications-table-body" class="bg-white dark:bg-dashboard-card-bg divide-y divide-gray-200 dark:divide-gray-700">
+                                <!-- Application rows will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Pagination controls -->
+                <div class="flex items-center justify-between mt-4">
+                    <div class="text-sm text-dashboard-text-secondary">
+                        <span id="pagination-info">Showing 1-10 of 20</span>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="prev-page" class="px-3 py-1 rounded-md bg-white dark:bg-dashboard-card-bg border border-dashboard-border dark:border-dashboard-border text-dashboard-text hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Previous
+                        </button>
+                        <button id="next-page" class="px-3 py-1 rounded-md bg-white dark:bg-dashboard-card-bg border border-dashboard-border dark:border-dashboard-border text-dashboard-text hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Application details modal -->
+            <div id="application-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+                <div id="application-modal-backdrop" class="absolute inset-0 bg-black opacity-30"></div>
+                <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full mx-4 transform transition-all max-h-[90vh] overflow-y-auto">
+                    <div class="p-6">
+                        <button id="application-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                        
+                        <div class="flex items-center mb-6">
+                            <div id="applicant-avatar" class="w-16 h-16 mr-4 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                <img id="applicant-img" class="w-full h-full object-cover hidden" alt="Applicant">
+                                <div id="applicant-initials" class="text-2xl font-bold text-gray-500"></div>
+                            </div>
+                            <div>
+                                <h2 id="applicant-name" class="text-2xl font-bold">Applicant Name</h2>
+                                <p id="applicant-email" class="text-dashboard-text-secondary">applicant@example.com</p>
+                                <div class="mt-1">
+                                    <span id="application-job-title" class="font-medium">Job Title</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h3 class="text-sm font-medium text-dashboard-text-secondary mb-1">Application Date</h3>
+                                <p id="application-date" class="font-medium">October 1, 2023</p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-sm font-medium text-dashboard-text-secondary mb-1">Current Status</h3>
+                                <div class="flex items-center">
+                                    <span id="status-dot" class="inline-block w-3 h-3 rounded-full mr-2"></span>
+                                    <span id="application-status" class="font-medium">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Cover Letter</h3>
+                            <div id="application-cover-letter" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-dashboard-text">
+                                Cover letter content will appear here.
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Resume</h3>
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-dashboard-text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <a id="application-resume" href="#" class="text-theme-primary hover:underline" target="_blank">View Resume</a>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Add Notes</h3>
+                            <textarea id="notes-input" rows="3" class="w-full rounded-lg border border-dashboard-border dark:border-dashboard-border bg-white dark:bg-gray-700 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-theme-primary" placeholder="Add private notes about this applicant..."></textarea>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Update Status</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="status-update-btn px-4 py-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition" data-status="pending">
+                                    Pending
+                                </button>
+                                <button class="status-update-btn px-4 py-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition" data-status="reviewed">
+                                    Reviewed
+                                </button>
+                                <button class="status-update-btn px-4 py-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/30 hover:bg-purple-200 dark:hover:bg-purple-900/50 transition" data-status="shortlisted">
+                                    Shortlisted
+                                </button>
+                                <button class="status-update-btn px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800/30 hover:bg-green-200 dark:hover:bg-green-900/50 transition" data-status="accepted">
+                                    Accept
+                                </button>
+                                <button class="status-update-btn px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800/30 hover:bg-red-200 dark:hover:bg-red-900/50 transition" data-status="rejected">
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 text-right">
+                            <button id="email-applicant" class="bg-blue-500 text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-600 transition mr-2">
+                                Email Applicant
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer will be loaded here -->
+    <div id="footer-placeholder"></div>
+
+    <script src="../../js/main.js"></script>
+    <script src="../../js/components.js"></script>
+    <script src="../../js/models.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const jobFilter = document.getElementById('job-filter');
+            const statusFilter = document.getElementById('status-filter');
+            const searchInput = document.getElementById('search-input');
+            const applicationsTableBody = document.getElementById('applications-table-body');
+            const loadingState = document.getElementById('loading-state');
+            const errorState = document.getElementById('error-state');
+            const errorMessage = document.getElementById('error-message');
+            const emptyState = document.getElementById('empty-state');
+            const noResults = document.getElementById('no-results');
+            const resetFiltersBtn = document.getElementById('reset-filters');
+            const applicationsList = document.getElementById('applications-list');
+            
+            // Stats elements
+            const totalCount = document.getElementById('total-count');
+            const pendingCount = document.getElementById('pending-count');
+            const reviewedCount = document.getElementById('reviewed-count');
+            const acceptedCount = document.getElementById('accepted-count');
+            const rejectedCount = document.getElementById('rejected-count');
+            
+            // Pagination elements
+            const paginationInfo = document.getElementById('pagination-info');
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            
+            // Modal elements
+            const applicationModal = document.getElementById('application-modal');
+            const applicationModalClose = document.getElementById('application-modal-close');
+            const applicationModalBackdrop = document.getElementById('application-modal-backdrop');
+            const applicantName = document.getElementById('applicant-name');
+            const applicantEmail = document.getElementById('applicant-email');
+            const applicationJobTitle = document.getElementById('application-job-title');
+            const applicationDate = document.getElementById('application-date');
+            const applicationStatus = document.getElementById('application-status');
+            const statusDot = document.getElementById('status-dot');
+            const applicationCoverLetter = document.getElementById('application-cover-letter');
+            const applicationResume = document.getElementById('application-resume');
+            const notesInput = document.getElementById('notes-input');
+            const statusUpdateBtns = document.querySelectorAll('.status-update-btn');
+            const applicantImg = document.getElementById('applicant-img');
+            const applicantInitials = document.getElementById('applicant-initials');
+            const emailApplicant = document.getElementById('email-applicant');
+            
+            // State variables
+            let applications = [];
+            let filteredApplications = [];
+            let jobs = [];
+            let currentJobFilter = 'all';
+            let currentStatusFilter = 'all';
+            let searchQuery = '';
+            let currentPage = 1;
+            let itemsPerPage = 10;
+            let currentApplicationId = null;
+            
+            // Initialize
+            loadApplications();
+            
+            // Add event listeners
+            jobFilter.addEventListener('change', function() {
+                currentJobFilter = this.value;
+                currentPage = 1;
+                filterApplications();
+            });
+            
+            statusFilter.addEventListener('change', function() {
+                currentStatusFilter = this.value;
+                currentPage = 1;
+                filterApplications();
+            });
+            
+            searchInput.addEventListener('input', debounce(function() {
+                searchQuery = this.value.toLowerCase();
+                currentPage = 1;
+                filterApplications();
+            }, 300));
+            
+            resetFiltersBtn.addEventListener('click', function() {
+                // Reset all filters and search
+                jobFilter.value = 'all';
+                statusFilter.value = 'all';
+                searchInput.value = '';
+                
+                currentJobFilter = 'all';
+                currentStatusFilter = 'all';
+                searchQuery = '';
+                currentPage = 1;
+                
+                filterApplications();
+            });
+            
+            // Pagination event listeners
+            prevPageBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayApplications();
+                }
+            });
+            
+            nextPageBtn.addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayApplications();
+                }
+            });
+            
+            // Modal event listeners
+            applicationModalClose.addEventListener('click', closeModal);
+            applicationModalBackdrop.addEventListener('click', closeModal);
+            
+            emailApplicant.addEventListener('click', function() {
+                const app = applications.find(a => a.application_id == currentApplicationId);
+                if (app) {
+                    window.location.href = `mailto:${app.email}?subject=Regarding your application for ${app.job_title}`;
+                }
+            });
+            
+            // Status update buttons
+            statusUpdateBtns.forEach(button => {
+                button.addEventListener('click', function() {
+                    const newStatus = this.getAttribute('data-status');
+                    updateApplicationStatus(currentApplicationId, newStatus);
+                });
+            });
+            
+            // Fetch applications from server
+            function loadApplications() {
+                showLoadingState();
+                
+                fetch('../api/organization/applications.php')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || 'Unknown error occurred');
+                        }
+                        
+                        applications = data.applications || [];
+                        jobs = data.jobs || [];
+                        updateStats(data.stats);
+                        populateJobFilter();
+                        
+                        filteredApplications = [...applications];
+                        hideLoadingState();
+                        
+                        if (applications.length === 0) {
+                            showEmptyState();
+                        } else {
+                            displayApplications();
+                            applicationsList.classList.remove('hidden');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching applications:', err);
+                        hideLoadingState();
+                        showErrorState(err.message);
+                    });
+            }
+            
+            // Populate job filter dropdown
+            function populateJobFilter() {
+                jobFilter.innerHTML = '<option value="all">All Job Offers</option>';
+                
+                jobs.forEach(job => {
+                    const option = document.createElement('option');
+                    option.value = job.job_offer_id;
+                    option.textContent = job.title;
+                    jobFilter.appendChild(option);
+                });
+            }
+            
+            // Update stats display
+            function updateStats(stats) {
+                totalCount.textContent = stats.total || 0;
+                pendingCount.textContent = stats.pending || 0;
+                reviewedCount.textContent = stats.reviewed || 0;
+                acceptedCount.textContent = stats.accepted || 0;
+                rejectedCount.textContent = stats.rejected || 0;
+            }
+            
+            // Filter applications based on selected filters and search
+            function filterApplications() {
+                filteredApplications = applications.filter(app => {
+                    // Filter by job
+                    const jobMatch = currentJobFilter === 'all' || app.job_offer_id == currentJobFilter;
+                    
+                    // Filter by status
+                    const statusMatch = currentStatusFilter === 'all' || app.status === currentStatusFilter;
+                    
+                    // Filter by search query
+                    const searchMatch = !searchQuery || 
+                                       app.first_name.toLowerCase().includes(searchQuery) || 
+                                       app.last_name.toLowerCase().includes(searchQuery) || 
+                                       app.email.toLowerCase().includes(searchQuery) ||
+                                       app.job_title.toLowerCase().includes(searchQuery);
+                    
+                    return jobMatch && statusMatch && searchMatch;
+                });
+                
+                // Reset to first page when filtering
+                currentPage = 1;
+                
+                // Update UI
+                if (filteredApplications.length === 0) {
+                    applicationsList.classList.add('hidden');
+                    if (applications.length === 0) {
+                        showEmptyState();
+                        noResults.classList.add('hidden');
+                    } else {
+                        emptyState.classList.add('hidden');
+                        noResults.classList.remove('hidden');
+                    }
+                } else {
+                    noResults.classList.add('hidden');
+                    emptyState.classList.add('hidden');
+                    applicationsList.classList.remove('hidden');
+                    displayApplications();
+                }
+            }
+            
+            // Display paginated applications in table
+            function displayApplications() {
+                // Clear table
+                applicationsTableBody.innerHTML = '';
+                
+                // Calculate pagination
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, filteredApplications.length);
+                const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+                
+                // Update pagination info
+                paginationInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${filteredApplications.length}`;
+                
+                // Enable/disable pagination buttons
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages;
+                
+                // Get current page of applications
+                const pageApplications = filteredApplications.slice(startIndex, endIndex);
+                
+                // Create table rows
+                pageApplications.forEach(app => {
+                    const row = createApplicationRow(app);
+                    applicationsTableBody.appendChild(row);
+                });
+                
+                // Add click event listeners to view buttons
+                document.querySelectorAll('.view-application-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const appId = this.getAttribute('data-id');
+                        const application = applications.find(a => a.application_id == appId);
+                        if (application) {
+                            showApplicationDetails(application);
+                        }
+                    });
+                });
+            }
+            
+            // Create application table row
+            function createApplicationRow(app) {
+                const row = document.createElement('tr');
+                
+                // Format date
+                const appDate = new Date(app.application_date);
+                const formattedDate = new Intl.DateTimeFormat('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                }).format(appDate);
+                
+                // Status colors and labels
+                const statusColors = {
+                    'pending': 'bg-yellow-500',
+                    'reviewed': 'bg-blue-500',
+                    'shortlisted': 'bg-purple-500',
+                    'accepted': 'bg-green-500',
+                    'rejected': 'bg-red-500'
+                };
+                
+                const statusLabels = {
+                    'pending': 'Pending',
+                    'reviewed': 'Reviewed',
+                    'shortlisted': 'Shortlisted',
+                    'accepted': 'Accepted',
+                    'rejected': 'Rejected'
+                };
+                
+                // Create initials
+                let initials = '';
+                if (app.first_name) {
+                    initials += app.first_name.charAt(0).toUpperCase();
+                }
+                if (app.last_name) {
+                    initials += app.last_name.charAt(0).toUpperCase();
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                ${app.profile_picture ? 
+                                    `<img src="${app.profile_picture}" class="w-full h-full object-cover" alt="${app.first_name} ${app.last_name}">` :
+                                    `<div class="text-md font-semibold text-gray-500">${initials}</div>`
+                                }
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium">${app.first_name} ${app.last_name}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${app.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium">${app.job_title}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">${formattedDate}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-2.5 h-2.5 rounded-full ${statusColors[app.status]} mr-2"></div>
+                            <span class="text-sm font-medium">${statusLabels[app.status]}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-theme-primary hover:text-theme-primary-hover view-application-btn" data-id="${app.application_id}">
+                            View Details
+                        </button>
+                    </td>
+                `;
+                
+                return row;
+            }
+            
+            // Show application details in modal
+            function showApplicationDetails(app) {
+                // Store current application ID
+                currentApplicationId = app.application_id;
+                
+                // Format date
+                const appDate = new Date(app.application_date);
+                const formattedDate = new Intl.DateTimeFormat('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }).format(appDate);
+                
+                // Status colors and labels
+                const statusColors = {
+                    'pending': 'bg-yellow-500',
+                    'reviewed': 'bg-blue-500',
+                    'shortlisted': 'bg-purple-500',
+                    'accepted': 'bg-green-500',
+                    'rejected': 'bg-red-500'
+                };
+                
+                const statusLabels = {
+                    'pending': 'Pending',
+                    'reviewed': 'Reviewed',
+                    'shortlisted': 'Shortlisted',
+                    'accepted': 'Accepted',
+                    'rejected': 'Rejected'
+                };
+                
+                // Set modal content
+                applicantName.textContent = `${app.first_name} ${app.last_name}`;
+                applicantEmail.textContent = app.email;
+                applicationJobTitle.textContent = app.job_title;
+                applicationDate.textContent = formattedDate;
+                applicationStatus.textContent = statusLabels[app.status];
+                statusDot.className = `inline-block w-3 h-3 rounded-full mr-2 ${statusColors[app.status]}`;
+                applicationCoverLetter.textContent = app.cover_letter || 'No cover letter provided.';
+                applicationResume.href = `../${app.resume_path}`;
+                notesInput.value = app.notes || '';
+                
+                // Highlight the current status button
+                statusUpdateBtns.forEach(button => {
+                    const status = button.getAttribute('data-status');
+                    if (status === app.status) {
+                        button.classList.add('ring-2', 'ring-offset-2');
+                    } else {
+                        button.classList.remove('ring-2', 'ring-offset-2');
+                    }
+                });
+                
+                // Set applicant image or initials
+                if (app.profile_picture) {
+                    applicantImg.src = app.profile_picture;
+                    applicantImg.classList.remove('hidden');
+                    applicantInitials.classList.add('hidden');
+                } else {
+                    applicantImg.classList.add('hidden');
+                    applicantInitials.classList.remove('hidden');
+                    
+                    // Create initials
+                    let initials = '';
+                    if (app.first_name) {
+                        initials += app.first_name.charAt(0).toUpperCase();
+                    }
+                    if (app.last_name) {
+                        initials += app.last_name.charAt(0).toUpperCase();
+                    }
+                    
+                    applicantInitials.textContent = initials;
+                }
+                
+                // Show modal
+                applicationModal.classList.remove('hidden');
+            }
+            
+            // Close modal
+            function closeModal() {
+                applicationModal.classList.add('hidden');
+                currentApplicationId = null;
+            }
+            
+            // Update application status
+           // Update application status
+function updateApplicationStatus(applicationId, newStatus) {
+    if (!applicationId) return;
+    
+    // Show loading indicator
+    const statusButton = document.querySelector(`.status-update-btn[data-status="${newStatus}"]`);
+    const originalText = statusButton.textContent;
+    statusButton.innerHTML = '<span class="inline-block animate-spin mr-2">⟳</span> Updating...';
+    statusButton.disabled = true;
+    
+    // Prepare the data
+    const updateData = {
+        application_id: applicationId,
+        status: newStatus,
+        notes: notesInput.value.trim()
+    };
+    
+    // Send update to server
+    fetch('../api/organization/update-application.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Reset button
+        statusButton.innerHTML = originalText;
+        statusButton.disabled = false;
+        
+        if (data.success) {
+            // Update local application data
+            const appIndex = applications.findIndex(app => app.application_id == applicationId);
+            if (appIndex !== -1) {
+                applications[appIndex].status = newStatus;
+                applications[appIndex].notes = notesInput.value.trim();
+                
+                // Update stats
+                loadApplications(); // Refresh data and stats
+                
+                // Show success message
+                showSuccessModal('Status Updated', `Application status has been updated to ${newStatus}.`);
+                
+                // Close modal
+                closeModal();
+            }
+        } else {
+            showErrorModal('Update Failed', data.message || 'Failed to update application status.');
+        }
+    })
+    .catch(error => {
+        console.error('Error updating application status:', error);
+        statusButton.innerHTML = originalText;
+        statusButton.disabled = false;
+        showErrorModal('Update Failed', 'An unexpected error occurred while updating the application status.');
+    });
+}
+        });
+        </script>
+    <script src="../../js/main.js"></script>
+    <script src="../../js/components.js"></script>
+    <script src="../../js/models.js"></script>
