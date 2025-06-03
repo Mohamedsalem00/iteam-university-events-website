@@ -65,15 +65,17 @@ function getApplications($conn, $organizationId) {
         $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;
         $offset = ($page - 1) * $limit;
         
-        $jobId = isset($_GET['job_id']) ? $_GET['job_id'] : null;
-        $status = isset($_GET['status']) ? $_GET['status'] : null;
-        $search = isset($_GET['search']) ? $_GET['search'] : null;
+        $jobId = isset($_GET['job_id']) && $_GET['job_id'] !== 'undefined' && $_GET['job_id'] !== 'null' 
+            ? intval($_GET['job_id']) 
+            : null;
+        $status = isset($_GET['status']) ? $_GET['status'] : '';
+        $search = isset($_GET['search']) ? $_GET['search'] : '';
         
         // Build query conditions
         $conditions = ["jo.organization_id = :organization_id"];
         $params = [':organization_id' => $organizationId];
         
-        if ($jobId && $jobId !== 'all') {
+        if ($jobId) {
             $conditions[] = "ja.job_offer_id = :job_id";
             $params[':job_id'] = $jobId;
         }
