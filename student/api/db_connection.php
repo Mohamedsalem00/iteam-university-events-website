@@ -4,7 +4,7 @@
 // Database credentials - keep these secure
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root'); 
-define('DB_PASSWORD', ''); 
+define('DB_PASSWORD', 'root'); 
 define('DB_NAME', 'event_management'); 
 
 

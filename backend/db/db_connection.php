@@ -4,7 +4,7 @@
 // Database credentials - keep these secure
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root'); // Change to your MySQL username
-define('DB_PASSWORD', ''); // Change to your MySQL password
+define('DB_PASSWORD', 'root'); // Change to your MySQL password
 define('DB_NAME', 'event_management');
 
 
